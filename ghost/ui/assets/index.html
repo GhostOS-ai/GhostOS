@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GhostOS</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== MODE 1: FLOATING GHOST PET ==================== -->
+  <div id="pet-view" class="active">
+    <div class="drag-zone pywebview-drag-region" title="Drag Casper anywhere on screen"></div>
+    
+    <!-- Speech Bubble -->
+    <div id="speech-bubble" class="speech-bubble">
+      <span id="speech-text">Boo! Drag files here to feed me, or click to open HUD!</span>
+    </div>
+
+    <!-- Casper SVG Character -->
+    <div id="ghost-wrapper" class="ghost-wrapper" onclick="toggleHudMode('hud')">
+      <svg id="ghost-svg" class="ghost-svg" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
+        <!-- Glow filter -->
+        <defs>
+          <filter id="ghost-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <linearGradient id="ghost-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+            <stop offset="60%" stop-color="#d8f4ff" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#9bf8f5" stop-opacity="0.7" />
+          </linearGradient>
+          <linearGradient id="aura-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.4" />
+            <stop offset="100%" stop-color="#4facfe" stop-opacity="0.1" />
+          </linearGradient>
+        </defs>
+
+        <!-- Outer Aura -->
+        <ellipse id="aura" cx="80" cy="85" rx="60" ry="70" fill="url(#aura-grad)" filter="url(#ghost-glow)" />
+
+        <!-- Ghost Body -->
+        <path id="ghost-body" class="ghost-body" d="
+          M 40 80
+          C 40 40, 55 20, 80 20
+          C 105 20, 120 40, 120 80
+          C 120 120, 125 145, 115 150
+          C 105 155, 100 140, 90 145
+          C 80 150, 75 155, 65 145
+          C 55 140, 50 155, 45 150
+          C 35 145, 40 120, 40 80 Z
+        " fill="url(#ghost-grad)" filter="url(#ghost-glow)" />
+
+        <!-- Ghost Left Eye -->
+        <ellipse id="eye-left" class="eye" cx="65" cy="65" rx="6" ry="8" fill="#1b2a4a" />
+        <circle id="eye-pupil-left" cx="67" cy="63" r="2.5" fill="#ffffff" />
+
+        <!-- Ghost Right Eye -->
+        <ellipse id="eye-right" class="eye" cx="95" cy="65" rx="6" ry="8" fill="#1b2a4a" />
+        <circle id="eye-pupil-right" cx="97" cy="63" r="2.5" fill="#ffffff" />
+
+        <!-- Cheeks Blush -->
+        <ellipse cx="56" cy="76" rx="4" ry="2.5" fill="#ff9cb0" opacity="0.6" />
+        <ellipse cx="104" cy="76" rx="4" ry="2.5" fill="#ff9cb0" opacity="0.6" />
+
+        <!-- Ghost Mouth (switches between smile and open eating mouth) -->
+        <path id="mouth" class="mouth" d="M 73 80 Q 80 88 87 80" stroke="#1b2a4a" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+        <!-- Headphones Accessory (Visible during listening mode) -->
+        <g id="headphones" class="accessory" style="display: none;">
+          <path d="M 50 65 A 35 35 0 0 1 110 65" fill="none" stroke="#00f2fe" stroke-width="4" stroke-linecap="round" />
+          <rect x="44" y="60" width="8" height="18" rx="4" fill="#00f2fe" />
+          <rect x="108" y="60" width="8" height="18" rx="4" fill="#00f2fe" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- Drop target overlay -->
+    <div id="drop-indicator" class="drop-indicator">
+      <span>🍕 Feed Me Files! (RAG)</span>
+    </div>
+
+    <!-- Mini Bottom Controls -->
+    <div class="pet-bar">
+      <span class="status-dot online"></span>
+      <span id="pet-status-label" class="pet-status">GhostOS Offline Ready</span>
+      <button class="expand-btn" onclick="toggleHudMode('hud')" title="Open HUD (Command Bar)">💬</button>
+    </div>
+  </div>
+
+
+  <!-- ==================== MODE 2: QUICK HUD (RAYCAST/SPOTLIGHT STYLE) ==================== -->
+  <div id="hud-view" class="hidden">
+    <!-- Top Bar with draggable header -->
+    <div class="hud-header pywebview-drag-region">
+      <div class="hud-brand">
+        <span class="brand-ghost">👻</span>
+        <span class="brand-title">GhostOS HUD</span>
+        <span class="brand-tag">Offline Copilot</span>
+      </div>
+      <div class="hud-actions no-drag">
+        <button class="icon-btn" onclick="toggleHudMode('pet')" title="Return to Floating Pet">◀ Pet</button>
+        <button class="icon-btn" onclick="minimizeWindow()" title="Minimize">─</button>
+      </div>
+    </div>
+
+    <!-- Omnibar Input -->
+    <div class="omnibar-container">
+      <span class="omnibar-icon">🔮</span>
+      <input 
+        id="hud-input" 
+        class="omnibar-input" 
+        type="text" 
+        placeholder="Ask Casper anything, or /screen, /rag, /exec, /status..." 
+        autocomplete="off"
+        autofocus
+      />
+      <button id="send-btn" class="send-btn" onclick="handleSend()">Send ↵</button>
+    </div>
+
+    <!-- Navigation Pills -->
+    <div class="hud-nav">
+      <button class="nav-pill active" onclick="switchTab('chat')">💬 Chat</button>
+      <button class="nav-pill" onclick="switchTab('screen')">👁️ Screen Peek</button>
+      <button class="nav-pill" onclick="switchTab('autopilot')">⚡ Autopilot</button>
+      <button class="nav-pill" onclick="switchTab('rag')">📚 Knowledge</button>
+      <button class="nav-pill" onclick="switchTab('vram')">🧠 VRAM Juggler</button>
+    </div>
+
+    <!-- Content Panels -->
+    <div class="hud-body">
+      <!-- Chat Tab -->
+      <div id="tab-chat" class="tab-pane active">
+        <div id="chat-messages" class="chat-messages">
+          <div class="msg ghost">
+            <div class="msg-avatar">👻</div>
+            <div class="msg-bubble">
+              <b>Boo! Welcome to GhostOS.</b><br>
+              I'm running 100% locally on your machine with zero cloud leaks.
+              Ask me anything, drag files onto Casper, or explore the tabs above!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen Peek Tab -->
+      <div id="tab-screen" class="tab-pane">
+        <div class="pane-header">
+          <h3>👁️ Active Screen Inspector</h3>
+          <button class="action-btn" onclick="runScreenPeek()">Capture & Inspect</button>
+        </div>
+        <div id="screen-result" class="result-box">
+          <p class="placeholder-text">Click "Capture & Inspect" to analyze the current active window.</p>
+        </div>
+      </div>
+
+      <!-- Autopilot Tab -->
+      <div id="tab-autopilot" class="tab-pane">
+        <div class="pane-header">
+          <h3>⚡ Safe Terminal Autopilot</h3>
+        </div>
+        <div class="autopilot-box">
+          <div class="input-row">
+            <input id="pilot-input" type="text" placeholder="e.g., find all files bigger than 100MB" />
+            <button class="action-btn" onclick="generateCommand()">Plan Command</button>
+          </div>
+          <div id="pilot-result" class="pilot-card hidden">
+            <div class="pilot-badge" id="pilot-badge">🟢 SAFE</div>
+            <pre><code id="pilot-cmd">find . -size +100M</code></pre>
+            <p id="pilot-desc" class="pilot-desc"></p>
+            <div class="pilot-actions">
+              <button class="run-btn" id="pilot-run-btn" onclick="runGeneratedCommand()">Run in Terminal ⚡</button>
+              <button class="copy-btn" onclick="copyCommand()">Copy</button>
+            </div>
+            <div id="pilot-output-box" class="output-box hidden">
+              <h4>Execution Output:</h4>
+              <pre><code id="pilot-stdout"></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RAG Knowledge Tab -->
+      <div id="tab-rag" class="tab-pane">
+        <div class="pane-header">
+          <h3>📚 Zero-DB Local Knowledge Base</h3>
+          <button class="action-btn" onclick="refreshKnowledgeDocs()">Refresh List</button>
+        </div>
+        <p class="hint-text">💡 Drag & drop any PDF, code file, or notes onto Casper to index them here instantly.</p>
+        <div id="rag-doc-list" class="doc-list">
+          <div class="doc-item empty">No files indexed yet. Feed some files to Casper!</div>
+        </div>
+      </div>
+
+      <!-- VRAM Juggler Tab -->
+      <div id="tab-vram" class="tab-pane">
+        <div class="pane-header">
+          <h3>🧠 VRAM Juggler Live Diagnostics</h3>
+          <button class="action-btn" onclick="refreshVramStats()">Refresh</button>
+        </div>
+        <div class="vram-grid">
+          <div class="stat-card">
+            <span class="stat-num" id="stat-active-vram">0 MB</span>
+            <span class="stat-label">Active Model VRAM</span>
+          </div>
+          <div class="stat-card highlight">
+            <span class="stat-num" id="stat-saved-vram">+4,600 MB</span>
+            <span class="stat-label">VRAM Saved via Swapping</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num" id="stat-swaps">0</span>
+            <span class="stat-label">Total Swaps Executed</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num" id="stat-ram-percent">--%</span>
+            <span class="stat-label">System RAM Used</span>
+          </div>
+        </div>
+        <div class="juggler-explainer">
+          <p><b>How it works:</b> Instead of loading LLM + Vision + Whisper concurrently (which crashes on 4-8GB RAM), the Juggler hot-swaps models on demand within 150ms and puts them to sleep after idle periods.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="ghost.js"></script>
+</body>
+</html>

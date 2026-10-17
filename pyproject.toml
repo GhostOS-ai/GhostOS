@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ghostos"
+version = "0.1.0"
+authors = [
+  { name = "GhostOS Contributors" },
+]
+description = "The Invisible, Featherweight, Offline Desktop AI Companion & Copilot"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Desktop Environment",
+]
+dependencies = [
+    "rich>=13.0.0",
+    "pywebview>=5.0.0",
+    "psutil>=5.9.0",
+    "pypdf>=4.0.0",
+    "python-docx>=1.0.0",
+    "Pillow>=10.0.0",
+]
+
+[project.scripts]
+ghost = "ghost.cli.main:main"
+
+[project.urls]
+"Homepage" = "https://github.com/your-username/ghostos"
+"Bug Tracker" = "https://github.com/your-username/ghostos/issues"
