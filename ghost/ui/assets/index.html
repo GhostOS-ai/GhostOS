@@ -135,16 +135,20 @@
         id="hud-input" 
         class="omnibar-input" 
         type="text" 
-        placeholder="Ask Casper anything, or /clip, /time, /screen, /rag, /exec..." 
+        placeholder="Ask Casper, or speak, or 'найди pdf на рабочем столе', 'погода в Алматы'..." 
         autocomplete="off"
         autofocus
       />
+      <button id="mic-btn" class="icon-btn" onclick="toggleDictation()" title="Voice Dictation (Speech-to-Text)">🎙️</button>
+      <button id="voice-toggle-btn" class="icon-btn" onclick="toggleVoice()" title="Toggle Voice Responses (TTS)">🔇 Voice</button>
       <button id="send-btn" class="send-btn" onclick="handleSend()">Send ↵</button>
     </div>
 
     <!-- Navigation Pills -->
     <div class="hud-nav">
       <button class="nav-pill active" onclick="switchTab('chat')">💬 Chat</button>
+      <button class="nav-pill" onclick="switchTab('agent')">🤖 OS Agent</button>
+      <button class="nav-pill" onclick="switchTab('web')">🌐 Web Search</button>
       <button class="nav-pill" onclick="switchTab('clipboard')">📋 Clipboard</button>
       <button class="nav-pill" onclick="switchTab('screen')">👁️ Screen Peek</button>
       <button class="nav-pill" onclick="switchTab('autopilot')">⚡ Autopilot</button>
@@ -165,6 +169,38 @@
               Running in <span id="welcome-mode" style="color:var(--accent-cyan);">Adaptive Eco Mode</span> on your Mac with zero cloud leaks.<br>
               Try double-copying anything or click <b>Clipboard</b> to inspect it!
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OS Agent Tab -->
+      <div id="tab-agent" class="tab-pane">
+        <div class="pane-header">
+          <h3>🤖 Ghost Desktop Agent (Apple Spotlight mdfind)</h3>
+        </div>
+        <div class="autopilot-box">
+          <div class="input-row">
+            <input id="agent-input" type="text" placeholder="e.g., найди все pdf на рабочем столе, создай папку Project_X..." />
+            <button class="action-btn" onclick="runAgentTask()">Execute Task</button>
+          </div>
+          <div id="agent-result" class="pilot-card hidden">
+            <div id="agent-output" style="font-size: 13px; line-height: 1.5;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Web Search Tab -->
+      <div id="tab-web" class="tab-pane">
+        <div class="pane-header">
+          <h3>🌐 Live Web Search (Zero Cloud Bloat)</h3>
+        </div>
+        <div class="autopilot-box">
+          <div class="input-row">
+            <input id="web-input" type="text" placeholder="e.g., погода в Алматы, курс доллара, Python 3.13..." />
+            <button class="action-btn" onclick="runWebSearch()">Search Web</button>
+          </div>
+          <div id="web-result" class="pilot-card hidden">
+            <div id="web-output" style="font-size: 13px; line-height: 1.5;"></div>
           </div>
         </div>
       </div>

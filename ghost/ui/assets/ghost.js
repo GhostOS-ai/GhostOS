@@ -552,3 +552,107 @@ async function refreshKnowledgeDocs() {
     `).join("");
   }
 }
+
+// ==================== VOICE & DICTATION ====================
+let isVoiceEnabled = false;
+let recognition = null;
+let isDictating = false;
+
+async function toggleVoice() {
+  const btn = document.getElementById("voice-toggle-btn");
+  if (window.pywebview && window.pywebview.api) {
+    const res = await window.pywebview.api.toggle_voice();
+    isVoiceEnabled = res.voice_enabled;
+    btn.innerText = isVoiceEnabled ? "🔊 Voice ON" : "🔇 Voice OFF";
+    btn.style.color = isVoiceEnabled ? "var(--accent-cyan)" : "inherit";
+  }
+}
+
+function toggleDictation() {
+  const micBtn = document.getElementById("mic-btn");
+  const input = document.getElementById("hud-input");
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Speech recognition is not supported in this WebKit window. Type your message below.");
+    return;
+  }
+
+  if (isDictating) {
+    if (recognition) recognition.stop();
+    isDictating = false;
+    micBtn.innerText = "🎙️";
+    setGhostMood("idle");
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "ru-RU"; // or auto
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    isDictating = true;
+    micBtn.innerText = "🔴 Listening...";
+    setGhostMood("listening");
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    input.value = transcript;
+    micBtn.innerText = "🎙️";
+    isDictating = false;
+    setGhostMood("idle");
+    handleSend();
+  };
+
+  recognition.onerror = (event) => {
+    console.log("Speech recognition error:", event.error);
+    micBtn.innerText = "🎙️";
+    isDictating = false;
+    setGhostMood("idle");
+  };
+
+  recognition.onend = () => {
+    micBtn.innerText = "🎙️";
+    isDictating = false;
+    setGhostMood("idle");
+  };
+
+  recognition.start();
+}
+
+// ==================== OS AGENT ====================
+async function runAgentTask() {
+  const input = document.getElementById("agent-input");
+  const task = input.value.trim();
+  if (!task) return;
+
+  const resultCard = document.getElementById("agent-result");
+  const outputEl = document.getElementById("agent-output");
+  resultCard.classList.remove("hidden");
+  outputEl.innerHTML = "Executing OS Agent task via Apple Spotlight / System Calls...";
+
+  if (window.pywebview && window.pywebview.api) {
+    const res = await window.pywebview.api.execute_agent_task(task);
+    outputEl.innerHTML = formatMarkdown(res.output || "Done.");
+    refreshRpg();
+  }
+}
+
+// ==================== WEB SEARCH ====================
+async function runWebSearch() {
+  const input = document.getElementById("web-input");
+  const query = input.value.trim();
+  if (!query) return;
+
+  const resultCard = document.getElementById("web-result");
+  const outputEl = document.getElementById("web-output");
+  resultCard.classList.remove("hidden");
+  outputEl.innerHTML = "Fetching live web information with zero memory bloat...";
+
+  if (window.pywebview && window.pywebview.api) {
+    const res = await window.pywebview.api.search_web(query);
+    outputEl.innerHTML = formatMarkdown(res.content || "No results found.");
+  }
+}

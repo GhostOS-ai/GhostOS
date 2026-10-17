@@ -154,3 +154,30 @@ class GhostBridgeAPI:
         from ghost.core.chameleon import MemoryChameleon
         MemoryChameleon.set_override(mode if mode != "auto" else None)
         return MemoryChameleon.get_profile()
+
+    # ==================== VOICE, AGENT & WEB SEARCH ====================
+    def toggle_voice(self, state: Optional[bool] = None) -> Dict[str, Any]:
+        """Toggle native text-to-speech output."""
+        from ghost.core.voice import VoiceEngine
+        new_state = VoiceEngine().toggle(state)
+        return {"voice_enabled": new_state}
+
+    def speak_text(self, text: str) -> Dict[str, Any]:
+        """Speak arbitrary text aloud using native say synthesizer."""
+        from ghost.core.voice import VoiceEngine
+        success = VoiceEngine().speak(text)
+        return {"success": success}
+
+    def execute_agent_task(self, prompt: str) -> Dict[str, Any]:
+        """Execute a desktop OS file management task."""
+        from ghost.core.agent import GhostOSAgent
+        from ghost.core.rpg import CasperRPG
+        res = GhostOSAgent.execute_intent(prompt)
+        if res.get("handled"):
+            CasperRPG.add_xp(25, "exec")
+        return res
+
+    def search_web(self, query: str) -> Dict[str, Any]:
+        """Fetch live web search context."""
+        from ghost.core.web_search import WebSearchEngine
+        return WebSearchEngine.search_web(query)

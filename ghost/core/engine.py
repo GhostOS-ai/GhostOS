@@ -4,6 +4,7 @@ Multi-backend manager supporting Ollama, llama.cpp (Metal/GGUF), and built-in of
 Seamlessly integrated with the VRAM Juggler for zero-OOM execution.
 """
 import os
+import re
 import json
 import urllib.request
 import urllib.error
@@ -84,6 +85,28 @@ class GhostEngine:
         from ghost.core.vacuum import ContextVacuum
         from ghost.core.chameleon import MemoryChameleon
         from ghost.core.rpg import CasperRPG
+        from ghost.core.agent import GhostOSAgent
+        from ghost.core.web_search import WebSearchEngine
+        from ghost.core.voice import VoiceEngine
+
+        voice = VoiceEngine()
+
+        # 1. OS Agent tasks (search files on disk, create folders, move screenshots)
+        agent_res = GhostOSAgent.execute_intent(prompt)
+        if agent_res.get("handled"):
+            reply = agent_res["output"]
+            if voice.is_enabled:
+                voice.speak(reply)
+            return reply
+
+        # 2. Live Web Search (weather, currency, Wikipedia facts, web queries)
+        web_context = ""
+        p_lower = prompt.lower()
+        if any(w in p_lower for w in ["погода", "weather", "курс", "доллар", "валют", "найди в интернете", "кто такой", "что такое", "/web"]):
+            search_query = re.sub(r'^(найди в интернете|погугли|/web)\s*', '', prompt).strip()
+            web_res = WebSearchEngine.search_web(search_query)
+            if web_res and web_res.get("content"):
+                web_context = f"\n--- Live Web Context ({web_res.get('source', 'Internet')}) ---\n{web_res['content']}\n"
 
         profile = MemoryChameleon.get_profile()
         max_chars = profile["context_window"] * 4
@@ -93,8 +116,10 @@ class GhostEngine:
 
         # Construct full prompt
         full_context = ""
+        if web_context:
+            full_context += web_context
         if context:
-            compact_ctx, stats = ContextVacuum.squeeze(context, max_chars=int(max_chars * 0.6))
+            compact_ctx, stats = ContextVacuum.squeeze(context, max_chars=int(max_chars * 0.5))
             full_context += f"\n--- Local Document Context (RAG) ---\n{compact_ctx}\n"
         if screen_context:
             full_context += f"\n--- Active Screen Context ---\n{screen_context}\n"
@@ -106,12 +131,19 @@ class GhostEngine:
         # Award RPG XP for using Casper
         CasperRPG.add_xp(10, "ask")
 
+        reply = ""
         if self.backend == "ollama":
-            return self._query_ollama(augmented_prompt)
+            reply = self._query_ollama(augmented_prompt)
         elif self.backend == "llamacpp":
-            return self._query_llamacpp(augmented_prompt)
+            reply = self._query_llamacpp(augmented_prompt)
         else:
-            return self._query_mock(prompt, context=context, screen_context=screen_context)
+            reply = self._query_mock(prompt, context=context or web_context, screen_context=screen_context)
+
+        # 3. Voice Output if enabled
+        if voice.is_enabled:
+            voice.speak(reply)
+
+        return reply
 
     def _query_ollama(self, prompt: str) -> str:
         """Query local Ollama REST API."""

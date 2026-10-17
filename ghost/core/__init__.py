@@ -13,6 +13,9 @@ from ghost.core.clipboard import PhantomClipboard
 from ghost.core.lens import GhostLens
 from ghost.core.time_machine import GhostTimeMachine
 from ghost.core.rpg import CasperRPG
+from ghost.core.voice import VoiceEngine
+from ghost.core.agent import GhostOSAgent
+from ghost.core.web_search import WebSearchEngine
 
 __all__ = [
     "GhostEngine",
@@ -27,4 +30,7 @@ __all__ = [
     "GhostLens",
     "GhostTimeMachine",
     "CasperRPG",
+    "VoiceEngine",
+    "GhostOSAgent",
+    "WebSearchEngine",
 ]

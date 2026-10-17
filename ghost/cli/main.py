@@ -262,10 +262,35 @@ def cmd_chameleon() -> None:
 
     console.print(table)
 
+def cmd_web(query: str) -> None:
+    """Live web search."""
+    from ghost.core.web_search import WebSearchEngine
+    with console.status(f"[bold cyan]Searching web for: {query}...[/bold cyan]"):
+        res = WebSearchEngine.search_web(query)
+    console.print(Panel(Markdown(res["content"]), title=f"[bold cyan]🌐 Web Result ({res.get('source', 'Internet')})[/bold cyan]", border_style="cyan"))
+
+def cmd_agent(task: str) -> None:
+    """Desktop OS task execution."""
+    from ghost.core.agent import GhostOSAgent
+    with console.status(f"[bold cyan]Executing OS task: {task}...[/bold cyan]"):
+        res = GhostOSAgent.execute_intent(task)
+    if res.get("handled"):
+        console.print(Panel(Markdown(res["output"]), title="[bold green]🤖 Ghost Desktop Agent[/bold green]", border_style="green"))
+    else:
+        console.print(f"[yellow]Could not determine automatic OS action for: {task}[/yellow]")
+
+def cmd_say(text: str) -> None:
+    """Speak text aloud using native speech synthesis."""
+    from ghost.core.voice import VoiceEngine
+    voice = VoiceEngine()
+    console.print(f"[bold cyan]🗣️ Speaking:[/bold cyan] {text}")
+    voice.speak(text, async_mode=False)
+
 def main() -> None:
     KNOWN_COMMANDS = {
         "ask", "chat", "pet", "eat", "rag", "screen", "exec", "status",
         "clip", "clipboard", "time", "timemachine", "rpg", "chameleon",
+        "web", "agent", "say",
         "-h", "--help"
     }
     if len(sys.argv) > 1 and sys.argv[1] not in KNOWN_COMMANDS and not sys.argv[1].startswith("-"):
@@ -315,6 +340,16 @@ def main() -> None:
     subparsers.add_parser("timemachine", help="Alias for time")
     subparsers.add_parser("rpg", help="Casper RPG: view level, experience, and unlocked evolutions")
     subparsers.add_parser("chameleon", help="Memory Chameleon: view adaptive power & memory profile")
+    
+    # Voice, Agent, Web Search
+    web_parser = subparsers.add_parser("web", help="Live web search (weather, currency, Wikipedia, etc.)")
+    web_parser.add_argument("query", nargs="+", help="Search query")
+
+    agent_parser = subparsers.add_parser("agent", help="Desktop OS tasks (find files via Spotlight, create folders)")
+    agent_parser.add_argument("task", nargs="+", help="Task description")
+
+    say_parser = subparsers.add_parser("say", help="Speak text aloud using native speech synthesis")
+    say_parser.add_argument("text", nargs="+", help="Text to speak")
 
     args, unknown = parser.parse_known_args()
 
@@ -360,6 +395,12 @@ def main() -> None:
         cmd_rpg()
     elif args.subcommand == "chameleon":
         cmd_chameleon()
+    elif args.subcommand == "web":
+        cmd_web(" ".join(args.query))
+    elif args.subcommand == "agent":
+        cmd_agent(" ".join(args.task))
+    elif args.subcommand == "say":
+        cmd_say(" ".join(args.text))
 
 if __name__ == "__main__":
     main()
