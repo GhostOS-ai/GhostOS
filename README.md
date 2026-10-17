@@ -52,32 +52,42 @@ Running local AI today is frustrating:
   * ⚠️ `Alarm`: Visual alert for terminal command risks.
 * Click Casper or press `Cmd+Shift+Space` to morph into the **Spotlight HUD**.
 
-#### 2. 🧠 VRAM Juggler (Smart Memory Dispatcher)
+#### 2. 🧠 VRAM Juggler & KV-Cache Freezer
 * Solves the VRAM bottleneck by enforcing a single active model in GPU/VRAM at a time.
-* If you ask Casper to inspect your screen, the Juggler unloads the text model, loads the vision model, extracts insights in 0.5s, and restores the LLM.
-* **Auto-Sleep:** Automatically frees all GPU memory after 3 minutes of inactivity so your laptop stays cool and battery lasts all day.
+* **KV-Cache Freezer:** When inactive or between queries, GhostOS compresses dialogue state to SSD in 15ms. Active VRAM drops to **0 MB**.
+* **Context Vacuum:** Strips boilerplate, comments, and redundant stack frames, reducing prompt token count by **40–60%** before hitting the LLM.
+* **Auto-Sleep:** Automatically frees all GPU memory after idle timeout so your laptop stays cool and battery lasts all day.
 
-#### 3. 📂 Zero-DB RAG (Instant Document Search)
-* Pure SQLite FTS5 with BM25 ranking built directly into Python.
-* Zero Docker, zero ChromaDB, zero background vector indexers.
-* Instant sub-millisecond keyword and semantic search across your personal notes, PDFs, and codebases.
+#### 3. 🦎 Memory Chameleon (Adaptive Power Profiles)
+* Dynamically monitors battery state (`pmset`) and system RAM pressure:
+  * 🍃 **ECO Mode:** Triggers on battery or RAM > 82%. Context capped at 1024 tokens, 2 CPU threads, 60s auto-sleep, 30 FPS pet.
+  * ⚖️ **Balanced Mode:** Context 2048 tokens, 4 threads, 180s auto-sleep.
+  * ⚡ **Performance Beast:** On AC power and free RAM > 50%. Context 4096 tokens, full Apple Metal GPU acceleration.
 
-#### 4. ⚡ Safe Terminal Autopilot
-* Describe any task in natural language (*"find all mov files and convert to mp4"*, *"kill process on port 3000"*).
-* Autopilot evaluates risk level:
-  * 🟢 **SAFE**: Read-only queries (`find`, `lsof`, `df`, `grep`).
-  * 🟡 **CAUTION**: Modifying actions (`kill`, `mv`, `cp`).
-  * 🔴 **DANGEROUS**: High-risk commands (`rm -rf`, `sudo`, `dd`).
-* Run commands with 1-click execution or copy them to your clipboard.
+#### 4. 📋 Phantom Clipboard Inspector
+* Sub-millisecond pattern-matcher for copied text without waking up heavy neural nets.
+* Instant 1-click contextual actions:
+  * 🚨 Stack trace -> **💡 Explain & Fix Error**
+  * ✨ Raw JSON -> **✨ Format & Validate JSON**
+  * 🔍 SQL -> **🔍 Explain Query & Indexing**
+  * ⚡ Code snippet -> **⚡ Explain & Refactor**
 
-#### 5. 👁️ Screen Peek (Visual Inspector)
-* Silent, zero-shutter screen capture of active applications.
-* Explains compiler errors in your IDE, inspects dashboard numbers, and debugs visual UI layouts without manual screenshots.
+#### 5. 🛡️ Anti-Hallucination Ghost Lens
+* Verifies generated terminal commands against native macOS BSD utilities.
+* Automatically patches common LLM hallucinations (e.g. converts GNU `sed -i` to macOS BSD `sed -i ''`, `grep -P` to `grep -E`, checks binary existence via `which`).
 
-#### 6. 🎙️ Offline Meeting Copilot
-* Record audio from calls or voice notes.
-* Local Whisper transcription formats conversations into structured Executive Overviews, Key Decisions, and Action Items.
-* **100% Private:** Not a single millisecond of voice data leaves your device.
+#### 6. 🕒 Ghost Time Machine (Session Journal)
+* Tracks touched workspace files and git modifications without heavy background daemons.
+* Generates instant daily work summaries and smart **1-click Git Commit messages**.
+
+#### 7. 🎮 Casper RPG Evolution System
+* Gamified companion that grows with your work:
+  * Gain XP for feeding files (+15 XP), running commands (+25 XP), asking questions (+10 XP).
+  * Unlocks evolutions and visual accessories:
+    * Level 1: 🌱 *Apprentice Wisp*
+    * Level 3: 🕶️ *Code Specter* (Unlocks Cyberpunk Visor)
+    * Level 5: 📖 *Grand Scribe* (Unlocks Magic Spellbook)
+    * Level 6: 👑 *Void Sentinel* (Unlocks Golden Crown)
 
 ---
 
@@ -86,12 +96,16 @@ Running local AI today is frustrating:
 | Feature | GhostOS 👻 | Jan.ai / LM Studio | Ollama | AnythingLLM |
 | :--- | :---: | :---: | :---: | :---: |
 | **GUI Memory Footprint** | **~35 MB** (Native WebKit) | ~850 MB (Electron) | None (CLI only) | ~1.1 GB (Electron + DB) |
-| **Desktop Pet Companion** | **Yes (Casper)** | No | No | No |
+| **Desktop Pet Companion** | **Yes (Casper RPG)** | No | No | No |
 | **Drag & Drop RAG Ingestion**| **Yes (Drop onto Pet)** | Manual upload | Manual import | Manual upload |
-| **Multi-Model VRAM Swapping**| **Yes (VRAM Juggler)** | ❌ OOM on low VRAM | Manual CLI | ❌ OOM on low VRAM |
-| **Spotlight / Raycast HUD** | **Yes (1-click morph)** | No (Full window) | No | No (Web browser) |
+| **Dynamic VRAM Swapping** | **Yes (VRAM Juggler)** | ❌ OOM on low VRAM | Manual CLI | ❌ OOM on low VRAM |
+| **KV-Cache Disk Freezer** | **Yes (0 MB idle VRAM)**| No | No | No |
+| **Context Vacuum (Pruning)** | **Yes (Saves 40-60%)** | No | No | No |
+| **Adaptive Battery Profiles**| **Yes (Chameleon Mode)**| No | No | No |
+| **Phantom Clipboard Copilot**| **Yes (1-click actions)**| No | No | No |
+| **Anti-Hallucination Lens** | **Yes (macOS BSD patch)**| No | No | No |
+| **Time Machine / Commit Gen**| **Yes (Built-in)** | No | No | No |
 | **External DB Requirement** | **Zero (SQLite FTS5)** | Varies | None | Requires Vector DB / Chroma |
-| **Safe Terminal Autopilot** | **Yes (Built-in)** | No | No | No |
 | **Works 100% Offline** | **Yes** | Yes | Yes | Mostly |
 
 ---
