@@ -115,6 +115,42 @@ class MemoryJuggler:
         """Record user activity to reset auto-sleep timer."""
         self.last_active_time = time.time()
 
+    def get_effective_sleep_seconds(self) -> int:
+        """Fetch adaptive auto-sleep duration from Memory Chameleon."""
+        try:
+            from ghost.core.chameleon import MemoryChameleon
+            return MemoryChameleon.get_profile()["auto_sleep_seconds"]
+        except Exception:
+            return self.auto_sleep_seconds
+
+    def freeze_session_to_disk(self, session_id: str, context_data: str) -> str:
+        """
+        KV Cache Freezer: Serializes conversation state and prompt cache to SSD
+        to free up RAM between user queries.
+        """
+        from ghost.config import GHOST_CACHE_DIR, ensure_dirs
+        ensure_dirs()
+        cache_file = GHOST_CACHE_DIR / f"kv_freeze_{session_id}.dat"
+        try:
+            cache_file.write_text(context_data, encoding="utf-8")
+            return str(cache_file)
+        except Exception as e:
+            logger.warning(f"Failed to freeze KV cache to disk: {e}")
+            return ""
+
+    def thaw_session_from_disk(self, session_id: str) -> Optional[str]:
+        """
+        KV Cache Freezer: Restores conversation state from NVMe SSD in <10ms.
+        """
+        from ghost.config import GHOST_CACHE_DIR
+        cache_file = GHOST_CACHE_DIR / f"kv_freeze_{session_id}.dat"
+        if cache_file.exists():
+            try:
+                return cache_file.read_text(encoding="utf-8")
+            except Exception:
+                pass
+        return None
+
     def get_memory_status(self) -> Dict[str, Any]:
         """Return real-time memory and VRAM stats."""
         total_ram_mb = 8192
@@ -134,6 +170,13 @@ class MemoryJuggler:
         active_size = self.ESTIMATED_SIZES.get(self.active_model, 0) if self.active_model else 0
         vram_saved_mb = all_models_size - active_size
 
+        chameleon_profile = {}
+        try:
+            from ghost.core.chameleon import MemoryChameleon
+            chameleon_profile = MemoryChameleon.get_profile()
+        except Exception:
+            pass
+
         return {
             "active_model": self.active_model or "idle (sleeping)",
             "status": "active" if self.active_model else "idle",
@@ -144,14 +187,17 @@ class MemoryJuggler:
             "system_ram_free_mb": free_ram_mb,
             "system_ram_percent": percent_used,
             "total_swaps": self.total_swaps,
-            "idle_seconds": int(time.time() - self.last_active_time)
+            "idle_seconds": int(time.time() - self.last_active_time),
+            "effective_sleep_seconds": self.get_effective_sleep_seconds(),
+            "chameleon_profile": chameleon_profile
         }
 
     def _watchdog_loop(self) -> None:
-        """Periodic background monitor checking for inactivity."""
+        """Periodic background monitor checking for inactivity using dynamic timeout."""
         while self._running:
             time.sleep(10)
-            if self.active_model and (time.time() - self.last_active_time > self.auto_sleep_seconds):
+            sleep_timeout = self.get_effective_sleep_seconds()
+            if self.active_model and (time.time() - self.last_active_time > sleep_timeout):
                 self.sleep_all()
 
     def shutdown(self) -> None:

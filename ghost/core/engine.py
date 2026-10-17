@@ -79,18 +79,32 @@ class GhostEngine:
     def ask(self, prompt: str, context: Optional[str] = None, screen_context: Optional[str] = None) -> str:
         """
         Generate response given a user prompt and optional document/screen context.
+        Optimized with Context Vacuum and Memory Chameleon profiles.
         """
+        from ghost.core.vacuum import ContextVacuum
+        from ghost.core.chameleon import MemoryChameleon
+        from ghost.core.rpg import CasperRPG
+
+        profile = MemoryChameleon.get_profile()
+        max_chars = profile["context_window"] * 4
+
         self.juggler.request_model(MemoryJuggler.MODEL_LLM)
         self.juggler.touch()
 
         # Construct full prompt
         full_context = ""
         if context:
-            full_context += f"\n--- Local Document Context (RAG) ---\n{context}\n"
+            compact_ctx, stats = ContextVacuum.squeeze(context, max_chars=int(max_chars * 0.6))
+            full_context += f"\n--- Local Document Context (RAG) ---\n{compact_ctx}\n"
         if screen_context:
             full_context += f"\n--- Active Screen Context ---\n{screen_context}\n"
 
         augmented_prompt = f"{full_context}\nUser: {prompt}" if full_context else prompt
+        # Squeeze full prompt
+        augmented_prompt, _ = ContextVacuum.squeeze(augmented_prompt, max_chars=max_chars)
+
+        # Award RPG XP for using Casper
+        CasperRPG.add_xp(10, "ask")
 
         if self.backend == "ollama":
             return self._query_ollama(augmented_prompt)

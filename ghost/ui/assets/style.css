@@ -607,3 +607,194 @@ html, body {
   from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* ==================== RPG & CHAMELEON BADGES ==================== */
+.rpg-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.12);
+  padding: 2px 7px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  text-shadow: 0 0 6px rgba(0, 242, 254, 0.4);
+}
+
+.chameleon-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: rgba(46, 160, 67, 0.2);
+  color: #3fb950;
+  border: 1px solid rgba(46, 160, 67, 0.4);
+  transition: all 0.2s;
+}
+
+.chameleon-pill:hover {
+  filter: brightness(1.2);
+  transform: scale(1.05);
+}
+
+/* ==================== PHANTOM CLIPBOARD ==================== */
+.clipboard-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.clip-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.clip-title {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.clip-preview-container pre {
+  background: #090d16;
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border: 1px solid var(--border-glass);
+}
+
+.clip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.clip-action-btn {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(79, 172, 254, 0.15));
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: var(--accent-cyan);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.clip-action-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(79, 172, 254, 0.3));
+}
+
+/* ==================== TIME MACHINE ==================== */
+.timemachine-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tm-summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.commit-suggester {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.commit-suggester h4 {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--accent-cyan);
+}
+
+.commit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #090d16;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-glass);
+}
+
+.commit-row code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #7ee787;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==================== LENS INFO ==================== */
+.lens-info {
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px dashed var(--accent-cyan);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--accent-cyan);
+  margin-bottom: 10px;
+}
+
+/* ==================== CHAMELEON CONTROLS ==================== */
+.chameleon-control-card {
+  margin-top: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.chameleon-control-card h4 {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.profile-modes {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.mode-btn.active {
+  background: var(--accent-cyan);
+  color: #0b111e;
+  font-weight: 600;
+  border-color: var(--accent-cyan);
+}
+
+.chameleon-details {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}

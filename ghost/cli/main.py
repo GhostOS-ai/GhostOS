@@ -177,7 +177,10 @@ def cmd_status() -> None:
     table.add_row("VRAM Saved by Swapping", f"[bold green]+{status['vram_saved_mb']} MB[/bold green] (vs concurrent load)")
     table.add_row("Total Model Swaps", str(status["total_swaps"]))
     table.add_row("System RAM Usage", f"{status['system_ram_percent']}% ({status['system_ram_used_mb']} MB / {status['system_ram_total_mb']} MB)")
-    table.add_row("Idle Watchdog", f"{status['idle_seconds']}s since last call (auto-sleep at 180s)")
+    table.add_row("Idle Watchdog", f"{status['idle_seconds']}s since last call (auto-sleep at {status['effective_sleep_seconds']}s)")
+    if "chameleon_profile" in status and status["chameleon_profile"]:
+        prof = status["chameleon_profile"]
+        table.add_row("Chameleon Power Profile", f"[bold yellow]{prof.get('name')}[/bold yellow]")
 
     console.print(table)
 
@@ -189,8 +192,82 @@ def cmd_pet() -> None:
     except Exception as e:
         console.print(f"[bold red]Failed to launch Desktop Pet UI:[/bold red] {e}")
 
+def cmd_clip() -> None:
+    """Inspect clipboard and execute 1-click contextual action."""
+    from ghost.core.clipboard import PhantomClipboard
+    res = PhantomClipboard.inspect()
+    if not res["detected"]:
+        console.print("[dim]Clipboard is empty or contains non-text content.[/dim]")
+        return
+
+    table = Table(title="📋 Phantom Clipboard Analysis", border_style="cyan")
+    table.add_column("Property", style="bold cyan")
+    table.add_column("Value", style="bold white")
+    table.add_row("Type", res["badge"])
+    table.add_row("Preview", res["preview"])
+    table.add_row("Suggested Action", res.get("action_title", "Process snippet"))
+    console.print(table)
+
+    if res.get("category") == "error":
+        engine = GhostEngine()
+        with console.status("[bold cyan]Analyzing error traceback with Context Vacuum...[/bold cyan]"):
+            fix = engine.ask(f"Explain this error and give the exact fix:\n\n{res['raw_text']}")
+        console.print(Panel(Markdown(fix), title="[bold green]💡 Recommended Fix[/bold green]", border_style="green"))
+
+    elif res.get("category") == "json":
+        console.print(Panel(res.get("formatted_text", ""), title="[bold cyan]✨ Validated & Formatted JSON[/bold cyan]", border_style="cyan"))
+
+def cmd_timemachine() -> None:
+    """Session journal and git summary."""
+    from ghost.core.time_machine import GhostTimeMachine
+    res = GhostTimeMachine.generate_session_summary()
+    console.print(Panel(Markdown(res["summary"]), title="[bold cyan]🕒 Ghost Time Machine[/bold cyan]", border_style="cyan"))
+    if res.get("commit_suggestion"):
+        console.print(Panel(f"[bold green]{res['commit_suggestion']}[/bold green]", title="[bold yellow]💡 Recommended Git Commit[/bold yellow]", border_style="yellow"))
+
+def cmd_rpg() -> None:
+    """Display Casper RPG level, XP, and unlocked evolution accessories."""
+    from ghost.core.rpg import CasperRPG
+    stats = CasperRPG.get_full_status()
+
+    table = Table(title="🎮 Casper RPG & Evolution Status", border_style="magenta")
+    table.add_column("Attribute", style="bold magenta")
+    table.add_column("Value", style="bold white")
+
+    table.add_row("Evolution Rank", f"[bold yellow]{stats['badge']}[/bold yellow] ({stats['title']})")
+    table.add_row("Current Level", f"Level {stats['level']}")
+    table.add_row("Total Experience", f"{stats['xp']} XP")
+    table.add_row("Level Progress", f"{stats['progress_percent']}% to next evolution")
+    table.add_row("Active Accessory", f"[cyan]{stats['accessory']}[/cyan]")
+    table.add_row("Files Ingested (Eaten)", str(stats["files_eaten"]))
+    table.add_row("Tasks / Questions", str(stats["questions_answered"]))
+
+    console.print(table)
+
+def cmd_chameleon() -> None:
+    """Display adaptive power and memory profile."""
+    from ghost.core.chameleon import MemoryChameleon
+    prof = MemoryChameleon.get_profile()
+
+    table = Table(title="🦎 GhostOS Memory Chameleon", border_style="green")
+    table.add_column("Parameter", style="bold green")
+    table.add_column("Setting", style="bold white")
+
+    table.add_row("Active Mode", f"[bold green]{prof['name']}[/bold green]")
+    table.add_row("Power Source", "🔋 Battery (Eco Throttling)" if prof["is_battery"] else "⚡ Plugged In (Full Metal GPU)")
+    table.add_row("System RAM Pressure", f"{prof['ram_pressure_percent']}%")
+    table.add_row("Context Window Limit", f"{prof['context_window']} tokens (KV Cache Protected)")
+    table.add_row("Active CPU Threads", str(prof["cpu_threads"]))
+    table.add_row("Auto-Sleep Timeout", f"{prof['auto_sleep_seconds']}s")
+
+    console.print(table)
+
 def main() -> None:
-    KNOWN_COMMANDS = {"ask", "chat", "pet", "eat", "rag", "screen", "exec", "status", "-h", "--help"}
+    KNOWN_COMMANDS = {
+        "ask", "chat", "pet", "eat", "rag", "screen", "exec", "status",
+        "clip", "clipboard", "time", "timemachine", "rpg", "chameleon",
+        "-h", "--help"
+    }
     if len(sys.argv) > 1 and sys.argv[1] not in KNOWN_COMMANDS and not sys.argv[1].startswith("-"):
         sys.argv.insert(1, "ask")
 
@@ -231,6 +308,14 @@ def main() -> None:
     # Status
     subparsers.add_parser("status", help="Show VRAM Juggler memory diagnostics")
 
+    # New Killer Features CLI commands
+    subparsers.add_parser("clip", help="Phantom Clipboard: Inspect & execute 1-click action")
+    subparsers.add_parser("clipboard", help="Alias for clip")
+    subparsers.add_parser("time", help="Ghost Time Machine: session activity & git commit generator")
+    subparsers.add_parser("timemachine", help="Alias for time")
+    subparsers.add_parser("rpg", help="Casper RPG: view level, experience, and unlocked evolutions")
+    subparsers.add_parser("chameleon", help="Memory Chameleon: view adaptive power & memory profile")
+
     args, unknown = parser.parse_known_args()
 
     engine = GhostEngine()
@@ -238,7 +323,6 @@ def main() -> None:
 
     if not args.subcommand:
         if unknown:
-            # Convenience: `ghost "explain this"` -> treated as ask
             cmd_ask(engine, rag, " ".join(unknown))
         else:
             cmd_chat(engine, rag)
@@ -268,6 +352,14 @@ def main() -> None:
         cmd_exec(" ".join(args.task))
     elif args.subcommand == "status":
         cmd_status()
+    elif args.subcommand in {"clip", "clipboard"}:
+        cmd_clip()
+    elif args.subcommand in {"time", "timemachine"}:
+        cmd_timemachine()
+    elif args.subcommand == "rpg":
+        cmd_rpg()
+    elif args.subcommand == "chameleon":
+        cmd_chameleon()
 
 if __name__ == "__main__":
     main()

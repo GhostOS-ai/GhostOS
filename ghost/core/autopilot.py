@@ -114,13 +114,22 @@ class TerminalAutopilot:
             command = f"# Command suggested for: {query}\nfind . -maxdepth 2 -type f"
             explanation = "Scans current directory structure matching your query."
 
-        risk = self.evaluate_risk(command)
+        from ghost.core.lens import GhostLens
+        lens_res = GhostLens.verify_and_patch(command)
+        final_cmd = lens_res["patched_command"]
+
+        risk = self.evaluate_risk(final_cmd)
+        if lens_res["warning"]:
+            risk["warning"] = (risk["warning"] + " " + lens_res["warning"]) if risk["warning"] else lens_res["warning"]
 
         return {
             "query": query,
-            "command": command,
+            "command": final_cmd,
+            "original_command": command,
             "explanation": explanation,
-            "risk": risk
+            "risk": risk,
+            "lens_modifications": lens_res["modifications"],
+            "lens_verified": lens_res["is_valid"]
         }
 
     def execute_command(self, command: str, timeout: int = 30) -> Dict[str, Any]:

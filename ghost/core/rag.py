@@ -197,13 +197,16 @@ class ZeroDbRAG:
 
             conn.commit()
 
+        from ghost.core.rpg import CasperRPG
+        rpg_res = CasperRPG.add_xp(15, "eat")
+
         return {
             "success": True,
             "filename": path.name,
             "path": str(path),
             "chunks_count": len(chunks),
             "size_kb": round(size_bytes / 1024, 1),
-            "message": f"Chomp! Ghost ate '{path.name}' ({len(chunks)} chunks indexed)."
+            "message": f"Chomp! Ghost ate '{path.name}' ({len(chunks)} chunks indexed). +15 XP! [{rpg_res['title']}]"
         }
 
     def ingest_directory(self, dir_path_str: str, max_files: int = 50) -> Dict[str, Any]:

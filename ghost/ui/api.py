@@ -100,3 +100,57 @@ class GhostBridgeAPI:
         """Minimize or hide window."""
         if self.window:
             self.window.minimize()
+
+    # ==================== NEW KILLER FEATURES ====================
+    def get_rpg_status(self) -> Dict[str, Any]:
+        """Fetch Casper RPG level, title, accessory, and XP."""
+        from ghost.core.rpg import CasperRPG
+        return CasperRPG.get_full_status()
+
+    def inspect_clipboard(self) -> Dict[str, Any]:
+        """Phantom Clipboard: Inspect system clipboard and categorize."""
+        from ghost.core.clipboard import PhantomClipboard
+        return PhantomClipboard.inspect()
+
+    def apply_clipboard_action(self, action: str, text: str) -> Dict[str, Any]:
+        """Execute selected clipboard transformation."""
+        from ghost.core.clipboard import PhantomClipboard
+        from ghost.core.rpg import CasperRPG
+        CasperRPG.add_xp(10, "clipboard")
+
+        if action == "format_json":
+            try:
+                parsed = json.loads(text)
+                formatted = json.dumps(parsed, indent=2, ensure_ascii=False)
+                PhantomClipboard.set_clipboard_text(formatted)
+                return {"success": True, "result": formatted, "copied": True}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+
+        elif action == "diagnose_error":
+            res = self.engine.ask(f"Explain this error and give the exact fix:\n\n{text}")
+            return {"success": True, "result": res, "copied": False}
+
+        elif action == "explain_sql":
+            res = self.engine.ask(f"Explain what this SQL query does and how to optimize it:\n\n{text}")
+            return {"success": True, "result": res, "copied": False}
+
+        else:
+            res = self.engine.ask(f"Process this text ({action}):\n\n{text}")
+            return {"success": True, "result": res, "copied": False}
+
+    def get_time_machine_summary(self) -> Dict[str, Any]:
+        """Fetch daily developer session timeline and git commit suggestions."""
+        from ghost.core.time_machine import GhostTimeMachine
+        return GhostTimeMachine.generate_session_summary()
+
+    def get_chameleon_profile(self) -> Dict[str, Any]:
+        """Fetch current hardware and power adaptive profile."""
+        from ghost.core.chameleon import MemoryChameleon
+        return MemoryChameleon.get_profile()
+
+    def set_chameleon_mode(self, mode: str) -> Dict[str, Any]:
+        """Manually set Chameleon mode: 'eco', 'balanced', 'performance', or null for auto."""
+        from ghost.core.chameleon import MemoryChameleon
+        MemoryChameleon.set_override(mode if mode != "auto" else None)
+        return MemoryChameleon.get_profile()
