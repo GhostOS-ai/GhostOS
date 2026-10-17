@@ -8,16 +8,16 @@
 <body>
 
   <!-- ==================== MODE 1: FLOATING GHOST PET ==================== -->
-  <div id="pet-view" class="active">
-    <div class="drag-zone pywebview-drag-region" title="Drag Casper anywhere on screen"></div>
+  <div id="pet-view" class="active pywebview-drag-region">
+    <div class="drag-zone pywebview-drag-region" title="Потяни, чтобы переместить Каспера в любое место экрана"></div>
     
     <!-- Speech Bubble -->
     <div id="speech-bubble" class="speech-bubble">
-      <span id="speech-text">Boo! Drag files here to feed me, or click to open HUD!</span>
+      <span id="speech-text">Бу! Перетащи в меня файл или кликни, чтобы пообщаться! 👻</span>
     </div>
 
     <!-- Casper SVG Character -->
-    <div id="ghost-wrapper" class="ghost-wrapper" onclick="toggleHudMode('hud')">
+    <div id="ghost-wrapper" class="ghost-wrapper" onclick="handlePetClick(event)" ondblclick="toggleHudMode('hud')" title="Кликни, чтобы поговорить | Двойной клик — открыть пульт HUD">
       <svg id="ghost-svg" class="ghost-svg" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
         <!-- Glow filters and gradients -->
         <defs>
@@ -104,10 +104,13 @@
     </div>
 
     <!-- Mini Bottom Controls -->
-    <div class="pet-bar">
-      <span class="status-dot online"></span>
-      <span id="pet-rpg-badge" class="rpg-pill" title="Casper RPG Level">🌱 Wisp Lv.1</span>
-      <button class="expand-btn" onclick="toggleHudMode('hud')" title="Open HUD (Command Bar)">💬</button>
+    <div class="pet-bar pywebview-drag-region">
+      <span class="status-dot online" title="Casper Онлайн & 100% Приватно"></span>
+      <span id="pet-rpg-badge" class="rpg-pill" title="Уровень Casper RPG">🌱 Wisp Lv.1</span>
+      <button class="pet-btn" onclick="quickOpenFolder(event)" title="📂 Открыть проект в Finder">📂</button>
+      <button class="pet-btn" id="pet-fly-btn" onclick="quickToggleFly(event)" title="✈️ Режим полёта / парения">✈️</button>
+      <button class="pet-btn" id="pet-voice-btn" onclick="quickToggleVoice(event)" title="🗣️ Озвучка ответов (macOS say)">🗣️</button>
+      <button class="expand-btn" onclick="toggleHudMode('hud')" title="💬 Открыть командный пульт (HUD)">💬</button>
     </div>
   </div>
 

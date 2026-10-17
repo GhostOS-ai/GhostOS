@@ -181,11 +181,43 @@ html, body {
   color: var(--text-muted);
 }
 
-.expand-btn {
-  background: transparent;
-  border: none;
+.pet-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
   cursor: pointer;
   font-size: 11px;
+  padding: 2px 5px;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+.pet-btn:hover {
+  background: rgba(0, 242, 254, 0.25);
+  border-color: var(--accent-cyan);
+  transform: scale(1.15);
+}
+
+.pet-btn.active {
+  background: var(--accent-cyan);
+  color: #0b111e;
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+}
+
+.expand-btn {
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+  background: var(--accent-cyan);
+  transform: scale(1.15);
 }
 
 
@@ -596,6 +628,29 @@ html, body {
 @keyframes eyeBlink {
   0%, 92%, 100% { transform: scaleY(1); }
   96% { transform: scaleY(0.1); }
+}
+
+@keyframes ghostWobble {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.12) rotate(-8deg); }
+  50% { transform: scale(1.18) rotate(8deg); }
+  75% { transform: scale(1.06) rotate(-4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes ghostGiggle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-7px) rotate(-5deg); }
+  50% { transform: translateY(3px) rotate(5deg); }
+  75% { transform: translateY(-4px) rotate(-2deg); }
+}
+
+.ghost-wrapper.wobble {
+  animation: ghostWobble 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.ghost-wrapper.giggle {
+  animation: ghostGiggle 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {

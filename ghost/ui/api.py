@@ -32,8 +32,37 @@ class GhostBridgeAPI:
         self.window = window
 
     def ask(self, prompt: str) -> Dict[str, Any]:
-        """User asks a question from HUD."""
-        # Check local docs first
+        """User asks a question from HUD or Pet: auto-routes to Agent, Web, RAG, or LLM."""
+        # 1. Desktop OS task check
+        from ghost.core.agent import GhostOSAgent
+        from ghost.core.rpg import CasperRPG
+        from ghost.core.voice import VoiceEngine
+
+        agent_res = GhostOSAgent.execute_intent(prompt)
+        if agent_res.get("handled"):
+            CasperRPG.add_xp(25, "exec")
+            VoiceEngine().speak(agent_res["output"], async_mode=True)
+            return {
+                "success": True,
+                "response": agent_res["output"],
+                "citations": []
+            }
+
+        # 2. Live Web search check (weather, currency, search)
+        p_lower = prompt.lower()
+        if any(w in p_lower for w in ["погода", "weather", "курс", "доллар", "евро", "валют", "найди в интернете"]):
+            from ghost.core.web_search import WebSearchEngine
+            web_res = WebSearchEngine.search_web(prompt)
+            if web_res.get("content"):
+                CasperRPG.add_xp(15, "web")
+                VoiceEngine().speak(web_res["content"], async_mode=True)
+                return {
+                    "success": True,
+                    "response": web_res["content"],
+                    "citations": [web_res.get("source", "Internet")]
+                }
+
+        # 3. Check local docs first (Zero-DB RAG)
         docs = self.rag.search(prompt, top_k=2)
         context = ""
         cited_files = []
@@ -41,7 +70,10 @@ class GhostBridgeAPI:
             context = "\n\n".join([f"[{d['filename']}]: {d['content']}" for d in docs])
             cited_files = list(set([d["filename"] for d in docs]))
 
+        # 4. Neural LLM / Smart Assistant
         reply = self.engine.ask(prompt, context=context)
+        CasperRPG.add_xp(10, "chat")
+        VoiceEngine().speak(reply, async_mode=True)
         return {
             "success": True,
             "response": reply,
@@ -86,15 +118,71 @@ class GhostBridgeAPI:
 
     def toggle_mode(self, target_mode: str) -> Dict[str, Any]:
         """
-        Smoothly resize window between Pet mode (220x240) and HUD mode (680x520).
+        Smoothly resize window between Pet mode (240x280) and HUD mode (720x560).
         """
+        import webview
         self.current_mode = target_mode
         if self.window:
             if target_mode == "hud":
-                self.window.resize(680, 540)
+                try:
+                    self._pet_x = self.window.x
+                    self._pet_y = self.window.y
+                    screens = webview.screens
+                    if screens:
+                        s = screens[0]
+                        hud_x = max(40, (s.width - 720) // 2)
+                        hud_y = max(40, (s.height - 560) // 3)
+                        self.window.move(hud_x, hud_y)
+                except Exception:
+                    pass
+                self.window.resize(720, 560)
             else:
-                self.window.resize(220, 240)
+                self.window.resize(240, 280)
+                try:
+                    if hasattr(self, '_pet_x') and self._pet_x is not None:
+                        self.window.move(self._pet_x, self._pet_y)
+                except Exception:
+                    pass
         return {"mode": self.current_mode}
+
+    def toggle_wandering(self) -> Dict[str, Any]:
+        """Toggle Casper gently wandering / floating across the desktop."""
+        if getattr(self, '_wandering', False):
+            self._wandering = False
+            return {"wandering": False}
+
+        self._wandering = True
+        import threading
+        import time
+        import math
+        import random
+
+        def _wander_loop():
+            step = 0
+            while getattr(self, '_wandering', False) and self.current_mode == "pet":
+                try:
+                    if self.window:
+                        cur_x = self.window.x
+                        cur_y = self.window.y
+                        dx = int(math.sin(step * 0.1) * 3 + random.choice([-1, 0, 1]))
+                        dy = int(math.cos(step * 0.08) * 3 + random.choice([-1, 0, 1]))
+                        new_x = max(30, cur_x + dx)
+                        new_y = max(30, cur_y + dy)
+                        self.window.move(new_x, new_y)
+                        step += 1
+                except Exception:
+                    break
+                time.sleep(0.12)
+            self._wandering = False
+
+        t = threading.Thread(target=_wander_loop, daemon=True)
+        t.start()
+        return {"wandering": True}
+
+    def quick_open_folder(self) -> Dict[str, Any]:
+        """Quick 1-click open project folder in macOS Finder."""
+        from ghost.core.agent import GhostOSAgent
+        return GhostOSAgent.execute_intent("открой папку")
 
     def minimize_pet(self) -> None:
         """Minimize or hide window."""

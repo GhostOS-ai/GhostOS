@@ -22,16 +22,30 @@ def launch_desktop_pet():
 
     api = GhostBridgeAPI()
 
+    # Calculate bottom-right desktop placement
+    try:
+        screens = webview.screens
+        if screens:
+            primary = screens[0]
+            start_x = max(80, primary.width - 270)
+            start_y = max(80, primary.height - 340)
+        else:
+            start_x = 1200
+            start_y = 650
+    except Exception:
+        start_x = 1200
+        start_y = 650
+
     # Create frameless, transparent, floating window
-    # Initial size: 220x240 for Casper Desktop Pet
+    # Initial size: 240x280 for Casper Desktop Pet
     window = webview.create_window(
         title="GhostOS",
         url=index_html.as_uri(),
         js_api=api,
-        width=220,
-        height=240,
-        x=None, # system default or bottom right
-        y=None,
+        width=240,
+        height=280,
+        x=start_x,
+        y=start_y,
         frameless=True,
         transparent=True,
         on_top=True,

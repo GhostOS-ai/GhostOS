@@ -198,46 +198,83 @@ class GhostEngine:
                 f"💡 **Key takeaway:** The document directly addresses your question regarding `{prompt[:40]}`."
             )
 
-        if "кто ты" in p or "who are you" in p:
+        # Conversational greetings & status in Russian & English
+        if any(w in p for w in ["как дела", "как ты", "как жизнь", "how are you", "what's up"]):
             return (
-                "👻 **I am GhostOS (Casper)!**\n\n"
-                "I am your featherweight, privacy-first desktop AI companion. "
-                "I live entirely on your computer, consume under 50MB of idle RAM, "
-                "eat documents you drag onto me, peek at your screen when asked, and run terminal commands safely."
+                "👻 **Отлично!**\n\n"
+                "Летаю по твоему экрану, слежу за памятью и готов помогать! "
+                "Можешь скинуть мне файл, попросить найти документ через Spotlight или задать любой вопрос. "
+                "А у тебя как дела? Над каким проектом сейчас работаешь?"
+            )
+
+        if any(w in p for w in ["привет", "здравствуй", "салам", "хай", "hello", "hi", "hey"]):
+            return (
+                "👻 **Привет!** Я Каспер — твой карманный десктопный ассистент.\n\n"
+                "Живу прямо в твоем Mac, потребляю всего 35 МБ памяти и готов помогать: "
+                "искать файлы, писать код, конспектировать звонки или учить новые документы. Чем займемся?"
+            )
+
+        if "кто ты" in p or "who are you" in p or "расскажи о себе" in p:
+            return (
+                "👻 **Я GhostOS (Каспер)!**\n\n"
+                "Я ультра-легковесный персональный ИИ-компаньон для твоего компьютера:\n"
+                "- 🍕 **Ем файлы:** перетащи на меня PDF или код — я проглочу его и запомню (RAG).\n"
+                "- 📂 **Управляю системой:** скажи *«открой папку»* или *«найди файлы»*.\n"
+                "- 🌐 **Ищу в сети:** спроси *«погода в Алматы»* или *«курс доллара»*.\n"
+                "- 🛡️ **Безопасный терминал:** напиши задачу, я сгенерирую безопасную команду.\n"
+                "- 🧠 **Zero Bloat:** храню модели компактно и не грею ноутбук."
+            )
+
+        if any(w in p for w in ["что ты умеешь", "что умеешь", "команды", "помощь", "help", "abilities"]):
+            return (
+                "👻 **Вот что я умею прямо сейчас:**\n\n"
+                "1. 📂 **Работать с файлами на Mac:** напиши *«найди proton»*, *«открой загрузки»*, *«создай папку Тест»*.\n"
+                "2. 🍕 **RAG (Знания):** перетащи мышкой любой PDF/TXT/код прямо на меня на экране.\n"
+                "3. 🌐 **Интернет:** спроси *«погода в Алматы»* или *«курс доллара»*.\n"
+                "4. 👁️ **Зрение:** напиши `/screen` — сделаю снимок экрана и объясню ошибку.\n"
+                "5. 📋 **Буфер обмена:** напиши `/clip` — починю ошибку из скопированного стектрейса или отформатирую JSON.\n"
+                "6. 🎙️ **Голос:** нажми на микрофон `🎙️` в окне или включи кнопку `Voice ON`.\n\n"
+                "💡 *Для безграничного свободного диалога можно подключить локальную модель Ollama: `brew install ollama && ollama run qwen2.5:1.5b`.*"
+            )
+
+        if any(w in p for w in ["шутк", "анекдот", "joke", "пошути"]):
+            return (
+                "👻 Почему призраки обожают программировать на Python?\n\n"
+                "*Потому что у них нет тела, а в Python нет указателей!* 😄"
             )
 
         if "vram" in p or "памят" in p or "juggler" in p:
             status = self.juggler.get_memory_status()
             return (
-                f"🧠 **VRAM Juggler Diagnostics:**\n\n"
-                f"- **Active Model:** `{status['active_model']}`\n"
-                f"- **Active VRAM:** `{status['active_vram_mb']} MB`\n"
-                f"- **VRAM Saved via Swapping:** `{status['vram_saved_mb']} MB` 🚀\n"
-                f"- **Total Swaps Executed:** `{status['total_swaps']}`\n"
-                f"- **System RAM Usage:** `{status['system_ram_percent']}%` ({status['system_ram_used_mb']} MB / {status['system_ram_total_mb']} MB)\n\n"
-                f"*Ghost keeps your GPU cool by automatically putting models to sleep during idle periods.*"
+                f"🧠 **Диагностика VRAM Juggler:**\n\n"
+                f"- **Активная модель:** `{status['active_model']}`\n"
+                f"- **Выделенная память:** `{status['active_vram_mb']} МБ`\n"
+                f"- **Сэкономлено VRAM благодаря выгрузке:** `+{status['vram_saved_mb']} МБ` 🚀\n"
+                f"- **Количество смен моделей:** `{status['total_swaps']}`\n"
+                f"- **Занято RAM в системе:** `{status['system_ram_percent']}%` ({status['system_ram_used_mb']} МБ / {status['system_ram_total_mb']} МБ)\n\n"
+                f"*Ghost держит видеочип холодным, автоматически усыпляя неактивные веса.*"
             )
 
-        if "код" in p or "python" in p or "code" in p:
+        if any(w in p for w in ["код", "python", "code", "напиши функцию", "скрипт"]):
             return (
-                "👻 Here is a clean, optimized snippet for your task:\n\n"
+                "👻 Вот аккуратный и быстрый пример кода для твоей задачи:\n\n"
                 "```python\n"
-                "# GhostOS Optimized Fast Execution\n"
-                "def solve_task(data: list) -> dict:\n"
-                "    \"\"\"Process items with zero memory bloat.\"\"\"\n"
-                "    return {item: len(item) for item in data if item}\n\n"
-                "result = solve_task(['apple', 'banana', 'ghost'])\n"
-                "print(result)\n"
+                "# Быстрое локальное решение\n"
+                "def process_items(items: list) -> list:\n"
+                "    \"\"\"Фильтрует и возвращает уникальные элементы.\"\"\"\n"
+                "    return sorted(list(set(item for item in items if item)))\n\n"
+                "print(process_items(['ghost', 'os', 'apple', 'ghost']))\n"
                 "```\n\n"
-                "⚡ *Code verified locally. 0ms cloud latency.*"
+                "⚡ *Скрипт оптимизирован под слабый процессор и минимальный расход памяти.*"
             )
 
+        # Natural Russian fallback
         return (
-            f"👻 **Ghost Response:**\n\n"
-            f"I analyzed your request: *\"{prompt}\"*.\n\n"
-            f"Everything is running 100% locally on your Mac. You can:\n"
-            f"- **Drag and drop** any PDF/code onto me to index it.\n"
-            f"- Type `/screen` to inspect the frontmost application.\n"
-            f"- Type `/exec <task>` to generate safe terminal commands.\n"
-            f"- Or connect Ollama (`ollama run qwen2.5:1.5b`) for unrestricted weights!"
+            f"👻 **Каспер:**\n\n"
+            f"Я внимательно тебя слушаю! Твой запрос: *\"{prompt}\"*.\n\n"
+            f"Я работаю на 100% локально на твоем Mac. Ты можешь:\n"
+            f"- Дать мне задание по файлам (*«открой загрузки»*, *«найди отчет.pdf»*)\n"
+            f"- Перетащить на меня любой файл мышкой, чтобы я выучил его\n"
+            f"- Написать `/screen` для анализа экрана или `/web <запрос>` для поиска в сети\n"
+            f"- Или подключить локальную модель Ollama: `brew install ollama && ollama run qwen2.5:1.5b`."
         )

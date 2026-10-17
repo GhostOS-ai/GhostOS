@@ -131,8 +131,12 @@ class GhostOSAgent:
                 search_folder = str(Path.home() / "Documents")
 
             # Extract search query
-            query = re.sub(r'^(найди|поиск|где лежит|find file|search for|все|файлы|file)\s*', '', p)
-            query = re.sub(r'\s*(на рабочем столе|в загрузках|в документах|on desktop|in downloads)\s*', '', query).strip()
+            clean = p
+            for prefix in ["найди все файлы", "найди файлы", "найди файл", "найди все", "найди", "поиск", "где лежит", "find files", "find file", "search for"]:
+                if clean.startswith(prefix):
+                    clean = clean[len(prefix):].strip()
+                    break
+            query = re.sub(r'\s*(на рабочем столе|в загрузках|в документах|on desktop|in downloads)\s*', '', clean).strip()
             if not query:
                 query = "pdf"
 
@@ -189,6 +193,57 @@ class GhostOSAgent:
                     "handled": True,
                     "action": "organize_files",
                     "output": f"📦 Перемещено {res['moved_count']} скриншотов в `{target}`."
+                }
+
+        # 4. Intent: Open Folder in Finder
+        # e.g.: "открой папку", "открой загрузки", "открой рабочий стол", "open downloads"
+        if any(trigger in p for trigger in ["открой папку", "открой директорию", "открой finder", "открой загрузки", "открой рабочий", "открой проекты", "open folder", "open directory"]):
+            target_path = Path.home()
+            folder_title = "домашнюю папку"
+
+            if "загруз" in p or "download" in p:
+                target_path = Path.home() / "Downloads"
+                folder_title = "Загрузки"
+            elif "рабоч" in p or "desktop" in p:
+                target_path = Path.home() / "Desktop"
+                folder_title = "Рабочий стол"
+            elif "документ" in p or "document" in p:
+                target_path = Path.home() / "Documents"
+                folder_title = "Документы"
+            elif "проект" in p or "project" in p:
+                target_path = Path.home() / "Downloads" / "Мой проект"
+                folder_title = "Мой проект"
+            elif "finder" in p:
+                target_path = Path.home()
+                folder_title = "Finder"
+            else:
+                # Check if specific folder name followed
+                match = re.search(r'(открой папку|открой)\s+([^\s]+)', p)
+                if match:
+                    specific = match.group(2)
+                    candidate = Path.home() / specific
+                    if candidate.exists():
+                        target_path = candidate
+                        folder_title = specific
+                    else:
+                        target_path = Path.cwd()
+                        folder_title = target_path.name
+                else:
+                    target_path = Path.cwd()
+                    folder_title = target_path.name
+
+            try:
+                subprocess.run(f"open '{target_path}'", shell=True, check=True)
+                return {
+                    "handled": True,
+                    "action": "open_folder",
+                    "output": f"📂 Открыл {folder_title} в Finder (`{target_path}`)!"
+                }
+            except Exception as e:
+                return {
+                    "handled": True,
+                    "action": "open_folder",
+                    "output": f"Не удалось открыть папку: {e}"
                 }
 
         return {"handled": False}

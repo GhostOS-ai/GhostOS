@@ -31,8 +31,24 @@ GHOST_ASCII = r"""[bold cyan]
 [/bold cyan]"""
 
 def cmd_ask(engine: GhostEngine, rag: ZeroDbRAG, query: str) -> None:
-    """Ask a question with automatic RAG augmentation."""
-    # Check if there are relevant local docs
+    """Ask a question with automatic OS agent, live web search, and RAG augmentation."""
+    # 1. OS Agent check (find files, open folders, create folders)
+    from ghost.core.agent import GhostOSAgent
+    agent_res = GhostOSAgent.execute_intent(query)
+    if agent_res.get("handled"):
+        console.print(Panel(Markdown(agent_res["output"]), title="[bold green]🤖 Ghost Desktop Agent[/bold green]", border_style="green"))
+        return
+
+    # 2. Live Web Search check (weather, currency rates)
+    q_lower = query.lower()
+    if any(w in q_lower for w in ["погода", "weather", "курс", "доллар", "евро", "валют", "найди в интернете"]):
+        from ghost.core.web_search import WebSearchEngine
+        web_res = WebSearchEngine.search_web(query)
+        if web_res.get("content"):
+            console.print(Panel(Markdown(web_res["content"]), title=f"[bold cyan]🌐 Web Result ({web_res.get('source', 'Internet')})[/bold cyan]", border_style="cyan"))
+            return
+
+    # 3. Check if there are relevant local docs
     docs = rag.search(query, top_k=2)
     rag_context = ""
     if docs:
@@ -188,9 +204,14 @@ def cmd_pet() -> None:
     """Launch Desktop Ghost Pet & HUD GUI."""
     try:
         from ghost.ui.app import launch_desktop_pet
+        console.print("[bold cyan]👻 Casper is floating onto your screen...[/bold cyan]")
         launch_desktop_pet()
     except Exception as e:
         console.print(f"[bold red]Failed to launch Desktop Pet UI:[/bold red] {e}")
+        console.print("[dim]Falling back to interactive terminal chat...[/dim]")
+        engine = GhostEngine()
+        rag = ZeroDbRAG()
+        cmd_chat(engine, rag)
 
 def cmd_clip() -> None:
     """Inspect clipboard and execute 1-click contextual action."""
@@ -360,7 +381,7 @@ def main() -> None:
         if unknown:
             cmd_ask(engine, rag, " ".join(unknown))
         else:
-            cmd_chat(engine, rag)
+            cmd_pet()
         return
 
     if args.subcommand == "ask":

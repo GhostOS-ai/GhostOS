@@ -3,11 +3,27 @@
 let currentMode = "pet";
 let isThinking = false;
 let currentClipboardText = "";
+let sleepTimer = null;
+let isSleeping = false;
+let clickIndex = 0;
+
+const CASPER_QUOTES = [
+  "Бу! Я не страшный, я твой локальный AI-ассистент! 👻",
+  "Все твои данные только на этом Маке — 0% облачных утечек! 🔒",
+  "Перетащи в меня любой файл (PDF, код, заметку), и я его съем! 🍕",
+  "Двойной клик на меня или кнопка 💬 откроет командный пульт! 🚀",
+  "Почеши за ушком! Память в норме, процессор не греется! ✨",
+  "Нажми 📂 внизу, чтобы мгновенно открыть Finder!",
+  "Нажми ✈️ внизу, чтобы я полетал по твоему экрану!",
+  "Нажми 🗣️ внизу, чтобы включить голосовое общение!"
+];
 
 // Initialize on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   setupDragAndDrop();
   setupKeyboardShortcuts();
+  setupEyeTracking();
+  setupInactivitySleep();
   refreshRpg();
   refreshChameleon();
 });
@@ -48,28 +64,203 @@ function minimizeWindow() {
   }
 }
 
+// ==================== CASPER EYE TRACKING ====================
+function setupEyeTracking() {
+  const pupilLeft = document.getElementById("eye-pupil-left");
+  const pupilRight = document.getElementById("eye-pupil-right");
+  const svg = document.getElementById("ghost-svg");
+
+  window.addEventListener("mousemove", (e) => {
+    resetInactivityTimer();
+    if (!pupilLeft || !pupilRight || isSleeping || currentMode !== "pet") return;
+
+    const rect = svg.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const dx = (e.clientX - centerX) / (rect.width / 2);
+    const dy = (e.clientY - centerY) / (rect.height / 2);
+
+    const maxOffset = 2.6;
+    const offsetX = Math.max(-maxOffset, Math.min(maxOffset, dx * maxOffset));
+    const offsetY = Math.max(-maxOffset, Math.min(maxOffset, dy * maxOffset));
+
+    pupilLeft.setAttribute("cx", 67 + offsetX);
+    pupilLeft.setAttribute("cy", 63 + offsetY);
+    pupilRight.setAttribute("cx", 97 + offsetX);
+    pupilRight.setAttribute("cy", 63 + offsetY);
+  });
+}
+
+// ==================== INACTIVITY SLEEP / WAKEUP ====================
+function setupInactivitySleep() {
+  resetInactivityTimer();
+}
+
+function resetInactivityTimer() {
+  if (isSleeping) {
+    wakeUpCasper();
+  }
+  clearTimeout(sleepTimer);
+  sleepTimer = setTimeout(() => {
+    if (currentMode === "pet" && !isThinking) {
+      putCasperToSleep();
+    }
+  }, 25000);
+}
+
+function putCasperToSleep() {
+  isSleeping = true;
+  setGhostMood("sleepy");
+  const speech = document.getElementById("speech-text");
+  if (speech) speech.innerText = "💤 zZz... (кликни на меня, чтобы разбудить)";
+}
+
+function wakeUpCasper() {
+  isSleeping = false;
+  setGhostMood("happy");
+  const speech = document.getElementById("speech-text");
+  if (speech) speech.innerText = "Бу! Я проснулся, чем помочь? 👻";
+  setTimeout(() => {
+    if (!isSleeping && currentMode === "pet") {
+      setGhostMood("idle");
+    }
+  }, 3000);
+}
+
+// ==================== CASPER CLICK INTERACTION ====================
+function handlePetClick(event) {
+  resetInactivityTimer();
+  const wrapper = document.getElementById("ghost-wrapper");
+  if (wrapper) {
+    wrapper.classList.remove("wobble", "giggle");
+    void wrapper.offsetWidth; // trigger reflow
+    wrapper.classList.add(clickIndex % 2 === 0 ? "wobble" : "giggle");
+    setTimeout(() => wrapper.classList.remove("wobble", "giggle"), 600);
+  }
+
+  setGhostMood("happy");
+
+  const phrase = CASPER_QUOTES[clickIndex % CASPER_QUOTES.length];
+  clickIndex++;
+
+  const speech = document.getElementById("speech-text");
+  if (speech) speech.innerText = phrase;
+
+  if (window.pywebview && window.pywebview.api) {
+    // Speak aloud if voice enabled
+    window.pywebview.api.speak_text(phrase);
+  }
+
+  setTimeout(() => {
+    if (currentMode === "pet" && !isSleeping) {
+      setGhostMood("idle");
+    }
+  }, 4000);
+}
+
+// Quick action buttons in pet bar
+function quickOpenFolder(e) {
+  if (e) e.stopPropagation();
+  resetInactivityTimer();
+  const speech = document.getElementById("speech-text");
+  if (speech) speech.innerText = "📂 Открываю папку проекта в Finder...";
+  setGhostMood("happy");
+
+  if (window.pywebview && window.pywebview.api) {
+    window.pywebview.api.quick_open_folder().then((res) => {
+      if (speech && res.output) speech.innerText = res.output;
+    });
+  }
+}
+
+function quickToggleFly(e) {
+  if (e) e.stopPropagation();
+  resetInactivityTimer();
+  const btn = document.getElementById("pet-fly-btn");
+  const speech = document.getElementById("speech-text");
+
+  if (window.pywebview && window.pywebview.api) {
+    window.pywebview.api.toggle_wandering().then((res) => {
+      if (res.wandering) {
+        if (btn) btn.classList.add("active");
+        if (speech) speech.innerText = "✈️ Взлетаем! Полетаю немного по экрану!";
+        setGhostMood("happy");
+      } else {
+        if (btn) btn.classList.remove("active");
+        if (speech) speech.innerText = "🛬 Приземлился на базу!";
+        setGhostMood("idle");
+      }
+    });
+  }
+}
+
+function quickToggleVoice(e) {
+  if (e) e.stopPropagation();
+  resetInactivityTimer();
+  const btn = document.getElementById("pet-voice-btn");
+  const hudBtn = document.getElementById("voice-toggle-btn");
+  const speech = document.getElementById("speech-text");
+
+  if (window.pywebview && window.pywebview.api) {
+    window.pywebview.api.toggle_voice().then((res) => {
+      if (res.voice_enabled) {
+        if (btn) btn.classList.add("active");
+        if (hudBtn) hudBtn.innerText = "🔊 Voice ON";
+        if (speech) speech.innerText = "🗣️ Голос включен! Буду озвучивать ответы!";
+      } else {
+        if (btn) btn.classList.remove("active");
+        if (hudBtn) hudBtn.innerText = "🔇 Voice";
+        if (speech) speech.innerText = "🔇 Голос выключен!";
+      }
+    });
+  }
+}
+
 // ==================== GHOST PET ANIMATION, MOODS & ACCESSORIES ====================
 function setGhostMood(mood) {
   const mouth = document.getElementById("mouth");
   const aura = document.getElementById("aura");
   const speech = document.getElementById("speech-text");
   const headphones = document.getElementById("accessory-headphones");
+  const blushLeft = document.getElementById("blush-left");
+  const blushRight = document.getElementById("blush-right");
+  const eyeLeft = document.getElementById("eye-left");
+  const eyeRight = document.getElementById("eye-right");
+
+  // Reset eyes to open
+  if (eyeLeft) eyeLeft.setAttribute("transform", "scale(1, 1)");
+  if (eyeRight) eyeRight.setAttribute("transform", "scale(1, 1)");
 
   if (mood === "idle") {
-    mouth.setAttribute("d", "M 73 80 Q 80 88 87 80");
-    aura.setAttribute("fill", "url(#aura-grad)");
+    if (mouth) mouth.setAttribute("d", "M 73 80 Q 80 88 87 80");
+    if (aura) aura.setAttribute("fill", "url(#aura-grad)");
     if (headphones) headphones.style.display = "none";
+    if (blushLeft) blushLeft.style.opacity = "0.5";
+    if (blushRight) blushRight.style.opacity = "0.5";
   } else if (mood === "eating") {
-    mouth.setAttribute("d", "M 72 78 Q 80 94 88 78 Q 80 74 72 78 Z");
-    speech.innerText = "Nom nom nom! Ingesting file into memory (+15 XP)...";
+    if (mouth) mouth.setAttribute("d", "M 72 75 Q 80 96 88 75 Q 80 72 72 75 Z");
+    if (aura) aura.setAttribute("fill", "rgba(0, 242, 254, 0.6)");
+    if (speech) speech.innerText = "Ням-ням! Учу твои документы в Zero-DB RAG (+15 XP)...";
   } else if (mood === "thinking") {
-    aura.setAttribute("fill", "rgba(155, 81, 224, 0.4)");
-    speech.innerText = "Consulting local neural weights...";
+    if (aura) aura.setAttribute("fill", "rgba(155, 81, 224, 0.4)");
+    if (mouth) mouth.setAttribute("d", "M 75 80 Q 80 82 85 80");
+    if (speech) speech.innerText = "Думаю над твоим вопросом...";
   } else if (mood === "listening") {
     if (headphones) headphones.style.display = "block";
-    speech.innerText = "Listening to meeting audio...";
+    if (speech) speech.innerText = "Слушаю аудио встречу...";
   } else if (mood === "happy") {
-    mouth.setAttribute("d", "M 70 78 Q 80 92 90 78");
+    if (mouth) mouth.setAttribute("d", "M 68 76 Q 80 94 92 76");
+    if (aura) aura.setAttribute("fill", "rgba(0, 242, 254, 0.5)");
+    if (blushLeft) blushLeft.style.opacity = "0.9";
+    if (blushRight) blushRight.style.opacity = "0.9";
+  } else if (mood === "sleepy") {
+    if (mouth) mouth.setAttribute("d", "M 76 82 Q 80 85 84 82");
+    if (aura) aura.setAttribute("fill", "rgba(100, 150, 255, 0.15)");
+    if (eyeLeft) eyeLeft.setAttribute("transform", "scale(1, 0.15)");
+    if (eyeRight) eyeRight.setAttribute("transform", "scale(1, 0.15)");
+    if (blushLeft) blushLeft.style.opacity = "0.2";
+    if (blushRight) blushRight.style.opacity = "0.2";
   }
 }
 
