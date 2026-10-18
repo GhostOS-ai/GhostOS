@@ -10,7 +10,7 @@ import webview
 
 from ghost.ui.api import GhostBridgeAPI
 
-def launch_desktop_pet():
+def launch_desktop_pet(skin: str = "glass"):
     """
     Launches the floating transparent Casper Ghost pet on the desktop.
     """
@@ -21,6 +21,7 @@ def launch_desktop_pet():
         raise FileNotFoundError(f"Missing UI assets at: {index_html}")
 
     api = GhostBridgeAPI()
+    api.skin = skin
 
     # Calculate bottom-right desktop placement
     try:
@@ -38,9 +39,10 @@ def launch_desktop_pet():
 
     # Create frameless, transparent, floating window
     # Initial size: 240x280 for Casper Desktop Pet
+    window_url = f"{index_html.as_uri()}?skin={skin}"
     window = webview.create_window(
         title="GhostOS",
-        url=index_html.as_uri(),
+        url=window_url,
         js_api=api,
         width=240,
         height=280,

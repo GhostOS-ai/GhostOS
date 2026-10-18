@@ -200,12 +200,46 @@ def cmd_status() -> None:
 
     console.print(table)
 
-def cmd_pet() -> None:
+def cmd_models(engine: GhostEngine) -> None:
+    """Display installed local models and hardware acceleration capabilities."""
+    catalog = engine.get_model_catalog()
+
+    table = Table(title="🤖 GhostOS Local Models & Hardware Engine", border_style="cyan")
+    table.add_column("Property", style="bold cyan")
+    table.add_column("Details", style="bold white")
+
+    table.add_row("Active Inference Engine", f"[green]{catalog['active_backend']}[/green]")
+    table.add_row("Hardware Acceleration", f"[bold yellow]{catalog['hardware_acceleration']}[/bold yellow]")
+    table.add_row("Ollama Endpoint", f"{catalog['ollama_host']} ({'Online' if catalog['ollama_active'] else 'Offline'})")
+
+    if catalog["ollama_models"]:
+        models_str = "\n".join([f"• [bold white]{m['name']}[/bold white] ({m['size_gb']} GB)" for m in catalog["ollama_models"]])
+        table.add_row("Installed Ollama Models", models_str)
+    else:
+        table.add_row("Installed Ollama Models", "[dim]None detected (Run 'ollama run llama3.2' to pull a 2GB model)[/dim]")
+
+    if catalog["gguf_models"]:
+        gguf_str = "\n".join([f"• [bold white]{m['name']}[/bold white] ({m['size_gb']} GB)" for m in catalog["gguf_models"]])
+        table.add_row("Local GGUF Models", gguf_str)
+
+    console.print(table)
+
+    rec_table = Table(title="💡 Recommended Low-Spec Models", border_style="dim")
+    rec_table.add_column("Model", style="bold cyan")
+    rec_table.add_column("RAM Footprint", style="green")
+    rec_table.add_column("Target Hardware", style="white")
+
+    for r in catalog["recommended_models"]:
+        rec_table.add_row(r["name"], r["ram"], r["tier"])
+
+    console.print(rec_table)
+
+def cmd_pet(skin: str = "glass") -> None:
     """Launch Desktop Ghost Pet & HUD GUI."""
     try:
         from ghost.ui.app import launch_desktop_pet
-        console.print("[bold cyan]👻 Casper is floating onto your screen...[/bold cyan]")
-        launch_desktop_pet()
+        console.print(f"[bold cyan]👻 Casper ({skin} skin) is floating onto your screen...[/bold cyan]")
+        launch_desktop_pet(skin=skin)
     except Exception as e:
         console.print(f"[bold red]Failed to launch Desktop Pet UI:[/bold red] {e}")
         console.print("[dim]Falling back to interactive terminal chat...[/dim]")
@@ -383,7 +417,7 @@ def cmd_sandbox(command: str) -> None:
 
 def main() -> None:
     KNOWN_COMMANDS = {
-        "ask", "chat", "pet", "eat", "rag", "screen", "exec", "status",
+        "ask", "chat", "pet", "models", "eat", "rag", "screen", "exec", "status",
         "clip", "clipboard", "time", "timemachine", "rpg", "chameleon",
         "web", "agent", "say", "write", "vault", "standup", "sandbox",
         "-h", "--help"
@@ -404,7 +438,11 @@ def main() -> None:
     subparsers.add_parser("chat", help="Start interactive terminal chat session")
 
     # Pet GUI
-    subparsers.add_parser("pet", help="Launch floating Ghost Desktop Pet & Quick HUD")
+    pet_parser = subparsers.add_parser("pet", help="Launch floating Ghost Desktop Pet & Quick HUD")
+    pet_parser.add_argument("--skin", default="glass", choices=["glass", "cyberpunk", "gold", "matrix"], help="Visual skin for Casper (glass, cyberpunk, gold, matrix)")
+
+    # Models / Hardware catalog
+    subparsers.add_parser("models", help="Inspect local AI models, Ollama instances, and hardware acceleration")
 
     # Eat / Ingest
     eat_parser = subparsers.add_parser("eat", help="Feed a file or directory to Ghost (Zero-DB RAG)")
@@ -478,7 +516,9 @@ def main() -> None:
     elif args.subcommand == "chat":
         cmd_chat(engine, rag)
     elif args.subcommand == "pet":
-        cmd_pet()
+        cmd_pet(skin=getattr(args, "skin", "glass"))
+    elif args.subcommand == "models":
+        cmd_models(engine)
     elif args.subcommand == "eat":
         cmd_eat(rag, args.path)
     elif args.subcommand == "rag":

@@ -145,10 +145,86 @@ class GhostEngine:
 
         return reply
 
-    def _query_ollama(self, prompt: str) -> str:
-        """Query local Ollama REST API."""
+    def get_model_catalog(self) -> Dict[str, Any]:
+        """
+        Detects local LLM backends, installed models, and hardware acceleration capabilities.
+        """
+        import platform
+        import sys
+
         host = self.config.get("ollama_host", "http://localhost:11434")
-        model = self.config.get("model_name", "qwen2.5:1.5b")
+        ollama_active = False
+        ollama_models = []
+
+        try:
+            req = urllib.request.Request(f"{host}/api/tags")
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
+                if resp.status == 200:
+                    ollama_active = True
+                    data = json.loads(resp.read().decode("utf-8"))
+                    for m in data.get("models", []):
+                        size_gb = m.get("size", 0) / (1024 ** 3)
+                        ollama_models.append({
+                            "name": m.get("name"),
+                            "size_gb": round(size_gb, 2),
+                            "modified_at": m.get("modified_at", "")[:10]
+                        })
+        except Exception:
+            ollama_active = False
+
+        gguf_models = []
+        for g in GHOST_MODELS_DIR.glob("*.gguf"):
+            gguf_models.append({
+                "name": g.name,
+                "size_gb": round(g.stat().st_size / (1024 ** 3), 2),
+                "path": str(g)
+            })
+
+        # Hardware acceleration
+        hw_accel = "CPU Fallback"
+        if sys.platform == "darwin":
+            hw_accel = "Apple Silicon Metal (Unified Memory MPS)"
+        else:
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    hw_accel = f"NVIDIA CUDA ({torch.cuda.get_device_name(0)})"
+            except ImportError:
+                hw_accel = "CPU (x86_64/ARM)"
+
+        return {
+            "active_backend": self.backend,
+            "hardware_acceleration": hw_accel,
+            "ollama_active": ollama_active,
+            "ollama_host": host,
+            "ollama_models": ollama_models,
+            "gguf_models": gguf_models,
+            "recommended_models": [
+                {"name": "qwen2.5:1.5b", "ram": "1.8GB", "tier": "Base Laptops (4GB-8GB)"},
+                {"name": "llama3.2:3b", "ram": "3.2GB", "tier": "Balanced (8GB-16GB)"},
+                {"name": "deepseek-r1:1.5b", "ram": "2.1GB", "tier": "Reasoning Model"}
+            ]
+        }
+
+    def _query_ollama(self, prompt: str) -> str:
+        """Query local Ollama REST API with intelligent auto-model fallback."""
+        host = self.config.get("ollama_host", "http://localhost:11434")
+        configured_model = self.config.get("model_name")
+
+        # Discover available models
+        catalog = self.get_model_catalog()
+        avail_names = [m["name"] for m in catalog.get("ollama_models", [])]
+
+        if configured_model and (configured_model in avail_names or f"{configured_model}:latest" in avail_names):
+            model = configured_model
+        elif avail_names:
+            # Pick best available local model
+            preferred = ["qwen2.5", "llama3.2", "mistral", "deepseek-r1", "phi3"]
+            chosen = next((m for p in preferred for m in avail_names if p in m), avail_names[0])
+            model = chosen
+        else:
+            model = configured_model or "qwen2.5:1.5b"
+
         payload = {
             "model": model,
             "prompt": prompt,

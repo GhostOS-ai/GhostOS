@@ -20,7 +20,17 @@ document.addEventListener("DOMContentLoaded", () => {
   setupInactivitySleep();
   refreshRpg();
   refreshChameleon();
+
+  // Apply Skin from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const skin = urlParams.get("skin") || "glass";
+  applySkin(skin);
 });
+
+function applySkin(skinName) {
+  document.body.classList.remove("skin-glass", "skin-cyberpunk", "skin-gold", "skin-matrix");
+  document.body.classList.add(`skin-${skinName}`);
+}
 
 // ==================== SPEECH BUBBLE AUTO-HIDE ====================
 // Shows speech bubble for `durationMs` then smoothly fades out and disappears
