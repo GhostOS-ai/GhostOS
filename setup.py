@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ghostos",
-    version="0.1.0",
+    version="1.0.0",
     author="KIB.best",
     author_email="GhostOS@kib.best",
     url="https://github.com/GhostOS-ai/GhostOS",
