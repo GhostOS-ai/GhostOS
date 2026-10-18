@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="ghostos",
+    name="ghostos-ai",
     version="1.0.0",
     author="KIB.best",
     author_email="GhostOS@kib.best",
