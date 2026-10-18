@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GhostOS — Gemini Aura Edition</title>
+  <title>GhostOS — Desktop Copilot</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,35 +16,34 @@
       <span id="speech-text"></span>
     </div>
 
-    <!-- Casper SVG Character (Gemini Aura Style) -->
-    <div id="ghost-wrapper" class="ghost-wrapper" onclick="onPetClick(event)" title="Click to interact | Double-click to open Gemini HUD">
+    <!-- Casper SVG Character (Ethereal Moonlight Style) -->
+    <div id="ghost-wrapper" class="ghost-wrapper" onclick="onPetClick(event)" title="Click to interact | Double-click to open Copilot HUD">
       <svg id="ghost-svg" class="ghost-svg" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
-        <!-- Glow filters and Gemini signature gradients -->
+        <!-- Glow filters and porcelain gradients -->
         <defs>
           <filter id="ghost-glow" x="-25%" y="-25%" width="150%" height="150%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feGaussianBlur stdDeviation="4.5" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
 
-          <!-- Gemini Signature Pearlescent Ghost Body -->
-          <linearGradient id="ghost-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <!-- Ethereal Porcelain Ghost Body -->
+          <linearGradient id="ghost-grad" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98" />
-            <stop offset="55%" stop-color="#e8f0fe" stop-opacity="0.94" />
-            <stop offset="100%" stop-color="#d3e3fd" stop-opacity="0.88" />
+            <stop offset="60%" stop-color="#f5f7fa" stop-opacity="0.95" />
+            <stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.90" />
           </linearGradient>
 
-          <!-- Gemini Aurora Celestial Aura -->
-          <linearGradient id="aura-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#4285f4" stop-opacity="0.45" />
-            <stop offset="50%" stop-color="#9b72cb" stop-opacity="0.3" />
-            <stop offset="100%" stop-color="#ff7597" stop-opacity="0.22" />
-          </linearGradient>
+          <!-- Ethereal Moonlight Sapphire Halo -->
+          <radialGradient id="aura-grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#2997ff" stop-opacity="0.32" />
+            <stop offset="65%" stop-color="#0071e3" stop-opacity="0.14" />
+            <stop offset="100%" stop-color="#0a192f" stop-opacity="0" />
+          </radialGradient>
 
-          <!-- Sparkle Gradient -->
-          <linearGradient id="sparkle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#1ba0fc" />
-            <stop offset="50%" stop-color="#a142f4" />
-            <stop offset="100%" stop-color="#ff5b79" />
+          <!-- Accent Highlight Gradient -->
+          <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2997ff" />
+            <stop offset="100%" stop-color="#0071e3" />
           </linearGradient>
         </defs>
 
@@ -64,48 +63,48 @@
         " fill="url(#ghost-grad)" filter="url(#ghost-glow)" />
 
         <!-- Ghost Left Eye -->
-        <ellipse id="eye-left" class="eye" cx="65" cy="65" rx="6" ry="8" fill="#081026" />
+        <ellipse id="eye-left" class="eye" cx="65" cy="65" rx="6" ry="8" fill="#0d1117" />
         <circle id="eye-pupil-left" cx="67" cy="63" r="2.5" fill="#ffffff" />
 
         <!-- Ghost Right Eye -->
-        <ellipse id="eye-right" class="eye" cx="95" cy="65" rx="6" ry="8" fill="#081026" />
+        <ellipse id="eye-right" class="eye" cx="95" cy="65" rx="6" ry="8" fill="#0d1117" />
         <circle id="eye-pupil-right" cx="97" cy="63" r="2.5" fill="#ffffff" />
 
-        <!-- Cheeks Blush (Soft Gemini Coral Pink) -->
-        <ellipse id="blush-left" cx="56" cy="76" rx="4" ry="2.5" fill="#ff7597" opacity="0.55" />
-        <ellipse id="blush-right" cx="104" cy="76" rx="4" ry="2.5" fill="#ff7597" opacity="0.55" />
+        <!-- Cheeks Blush (Delicate Soft Coral Rose) -->
+        <ellipse id="blush-left" cx="56" cy="76" rx="4" ry="2.5" fill="#ff6b8b" opacity="0.38" />
+        <ellipse id="blush-right" cx="104" cy="76" rx="4" ry="2.5" fill="#ff6b8b" opacity="0.38" />
 
         <!-- Ghost Mouth -->
-        <path id="mouth" class="mouth" d="M 73 80 Q 80 88 87 80" stroke="#081026" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        <path id="mouth" class="mouth" d="M 73 80 Q 80 88 87 80" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" fill="none" />
 
         <!-- ================= UNLOCKABLE ACCESSORIES (RPG EVOLUTION) ================= -->
         <!-- 1. Headphones (Active during audio recording) -->
         <g id="accessory-headphones" class="accessory" style="display: none;">
-          <path d="M 50 65 A 35 35 0 0 1 110 65" fill="none" stroke="#7cacf8" stroke-width="4" stroke-linecap="round" />
-          <rect x="44" y="60" width="8" height="18" rx="4" fill="#4285f4" />
-          <rect x="108" y="60" width="8" height="18" rx="4" fill="#4285f4" />
+          <path d="M 50 65 A 35 35 0 0 1 110 65" fill="none" stroke="#2997ff" stroke-width="4" stroke-linecap="round" />
+          <rect x="44" y="60" width="8" height="18" rx="4" fill="#0071e3" />
+          <rect x="108" y="60" width="8" height="18" rx="4" fill="#0071e3" />
         </g>
 
         <!-- 2. Cyber Visor (Level 3: Code Specter) -->
         <g id="accessory-visor" class="accessory" style="display: none;">
-          <path d="M 52 61 L 108 61 L 104 72 L 56 72 Z" fill="rgba(66, 133, 244, 0.85)" stroke="#fff" stroke-width="1.5" filter="url(#ghost-glow)" />
-          <line x1="42" y1="64" x2="52" y2="64" stroke="#7cacf8" stroke-width="2" />
-          <line x1="108" y1="64" x2="118" y2="64" stroke="#7cacf8" stroke-width="2" />
+          <path d="M 52 61 L 108 61 L 104 72 L 56 72 Z" fill="rgba(41, 151, 255, 0.85)" stroke="#ffffff" stroke-width="1.5" filter="url(#ghost-glow)" />
+          <line x1="42" y1="64" x2="52" y2="64" stroke="#2997ff" stroke-width="2" />
+          <line x1="108" y1="64" x2="118" y2="64" stroke="#2997ff" stroke-width="2" />
         </g>
 
         <!-- 3. Magic Spellbook (Level 5: Grand Scribe) -->
         <g id="accessory-book" class="accessory" style="display: none;">
-          <rect x="30" y="105" width="28" height="20" rx="3" fill="#a142f4" stroke="#7cacf8" stroke-width="1.5" />
-          <line x1="44" y1="105" x2="44" y2="125" stroke="#fff" stroke-width="1" />
+          <rect x="30" y="105" width="28" height="20" rx="3" fill="#303136" stroke="#2997ff" stroke-width="1.5" />
+          <line x1="44" y1="105" x2="44" y2="125" stroke="#ffffff" stroke-width="1" />
           <circle cx="38" cy="115" r="2" fill="#ffd700" />
         </g>
 
         <!-- 4. Golden Crown (Level 6: Void Sentinel) -->
         <g id="accessory-crown" class="accessory" style="display: none;">
-          <polygon points="62,28 70,12 80,24 90,12 98,28" fill="#ffd700" stroke="#ffae00" stroke-width="1.5" filter="url(#ghost-glow)" />
-          <circle cx="70" cy="12" r="2" fill="#4285f4" />
-          <circle cx="80" cy="24" r="2" fill="#ff7597" />
-          <circle cx="90" cy="12" r="2" fill="#a142f4" />
+          <polygon points="62,28 70,12 80,24 90,12 98,28" fill="#ffd700" stroke="#ffb340" stroke-width="1.5" filter="url(#ghost-glow)" />
+          <circle cx="70" cy="12" r="2" fill="#2997ff" />
+          <circle cx="80" cy="24" r="2" fill="#30d158" />
+          <circle cx="90" cy="12" r="2" fill="#2997ff" />
         </g>
       </svg>
     </div>
@@ -127,14 +126,14 @@
   </div>
 
 
-  <!-- ==================== MODE 2: QUICK HUD (GEMINI OBSIDIAN AURA) ==================== -->
+  <!-- ==================== MODE 2: QUICK HUD (SPACE BLACK TITANIUM) ==================== -->
   <div id="hud-view" class="hidden">
     <!-- Top Bar with draggable header -->
     <div class="hud-header pywebview-drag-region">
       <div class="hud-brand">
-        <span class="gemini-sparkle">✦</span>
+        <span class="hud-icon">👻</span>
         <span class="brand-title">GhostOS</span>
-        <span class="brand-sub" data-i18n="brand_sub">Gemini Aura</span>
+        <span class="brand-sub" data-i18n="brand_sub">macOS Copilot</span>
         <span id="hud-rpg-tag" class="brand-tag">Lv.1 Wisp</span>
         <span id="chameleon-pill" class="chameleon-pill" onclick="cycleChameleonMode()" title="Toggle Power Profile" data-i18n="eco">🍃 ECO</span>
       </div>
@@ -160,7 +159,7 @@
 
     <!-- Omnibar Input -->
     <div class="omnibar-container">
-      <span class="omnibar-sparkle">✦</span>
+      <span class="omnibar-icon">⌕</span>
       <input 
         id="hud-input" 
         class="omnibar-input" 
@@ -194,10 +193,10 @@
       <div id="tab-chat" class="tab-pane active">
         <div id="chat-messages" class="chat-messages">
           <div class="msg ghost">
-            <div class="msg-avatar">✦</div>
+            <div class="msg-avatar">👻</div>
             <div class="msg-bubble">
               <b data-i18n="welcome_title">Boo! Casper is online.</b><br>
-              <span data-i18n="welcome_desc">Running in Adaptive Gemini Mode on your Mac with zero cloud leaks.</span><br>
+              <span data-i18n="welcome_desc">Running locally on your Mac with zero cloud leaks.</span><br>
               <span style="color:var(--text-muted); font-size:11.5px;" data-i18n="welcome_tip">Click Casper to interact, double-click to expand HUD, or drag files onto him!</span>
             </div>
           </div>

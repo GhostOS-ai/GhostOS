@@ -1,4 +1,4 @@
-// GhostOS — Interactive Frontend Controller (Gemini Aura Edition)
+// GhostOS — Interactive Frontend Controller (Desktop Copilot)
 
 let currentMode = "pet";
 let isThinking = false;
@@ -163,7 +163,7 @@ function putCasperToSleep() {
 function wakeUpCasper() {
   isSleeping = false;
   setGhostMood("happy");
-  showSpeechBubble(window.i18n ? i18n.t("waking") : "Boo! ✦", 2500);
+  showSpeechBubble(window.i18n ? i18n.t("waking") : "Boo! 👻", 2500);
   setTimeout(() => {
     if (!isSleeping && currentMode === "pet") {
       setGhostMood("idle");
@@ -184,7 +184,7 @@ function handlePetClick(event) {
 
   setGhostMood("happy");
 
-  const quotes = window.i18n ? i18n.getQuotes() : ["Boo! ✦"];
+  const quotes = window.i18n ? i18n.getQuotes() : ["Boo! 👻"];
   const phrase = quotes[clickIndex % quotes.length];
   clickIndex++;
 
@@ -479,7 +479,7 @@ async function handleSend() {
       citations = res.citations || [];
       refreshRpg();
     } else {
-      reply = `✦ Analyzed "${query}". 100% offline inference active.`;
+      reply = `👻 Analyzed "${query}". 100% offline inference active.`;
     }
 
     removeTypingIndicator(typingId);
@@ -498,11 +498,11 @@ function appendMessage(sender, text, citations = []) {
   const msgDiv = document.createElement("div");
   msgDiv.className = `msg ${sender}`;
 
-  const avatar = sender === "user" ? "👤" : "✦";
+  const avatar = sender === "user" ? "👤" : "👻";
   let formattedText = formatMarkdown(text);
 
   if (citations && citations.length > 0) {
-    formattedText += `<div style="margin-top: 6px; font-size: 11px; color: var(--gemini-blue);">📚 Cited: ${citations.join(", ")}</div>`;
+    formattedText += `<div style="margin-top: 6px; font-size: 11px; color: var(--mac-accent);">📚 Cited: ${citations.join(", ")}</div>`;
   }
 
   msgDiv.innerHTML = `
@@ -521,8 +521,8 @@ function appendTypingIndicator() {
   div.id = id;
   div.className = "msg ghost";
   div.innerHTML = `
-    <div class="msg-avatar">✦</div>
-    <div class="msg-bubble" style="font-style: italic; color: var(--gemini-blue);">
+    <div class="msg-avatar">👻</div>
+    <div class="msg-bubble" style="font-style: italic; color: var(--mac-accent);">
       ${window.i18n ? i18n.t("thinking") : "Thinking with local neural weights..."}
     </div>
   `;
@@ -651,10 +651,10 @@ async function runScreenPeek() {
         box.innerHTML = formatMarkdown(res.analysis);
         refreshRpg();
       } else {
-        box.innerHTML = `<p style="color: var(--gemini-coral);">Capture error: ${res.error}</p>`;
+        box.innerHTML = `<p style="color: var(--mac-coral);">Capture error: ${res.error}</p>`;
       }
     } catch (err) {
-      box.innerHTML = `<p style="color: var(--gemini-coral);">Error: ${err}</p>`;
+      box.innerHTML = `<p style="color: var(--mac-coral);">Error: ${err}</p>`;
     }
   }
 }
@@ -795,7 +795,7 @@ async function toggleVoice() {
     btn.innerText = isVoiceEnabled 
       ? (window.i18n ? i18n.t("voice_toggle_on") : "🔊 Voice ON")
       : (window.i18n ? i18n.t("voice_toggle_off") : "🔇 Voice");
-    btn.style.color = isVoiceEnabled ? "var(--gemini-blue)" : "inherit";
+    btn.style.color = isVoiceEnabled ? "var(--mac-accent)" : "inherit";
   }
 }
 

@@ -1,32 +1,31 @@
-/* GhostOS — Google Gemini Signature Obsidian Design */
+/* GhostOS — Desktop Copilot (Space Black Titanium & Ethereal Moonlight) */
 
 :root {
-  /* Google Gemini Signature Palette */
-  --gemini-bg-base: #131314;
-  --gemini-surface-1: #1e1f20;
-  --gemini-surface-2: #282a2c;
-  --gemini-surface-hover: #333538;
-  --gemini-border: rgba(255, 255, 255, 0.08);
-  --gemini-border-focus: rgba(168, 199, 250, 0.45);
+  /* Apple Space Black / Dark Titanium Palette */
+  --mac-bg-base: #161618;
+  --mac-bg-elevated: #1e1e22;
+  --mac-surface-1: #232328;
+  --mac-surface-2: #2b2b31;
+  --mac-surface-hover: #35353d;
+  --mac-border: rgba(255, 255, 255, 0.08);
+  --mac-border-focus: rgba(41, 151, 255, 0.55);
 
-  /* Gemini Aurora Signature Gradients */
-  --gemini-gradient: linear-gradient(135deg, #1ba0fc 0%, #a142f4 50%, #ff5b79 100%);
-  --gemini-gradient-subtle: linear-gradient(135deg, rgba(27, 160, 252, 0.15), rgba(161, 66, 244, 0.15));
-  --gemini-gradient-glow: linear-gradient(90deg, #4285f4, #9b72cb, #ff7597);
-
-  /* Gemini Accents */
-  --gemini-blue: #7cacf8;
-  --gemini-blue-bright: #4285f4;
-  --gemini-purple: #c58af9;
-  --gemini-coral: #ff7597;
-  --gemini-green: #6dd58c;
+  /* Apple Electric & System Accents */
+  --mac-accent: #2997ff;
+  --mac-accent-bright: #47a6ff;
+  --mac-accent-subtle: rgba(41, 151, 255, 0.14);
+  --mac-accent-border: rgba(41, 151, 255, 0.35);
+  --mac-green: #30d158;
+  --mac-coral: #ff453a;
+  --mac-amber: #ff9f0a;
+  --mac-purple: #bf5af2;
 
   /* Typography */
-  --text-primary: #f0f4f9;
-  --text-secondary: #c4c7c5;
-  --text-muted: #8e918f;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-muted: #6e6e73;
 
-  --font-main: "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-main: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SF Mono", Monaco, Menlo, Consolas, monospace;
 }
 
@@ -37,7 +36,7 @@
   user-select: none;
 }
 
-/* Gemini Smooth Custom Scrollbars */
+/* Apple Sleek Thin Scrollbars */
 *::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -94,10 +93,10 @@ html, body {
 .speech-bubble {
   position: absolute;
   top: 6px;
-  max-width: 195px;
-  background: rgba(30, 31, 32, 0.95);
-  border: 1px solid var(--gemini-border);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(66, 133, 244, 0.15);
+  max-width: 200px;
+  background: rgba(26, 26, 30, 0.95);
+  border: 1px solid var(--mac-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   padding: 8px 12px;
   font-size: 11px;
@@ -128,7 +127,7 @@ html, body {
   transform: translateX(-50%);
   border-width: 6px 6px 0;
   border-style: solid;
-  border-color: rgba(30, 31, 32, 0.95) transparent;
+  border-color: rgba(26, 26, 30, 0.95) transparent;
   display: block;
   width: 0;
 }
@@ -146,150 +145,144 @@ html, body {
 }
 
 .ghost-wrapper:hover {
-  transform: scale(1.06);
-}
-
-.ghost-wrapper:active {
-  transform: scale(0.96);
+  transform: scale(1.05);
 }
 
 .ghost-svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 6px 16px rgba(66, 133, 244, 0.25));
+  overflow: visible;
 }
 
-.ghost-body {
-  transition: all 0.3s ease;
-}
-
+/* Ghost Eyes Blink */
 .eye {
   transform-origin: center;
-  animation: eyeBlink 4.2s infinite;
+  animation: eyeBlink 5.5s infinite;
 }
 
-/* Drop indicator */
+/* Drop Indicator Overlay (for RAG drag-and-drop) */
 .drop-indicator {
   position: absolute;
-  bottom: 34px;
-  background: var(--gemini-gradient-subtle);
-  border: 1.5px dashed var(--gemini-blue);
+  inset: 10px;
+  background: var(--mac-accent-subtle);
+  border: 1.5px dashed var(--mac-accent);
   border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 10.5px;
-  color: var(--gemini-blue);
-  display: none;
-  box-shadow: 0 4px 14px rgba(66, 133, 244, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mac-accent);
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s;
+  z-index: 50;
 }
 
-#pet-view.drag-over .drop-indicator {
-  display: block;
+.drop-indicator.active {
+  opacity: 1;
+  transform: scale(1.02);
 }
 
-#pet-view.drag-over .ghost-wrapper {
-  transform: scale(1.14);
-}
-
-/* Pet Bottom Bar */
+/* Bottom Bar: Quick Controls */
 .pet-bar {
   position: absolute;
   bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(22, 23, 25, 0.92);
-  padding: 3px 8px;
-  border-radius: 20px;
-  border: 1px solid var(--gemini-border);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  gap: 7px;
+  background: rgba(28, 28, 32, 0.90);
+  border: 1px solid var(--mac-border);
+  padding: 5px 12px;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.15);
+  z-index: 15;
 }
 
 .status-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--gemini-green);
-  box-shadow: 0 0 8px var(--gemini-green);
+  background: var(--mac-green);
+  box-shadow: 0 0 6px var(--mac-green);
 }
 
 .rpg-pill {
   font-size: 10px;
-  font-weight: 500;
-  color: var(--gemini-blue);
-  background: rgba(124, 172, 248, 0.12);
-  padding: 2px 7px;
-  border-radius: 12px;
-  border: 1px solid rgba(124, 172, 248, 0.25);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--mac-accent);
+  padding: 1px 6px;
+  background: var(--mac-accent-subtle);
+  border-radius: 10px;
+  border: 1px solid var(--mac-accent-border);
 }
 
 .pet-btn {
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
+  border: none;
+  font-size: 13px;
   cursor: pointer;
-  font-size: 12px;
   padding: 2px 4px;
-  line-height: 1.1;
-  transition: all 0.2s ease;
+  border-radius: 6px;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pet-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.12);
-}
-
-.pet-btn.active {
-  background: var(--gemini-gradient);
-  color: #fff;
-  border-radius: 6px;
-  box-shadow: 0 0 10px rgba(161, 66, 244, 0.5);
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.1);
 }
 
 .expand-btn {
-  background: rgba(66, 133, 244, 0.15);
-  border: 1px solid rgba(66, 133, 244, 0.35);
-  border-radius: 6px;
+  background: var(--mac-accent);
+  border: none;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 12px;
-  padding: 2px 5px;
-  line-height: 1.1;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  box-shadow: 0 2px 8px rgba(41, 151, 255, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .expand-btn:hover {
-  background: var(--gemini-blue-bright);
-  color: #fff;
+  background: var(--mac-accent-bright);
   transform: scale(1.12);
 }
 
 
-/* ==================== MODE 2: GEMINI OBSIDIAN HUD ==================== */
+/* ==================== MODE 2: QUICK HUD (APPLE SPACE BLACK TITANIUM) ==================== */
 #hud-view {
   width: 100%;
   height: 100%;
-  /* High performance native obsidian surface — NO heavy window blur for 60fps instant dragging */
-  background: radial-gradient(circle at 90% 10%, rgba(66, 133, 244, 0.08) 0%, transparent 45%),
-              radial-gradient(circle at 10% 90%, rgba(161, 66, 244, 0.06) 0%, transparent 45%),
-              var(--gemini-bg-base);
-  border: 1px solid var(--gemini-border);
-  border-radius: 20px;
+  /* High performance native Dark Titanium surface — NO heavy window blur for 60/120fps instant dragging */
+  background: var(--mac-bg-base);
+  border: 1px solid var(--mac-border);
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
   overflow: hidden;
   animation: hudScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Header */
 .hud-header {
-  height: 46px;
-  padding: 0 18px;
+  height: 44px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--gemini-border);
+  border-bottom: 1px solid var(--mac-border);
   cursor: grab;
-  background: var(--gemini-surface-1);
+  background: var(--mac-bg-elevated);
 }
 
 .hud-brand {
@@ -298,19 +291,16 @@ html, body {
   gap: 8px;
 }
 
-.gemini-sparkle {
+.hud-icon {
   font-size: 16px;
-  background: var(--gemini-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   display: inline-block;
-  animation: sparkleGlow 3s ease-in-out infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .brand-title {
   font-size: 13.5px;
   font-weight: 600;
-  letter-spacing: 0.3px;
+  letter-spacing: -0.2px;
   color: var(--text-primary);
 }
 
@@ -323,40 +313,41 @@ html, body {
 
 .brand-tag {
   font-size: 10px;
-  background: rgba(161, 66, 244, 0.15);
-  color: var(--gemini-purple);
+  font-weight: 500;
+  background: var(--mac-accent-subtle);
+  color: var(--mac-accent);
   padding: 2px 7px;
   border-radius: 10px;
-  border: 1px solid rgba(161, 66, 244, 0.3);
+  border: 1px solid var(--mac-accent-border);
 }
 
 .chameleon-pill {
   font-size: 10px;
   font-weight: 500;
-  color: var(--gemini-green);
-  background: rgba(109, 213, 140, 0.12);
+  color: var(--mac-green);
+  background: rgba(48, 209, 88, 0.12);
   padding: 2px 7px;
   border-radius: 10px;
-  border: 1px solid rgba(109, 213, 140, 0.25);
+  border: 1px solid rgba(48, 209, 88, 0.25);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .chameleon-pill:hover {
-  background: rgba(109, 213, 140, 0.22);
+  background: rgba(48, 209, 88, 0.22);
 }
 
 .hud-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 /* Language Selector Dropdown */
 .lang-select {
-  background: var(--gemini-surface-2);
-  border: 1px solid var(--gemini-border);
-  border-radius: 12px;
+  background: var(--mac-surface-2);
+  border: 1px solid var(--mac-border);
+  border-radius: 8px;
   color: var(--text-primary);
   font-size: 11px;
   padding: 3px 8px;
@@ -366,13 +357,13 @@ html, body {
 }
 
 .lang-select:hover {
-  border-color: var(--gemini-blue);
-  background: var(--gemini-surface-hover);
+  border-color: var(--mac-accent);
+  background: var(--mac-surface-hover);
 }
 
 .icon-btn {
-  background: var(--gemini-surface-2);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-2);
+  border: 1px solid var(--mac-border);
   color: var(--text-secondary);
   padding: 4px 10px;
   border-radius: 8px;
@@ -382,32 +373,32 @@ html, body {
 }
 
 .icon-btn:hover {
-  background: var(--gemini-surface-hover);
+  background: var(--mac-surface-hover);
   color: var(--text-primary);
 }
 
-/* Omnibar Input */
+/* Omnibar Input (Spotlight Search Style) */
 .omnibar-container {
-  padding: 12px 18px 10px 18px;
+  padding: 11px 16px 9px 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--gemini-bg-base);
+  gap: 9px;
+  background: var(--mac-bg-base);
 }
 
-.omnibar-sparkle {
-  font-size: 15px;
-  background: var(--gemini-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.omnibar-icon {
+  font-size: 16px;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: inline-block;
 }
 
 .omnibar-input {
   flex: 1;
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
-  border-radius: 28px;
-  padding: 10px 18px;
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
+  border-radius: 20px;
+  padding: 9px 16px;
   font-size: 13px;
   color: var(--text-primary);
   outline: none;
@@ -416,9 +407,9 @@ html, body {
 }
 
 .omnibar-input:focus {
-  border-color: var(--gemini-blue);
-  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
-  background: var(--gemini-surface-2);
+  border-color: var(--mac-accent);
+  box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.25);
+  background: var(--mac-surface-2);
 }
 
 .omnibar-input::placeholder {
@@ -426,58 +417,58 @@ html, body {
 }
 
 .send-btn {
-  background: var(--gemini-gradient);
+  background: var(--mac-accent);
   border: none;
   color: #ffffff;
-  padding: 9px 18px;
-  border-radius: 24px;
+  padding: 8px 16px;
+  border-radius: 20px;
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 12px rgba(66, 133, 244, 0.3);
+  transition: all 0.18s;
+  box-shadow: 0 2px 10px rgba(41, 151, 255, 0.35);
 }
 
 .send-btn:hover {
-  opacity: 0.92;
+  background: var(--mac-accent-bright);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(161, 66, 244, 0.4);
+  box-shadow: 0 4px 14px rgba(41, 151, 255, 0.45);
 }
 
-/* Navigation Segmented Tabs (Wrap layout — NO horizontal scrollbar jumping) */
+/* Navigation Segmented Tabs (macOS Pill Switcher) */
 .hud-nav {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 8px 18px 10px 18px;
-  background: var(--gemini-bg-base);
-  border-bottom: 1px solid var(--gemini-border);
+  padding: 7px 16px 9px 16px;
+  background: var(--mac-bg-base);
+  border-bottom: 1px solid var(--mac-border);
 }
 
 .nav-pill {
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
   color: var(--text-secondary);
   padding: 5px 11px;
-  border-radius: 16px;
+  border-radius: 14px;
   font-size: 11.5px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   white-space: nowrap;
 }
 
 .nav-pill:hover {
   color: var(--text-primary);
-  background: var(--gemini-surface-hover);
+  background: var(--mac-surface-hover);
   border-color: rgba(255, 255, 255, 0.12);
 }
 
 .nav-pill.active {
-  background: var(--gemini-gradient-subtle);
-  color: var(--gemini-blue);
-  border-color: rgba(124, 172, 248, 0.5);
+  background: var(--mac-surface-hover);
+  color: #ffffff;
+  border-color: var(--mac-accent);
   font-weight: 600;
-  box-shadow: 0 0 10px rgba(66, 133, 244, 0.12);
+  box-shadow: inset 0 0 0 1px var(--mac-accent), 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* Body & Content Panes */
@@ -486,8 +477,8 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 14px 18px;
-  background: var(--gemini-bg-base);
+  padding: 14px 16px;
+  background: var(--mac-bg-base);
 }
 
 .tab-pane {
@@ -531,25 +522,26 @@ html, body {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--gemini-surface-2);
+  background: var(--mac-surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   flex-shrink: 0;
-  border: 1px solid var(--gemini-border);
+  border: 1px solid var(--mac-border);
 }
 
 .msg.ghost .msg-avatar {
-  background: var(--gemini-gradient);
-  color: #fff;
+  background: var(--mac-surface-2);
+  border-color: var(--mac-accent-border);
+  color: var(--mac-accent);
 }
 
 .msg-bubble {
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
   padding: 10px 14px;
-  border-radius: 16px;
+  border-radius: 14px;
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-primary);
@@ -557,13 +549,15 @@ html, body {
 }
 
 .msg.user .msg-bubble {
-  background: var(--gemini-surface-2);
-  border-color: rgba(255, 255, 255, 0.12);
-  border-radius: 16px 16px 4px 16px;
+  background: var(--mac-accent);
+  border-color: transparent;
+  color: #ffffff;
+  border-radius: 14px 14px 3px 14px;
+  box-shadow: 0 2px 8px rgba(41, 151, 255, 0.3);
 }
 
 .msg.ghost .msg-bubble {
-  border-radius: 16px 16px 16px 4px;
+  border-radius: 14px 14px 14px 3px;
 }
 
 /* Common UI Elements for Panes */
@@ -577,23 +571,24 @@ html, body {
 .pane-header h3 {
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: -0.1px;
   color: var(--text-primary);
 }
 
 .action-btn {
-  background: var(--gemini-surface-2);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-2);
+  border: 1px solid var(--mac-border);
   color: var(--text-primary);
   padding: 6px 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .action-btn:hover {
-  background: var(--gemini-surface-hover);
-  border-color: var(--gemini-blue);
+  background: var(--mac-surface-hover);
+  border-color: var(--mac-accent);
 }
 
 .input-row {
@@ -603,10 +598,10 @@ html, body {
 
 .input-row input {
   flex: 1;
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   color: #fff;
   font-size: 12.5px;
   outline: none;
@@ -614,13 +609,14 @@ html, body {
 }
 
 .input-row input:focus {
-  border-color: var(--gemini-blue);
+  border-color: var(--mac-accent);
+  box-shadow: 0 0 0 2px rgba(41, 151, 255, 0.25);
 }
 
 .pilot-card {
   margin-top: 14px;
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
   border-radius: 12px;
   padding: 14px;
   user-select: text;
@@ -633,9 +629,9 @@ html, body {
   font-size: 11px;
   font-weight: 600;
   margin-bottom: 8px;
-  background: rgba(109, 213, 140, 0.15);
-  color: var(--gemini-green);
-  border: 1px solid rgba(109, 213, 140, 0.3);
+  background: rgba(48, 209, 88, 0.15);
+  color: var(--mac-green);
+  border: 1px solid rgba(48, 209, 88, 0.3);
 }
 
 .pilot-desc {
@@ -650,7 +646,7 @@ html, body {
 }
 
 .run-btn {
-  background: var(--gemini-gradient);
+  background: var(--mac-accent);
   border: none;
   color: #fff;
   padding: 6px 14px;
@@ -658,11 +654,17 @@ html, body {
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 2px 8px rgba(41, 151, 255, 0.3);
+}
+
+.run-btn:hover {
+  background: var(--mac-accent-bright);
 }
 
 .copy-btn {
-  background: var(--gemini-surface-2);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-2);
+  border: 1px solid var(--mac-border);
   color: var(--text-primary);
   padding: 6px 12px;
   border-radius: 8px;
@@ -670,20 +672,25 @@ html, body {
   cursor: pointer;
 }
 
+.copy-btn:hover {
+  background: var(--mac-surface-hover);
+}
+
 .output-box {
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid var(--gemini-border);
+  border-top: 1px solid var(--mac-border);
 }
 
 .output-box pre {
   margin-top: 6px;
-  background: #090a0c;
+  background: #0f1013;
   padding: 10px;
   border-radius: 8px;
+  border: 1px solid var(--mac-border);
   font-family: var(--font-mono);
   font-size: 11.5px;
-  color: #e3e3e3;
+  color: #e5e5ea;
   overflow-x: auto;
 }
 
@@ -696,8 +703,8 @@ html, body {
 }
 
 .stat-card {
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
   border-radius: 12px;
   padding: 12px 14px;
   display: flex;
@@ -707,11 +714,11 @@ html, body {
 .stat-num {
   font-size: 20px;
   font-weight: 700;
-  color: var(--gemini-blue);
+  color: var(--mac-accent);
 }
 
 .stat-card.highlight .stat-num {
-  color: var(--gemini-green);
+  color: var(--mac-green);
 }
 
 .stat-label {
@@ -721,8 +728,8 @@ html, body {
 }
 
 .chameleon-control-card {
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
   border-radius: 12px;
   padding: 12px 14px;
 }
@@ -740,26 +747,27 @@ html, body {
 }
 
 .mode-btn {
-  background: var(--gemini-surface-2);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-2);
+  border: 1px solid var(--mac-border);
   color: var(--text-secondary);
   padding: 5px 12px;
-  border-radius: 16px;
+  border-radius: 14px;
   font-size: 11px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .mode-btn:hover {
-  background: var(--gemini-surface-hover);
+  background: var(--mac-surface-hover);
   color: var(--text-primary);
 }
 
 .mode-btn.active {
-  background: var(--gemini-gradient);
+  background: var(--mac-accent);
   color: #fff;
   font-weight: 600;
   border-color: transparent;
+  box-shadow: 0 2px 8px rgba(41, 151, 255, 0.35);
 }
 
 .chameleon-details {
@@ -782,8 +790,8 @@ html, body {
 }
 
 .doc-item {
-  background: var(--gemini-surface-1);
-  border: 1px solid var(--gemini-border);
+  background: var(--mac-surface-1);
+  border: 1px solid var(--mac-border);
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 12px;
@@ -804,7 +812,7 @@ html, body {
 /* Keyframe Animations */
 @keyframes ghostFloat {
   0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(1.5deg); }
+  50% { transform: translateY(-7px) rotate(1.5deg); }
   100% { transform: translateY(0px) rotate(0deg); }
 }
 
@@ -815,17 +823,17 @@ html, body {
 
 @keyframes ghostWobble {
   0% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.1) rotate(-6deg); }
-  50% { transform: scale(1.15) rotate(6deg); }
-  75% { transform: scale(1.05) rotate(-3deg); }
+  25% { transform: scale(1.08) rotate(-5deg); }
+  50% { transform: scale(1.12) rotate(5deg); }
+  75% { transform: scale(1.04) rotate(-2deg); }
   100% { transform: scale(1) rotate(0deg); }
 }
 
 @keyframes ghostGiggle {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(-6px) rotate(-4deg); }
-  50% { transform: translateY(2px) rotate(4deg); }
-  75% { transform: translateY(-3px) rotate(-2deg); }
+  25% { transform: translateY(-5px) rotate(-3deg); }
+  50% { transform: translateY(2px) rotate(3deg); }
+  75% { transform: translateY(-2px) rotate(-1deg); }
 }
 
 .ghost-wrapper.wobble {
@@ -834,11 +842,6 @@ html, body {
 
 .ghost-wrapper.giggle {
   animation: ghostGiggle 0.45s ease-in-out;
-}
-
-@keyframes sparkleGlow {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.18); opacity: 1; }
 }
 
 @keyframes fadeIn {
