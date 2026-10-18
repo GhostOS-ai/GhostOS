@@ -1,4 +1,4 @@
-// GhostOS Interactive Frontend Controller
+// GhostOS — Interactive Frontend Controller (Gemini Aura Edition)
 
 let currentMode = "pet";
 let isThinking = false;
@@ -6,20 +6,14 @@ let currentClipboardText = "";
 let sleepTimer = null;
 let isSleeping = false;
 let clickIndex = 0;
-
-const CASPER_QUOTES = [
-  "Бу! Я не страшный, я твой локальный AI-ассистент! 👻",
-  "Все твои данные только на этом Маке — 0% облачных утечек! 🔒",
-  "Перетащи в меня любой файл (PDF, код, заметку), и я его съем! 🍕",
-  "Двойной клик на меня или кнопка 💬 откроет командный пульт! 🚀",
-  "Почеши за ушком! Память в норме, процессор не греется! ✨",
-  "Нажми 📂 внизу, чтобы мгновенно открыть Finder!",
-  "Нажми ✈️ внизу, чтобы я полетал по твоему экрану!",
-  "Нажми 🗣️ внизу, чтобы включить голосовое общение!"
-];
+let petClickDebounceTimer = null;
+let bubbleHideTimer = null;
 
 // Initialize on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
+  if (window.i18n) {
+    i18n.applyTranslations();
+  }
   setupDragAndDrop();
   setupKeyboardShortcuts();
   setupEyeTracking();
@@ -27,6 +21,49 @@ document.addEventListener("DOMContentLoaded", () => {
   refreshRpg();
   refreshChameleon();
 });
+
+// ==================== SPEECH BUBBLE AUTO-HIDE ====================
+// Shows speech bubble for `durationMs` then smoothly fades out and disappears
+function showSpeechBubble(text, durationMs = 3500) {
+  const bubble = document.getElementById("speech-bubble");
+  const speechText = document.getElementById("speech-text");
+  if (!bubble || !speechText) return;
+
+  speechText.innerText = text;
+  bubble.classList.add("visible");
+
+  clearTimeout(bubbleHideTimer);
+  if (durationMs > 0) {
+    bubbleHideTimer = setTimeout(() => {
+      bubble.classList.remove("visible");
+    }, durationMs);
+  }
+}
+
+function hideSpeechBubble() {
+  const bubble = document.getElementById("speech-bubble");
+  if (bubble) bubble.classList.remove("visible");
+  clearTimeout(bubbleHideTimer);
+}
+
+// ==================== DEBOUNCED CLICK VS DOUBLE CLICK ====================
+// Solves sluggish window movement by eliminating double click event collisions
+function onPetClick(event) {
+  if (petClickDebounceTimer !== null) {
+    // Second click detected -> DOUBLE CLICK!
+    clearTimeout(petClickDebounceTimer);
+    petClickDebounceTimer = null;
+    hideSpeechBubble();
+    toggleHudMode("hud");
+    return;
+  }
+
+  // First click -> wait 220ms before triggering single-click reaction
+  petClickDebounceTimer = setTimeout(() => {
+    petClickDebounceTimer = null;
+    handlePetClick(event);
+  }, 220);
+}
 
 // Toggle between Floating Casper and Spotlight HUD
 function toggleHudMode(mode) {
@@ -37,24 +74,31 @@ function toggleHudMode(mode) {
   if (mode === "hud") {
     petView.classList.add("hidden");
     hudView.classList.remove("hidden");
-    setTimeout(() => {
-      document.getElementById("hud-input").focus();
-    }, 100);
-    refreshVramStats();
-    refreshKnowledgeDocs();
-    refreshRpg();
-    refreshChameleon();
+    hideSpeechBubble();
+
+    // Smooth resize via WebKit Cocoa Bridge
     if (window.pywebview && window.pywebview.api) {
       window.pywebview.api.toggle_mode("hud");
     }
+
+    setTimeout(() => {
+      const input = document.getElementById("hud-input");
+      if (input) input.focus();
+    }, 80);
+
+    // Light asynchronous header refreshes without blocking
+    refreshRpg();
+    refreshChameleon();
   } else {
     hudView.classList.add("hidden");
     petView.classList.remove("hidden");
     setGhostMood("idle");
-    refreshRpg();
+    hideSpeechBubble();
+
     if (window.pywebview && window.pywebview.api) {
       window.pywebview.api.toggle_mode("pet");
     }
+    refreshRpg();
   }
 }
 
@@ -112,23 +156,22 @@ function resetInactivityTimer() {
 function putCasperToSleep() {
   isSleeping = true;
   setGhostMood("sleepy");
-  const speech = document.getElementById("speech-text");
-  if (speech) speech.innerText = "💤 zZz... (кликни на меня, чтобы разбудить)";
+  // Speech bubble stays hidden or shows gentle sleep note briefly
+  showSpeechBubble(window.i18n ? i18n.t("sleeping") : "💤 zZz...", 2500);
 }
 
 function wakeUpCasper() {
   isSleeping = false;
   setGhostMood("happy");
-  const speech = document.getElementById("speech-text");
-  if (speech) speech.innerText = "Бу! Я проснулся, чем помочь? 👻";
+  showSpeechBubble(window.i18n ? i18n.t("waking") : "Boo! ✦", 2500);
   setTimeout(() => {
     if (!isSleeping && currentMode === "pet") {
       setGhostMood("idle");
     }
-  }, 3000);
+  }, 2600);
 }
 
-// ==================== CASPER CLICK INTERACTION ====================
+// ==================== CASPER SINGLE CLICK INTERACTION ====================
 function handlePetClick(event) {
   resetInactivityTimer();
   const wrapper = document.getElementById("ghost-wrapper");
@@ -136,19 +179,19 @@ function handlePetClick(event) {
     wrapper.classList.remove("wobble", "giggle");
     void wrapper.offsetWidth; // trigger reflow
     wrapper.classList.add(clickIndex % 2 === 0 ? "wobble" : "giggle");
-    setTimeout(() => wrapper.classList.remove("wobble", "giggle"), 600);
+    setTimeout(() => wrapper.classList.remove("wobble", "giggle"), 550);
   }
 
   setGhostMood("happy");
 
-  const phrase = CASPER_QUOTES[clickIndex % CASPER_QUOTES.length];
+  const quotes = window.i18n ? i18n.getQuotes() : ["Boo! ✦"];
+  const phrase = quotes[clickIndex % quotes.length];
   clickIndex++;
 
-  const speech = document.getElementById("speech-text");
-  if (speech) speech.innerText = phrase;
+  // Show bubble for 3.5 seconds, then auto-hide cleanly
+  showSpeechBubble(phrase, 3500);
 
   if (window.pywebview && window.pywebview.api) {
-    // Speak aloud if voice enabled
     window.pywebview.api.speak_text(phrase);
   }
 
@@ -156,20 +199,19 @@ function handlePetClick(event) {
     if (currentMode === "pet" && !isSleeping) {
       setGhostMood("idle");
     }
-  }, 4000);
+  }, 3600);
 }
 
 // Quick action buttons in pet bar
 function quickOpenFolder(e) {
   if (e) e.stopPropagation();
   resetInactivityTimer();
-  const speech = document.getElementById("speech-text");
-  if (speech) speech.innerText = "📂 Открываю папку проекта в Finder...";
+  showSpeechBubble("📂 " + (window.i18n ? i18n.t("folder_opened") : "Opening Finder..."), 3000);
   setGhostMood("happy");
 
   if (window.pywebview && window.pywebview.api) {
     window.pywebview.api.quick_open_folder().then((res) => {
-      if (speech && res.output) speech.innerText = res.output;
+      if (res.output) showSpeechBubble(res.output, 3500);
     });
   }
 }
@@ -178,17 +220,16 @@ function quickToggleFly(e) {
   if (e) e.stopPropagation();
   resetInactivityTimer();
   const btn = document.getElementById("pet-fly-btn");
-  const speech = document.getElementById("speech-text");
 
   if (window.pywebview && window.pywebview.api) {
     window.pywebview.api.toggle_wandering().then((res) => {
       if (res.wandering) {
         if (btn) btn.classList.add("active");
-        if (speech) speech.innerText = "✈️ Взлетаем! Полетаю немного по экрану!";
+        showSpeechBubble(window.i18n ? i18n.t("flight_on") : "✈️ Flying!", 3000);
         setGhostMood("happy");
       } else {
         if (btn) btn.classList.remove("active");
-        if (speech) speech.innerText = "🛬 Приземлился на базу!";
+        showSpeechBubble(window.i18n ? i18n.t("flight_off") : "🛬 Landed!", 2500);
         setGhostMood("idle");
       }
     });
@@ -200,35 +241,33 @@ function quickToggleVoice(e) {
   resetInactivityTimer();
   const btn = document.getElementById("pet-voice-btn");
   const hudBtn = document.getElementById("voice-toggle-btn");
-  const speech = document.getElementById("speech-text");
 
   if (window.pywebview && window.pywebview.api) {
     window.pywebview.api.toggle_voice().then((res) => {
       if (res.voice_enabled) {
         if (btn) btn.classList.add("active");
-        if (hudBtn) hudBtn.innerText = "🔊 Voice ON";
-        if (speech) speech.innerText = "🗣️ Голос включен! Буду озвучивать ответы!";
+        if (hudBtn) hudBtn.innerText = window.i18n ? i18n.t("voice_toggle_on") : "🔊 Voice ON";
+        showSpeechBubble(window.i18n ? i18n.t("voice_on") : "🗣️ Voice ON", 3000);
       } else {
         if (btn) btn.classList.remove("active");
-        if (hudBtn) hudBtn.innerText = "🔇 Voice";
-        if (speech) speech.innerText = "🔇 Голос выключен!";
+        if (hudBtn) hudBtn.innerText = window.i18n ? i18n.t("voice_toggle_off") : "🔇 Voice";
+        showSpeechBubble(window.i18n ? i18n.t("voice_off") : "🔇 Voice OFF", 2500);
       }
     });
   }
 }
 
-// ==================== GHOST PET ANIMATION, MOODS & ACCESSORIES ====================
+// ==================== GHOST PET ANIMATION & MOODS ====================
 function setGhostMood(mood) {
   const mouth = document.getElementById("mouth");
   const aura = document.getElementById("aura");
-  const speech = document.getElementById("speech-text");
   const headphones = document.getElementById("accessory-headphones");
   const blushLeft = document.getElementById("blush-left");
   const blushRight = document.getElementById("blush-right");
   const eyeLeft = document.getElementById("eye-left");
   const eyeRight = document.getElementById("eye-right");
 
-  // Reset eyes to open
+  // Reset eyes
   if (eyeLeft) eyeLeft.setAttribute("transform", "scale(1, 1)");
   if (eyeRight) eyeRight.setAttribute("transform", "scale(1, 1)");
 
@@ -236,22 +275,19 @@ function setGhostMood(mood) {
     if (mouth) mouth.setAttribute("d", "M 73 80 Q 80 88 87 80");
     if (aura) aura.setAttribute("fill", "url(#aura-grad)");
     if (headphones) headphones.style.display = "none";
-    if (blushLeft) blushLeft.style.opacity = "0.5";
-    if (blushRight) blushRight.style.opacity = "0.5";
+    if (blushLeft) blushLeft.style.opacity = "0.55";
+    if (blushRight) blushRight.style.opacity = "0.55";
   } else if (mood === "eating") {
     if (mouth) mouth.setAttribute("d", "M 72 75 Q 80 96 88 75 Q 80 72 72 75 Z");
-    if (aura) aura.setAttribute("fill", "rgba(0, 242, 254, 0.6)");
-    if (speech) speech.innerText = "Ням-ням! Учу твои документы в Zero-DB RAG (+15 XP)...";
+    if (aura) aura.setAttribute("fill", "rgba(66, 133, 244, 0.6)");
   } else if (mood === "thinking") {
-    if (aura) aura.setAttribute("fill", "rgba(155, 81, 224, 0.4)");
+    if (aura) aura.setAttribute("fill", "rgba(161, 66, 244, 0.45)");
     if (mouth) mouth.setAttribute("d", "M 75 80 Q 80 82 85 80");
-    if (speech) speech.innerText = "Думаю над твоим вопросом...";
   } else if (mood === "listening") {
     if (headphones) headphones.style.display = "block";
-    if (speech) speech.innerText = "Слушаю аудио встречу...";
   } else if (mood === "happy") {
     if (mouth) mouth.setAttribute("d", "M 68 76 Q 80 94 92 76");
-    if (aura) aura.setAttribute("fill", "rgba(0, 242, 254, 0.5)");
+    if (aura) aura.setAttribute("fill", "rgba(27, 160, 252, 0.5)");
     if (blushLeft) blushLeft.style.opacity = "0.9";
     if (blushRight) blushRight.style.opacity = "0.9";
   } else if (mood === "sleepy") {
@@ -271,7 +307,7 @@ async function refreshRpg() {
       const stats = await window.pywebview.api.get_rpg_status();
       updateRpgUI(stats);
     } catch (e) {
-      console.log("RPG init error:", e);
+      console.log("RPG status error:", e);
     }
   }
 }
@@ -284,7 +320,6 @@ function updateRpgUI(stats) {
   if (petBadge) petBadge.innerText = `${stats.badge} (Lv.${stats.level})`;
   if (hudTag) hudTag.innerText = `Lv.${stats.level} ${stats.title} (${stats.xp} XP)`;
 
-  // Toggle accessories based on evolution level
   const visor = document.getElementById("accessory-visor");
   const book = document.getElementById("accessory-book");
   const crown = document.getElementById("accessory-crown");
@@ -302,14 +337,14 @@ function setupDragAndDrop() {
     e.preventDefault();
     petView.classList.add("drag-over");
     setGhostMood("eating");
-    document.getElementById("speech-text").innerText = "Ooh! Feed me that file (+15 XP)!";
+    showSpeechBubble(window.i18n ? i18n.t("feed_prompt") : "🍕 Feed Me Files!", 3000);
   });
 
   window.addEventListener("dragleave", (e) => {
     e.preventDefault();
     petView.classList.remove("drag-over");
     setGhostMood("idle");
-    document.getElementById("speech-text").innerText = "Boo! Drag files here to feed me, or click to open HUD!";
+    hideSpeechBubble();
   });
 
   window.addEventListener("drop", (e) => {
@@ -321,12 +356,14 @@ function setupDragAndDrop() {
       handleFileIngestion(file);
     } else {
       setGhostMood("idle");
+      hideSpeechBubble();
     }
   });
 }
 
 function handleFileIngestion(file) {
   setGhostMood("eating");
+  showSpeechBubble(window.i18n ? i18n.t("eating") : "Nom nom nom...", 4000);
   const reader = new FileReader();
 
   reader.onload = async (event) => {
@@ -335,21 +372,18 @@ function handleFileIngestion(file) {
       try {
         const res = await window.pywebview.api.ingest_dropped_content(file.name, content);
         if (res.success) {
-          document.getElementById("speech-text").innerText = `Yum! Ingested "${file.name}"! +15 XP`;
+          showSpeechBubble(`✔ "${file.name}" learned! +15 XP`, 3500);
           refreshRpg();
         } else {
-          document.getElementById("speech-text").innerText = `Couldn't eat that: ${res.error}`;
+          showSpeechBubble(`Error: ${res.error}`, 3500);
         }
       } catch (err) {
-        document.getElementById("speech-text").innerText = `Ingestion error: ${err}`;
+        showSpeechBubble(`Error: ${err}`, 3500);
       }
-    } else {
-      document.getElementById("speech-text").innerText = `Chomp! Ingested "${file.name}"!`;
     }
 
     setTimeout(() => {
       setGhostMood("idle");
-      document.getElementById("speech-text").innerText = "Boo! Ask me anything about your files!";
     }, 3500);
   };
 
@@ -436,7 +470,7 @@ async function handleSend() {
   const typingId = appendTypingIndicator();
 
   try {
-    let reply = "I am ready!";
+    let reply = "Ready!";
     let citations = [];
 
     if (window.pywebview && window.pywebview.api) {
@@ -445,7 +479,7 @@ async function handleSend() {
       citations = res.citations || [];
       refreshRpg();
     } else {
-      reply = `👻 (Simulated): Analyzed "${query}". 100% offline local inference ready.`;
+      reply = `✦ Analyzed "${query}". 100% offline inference active.`;
     }
 
     removeTypingIndicator(typingId);
@@ -464,11 +498,11 @@ function appendMessage(sender, text, citations = []) {
   const msgDiv = document.createElement("div");
   msgDiv.className = `msg ${sender}`;
 
-  const avatar = sender === "user" ? "👤" : "👻";
+  const avatar = sender === "user" ? "👤" : "✦";
   let formattedText = formatMarkdown(text);
 
-  if (citations.length > 0) {
-    formattedText += `<div style="margin-top: 6px; font-size: 11px; color: var(--accent-cyan);">📚 Cited from: ${citations.join(", ")}</div>`;
+  if (citations && citations.length > 0) {
+    formattedText += `<div style="margin-top: 6px; font-size: 11px; color: var(--gemini-blue);">📚 Cited: ${citations.join(", ")}</div>`;
   }
 
   msgDiv.innerHTML = `
@@ -487,9 +521,9 @@ function appendTypingIndicator() {
   div.id = id;
   div.className = "msg ghost";
   div.innerHTML = `
-    <div class="msg-avatar">👻</div>
-    <div class="msg-bubble" style="font-style: italic; color: var(--accent-cyan);">
-      Thinking with local weights (Context Vacuum active)...
+    <div class="msg-avatar">✦</div>
+    <div class="msg-bubble" style="font-style: italic; color: var(--gemini-blue);">
+      ${window.i18n ? i18n.t("thinking") : "Thinking with local neural weights..."}
     </div>
   `;
   container.appendChild(div);
@@ -527,9 +561,13 @@ function switchTab(tabName) {
   if (targetPane) targetPane.classList.add("active");
 
   const pills = Array.from(document.querySelectorAll(".nav-pill"));
-  const match = pills.find(p => p.getAttribute("onclick").includes(tabName));
+  const match = pills.find(p => {
+    const oc = p.getAttribute("onclick") || "";
+    return oc.includes(tabName);
+  });
   if (match) match.classList.add("active");
 
+  // Load heavy stats lazily only when tab is activated
   if (tabName === "vram") refreshVramStats();
   if (tabName === "rag") refreshKnowledgeDocs();
   if (tabName === "clipboard") refreshClipboard();
@@ -553,7 +591,9 @@ async function refreshClipboard() {
     actionsBox.innerHTML = "";
     (res.actions || []).forEach(act => {
       const btn = document.createElement("button");
-      btn.className = "clip-action-btn";
+      btn.className = "action-btn";
+      btn.style.marginRight = "6px";
+      btn.style.marginTop = "6px";
       btn.innerText = act;
       btn.onclick = () => runClipboardAction(act, currentClipboardText);
       actionsBox.appendChild(btn);
@@ -571,7 +611,7 @@ async function runClipboardAction(action, text) {
     const res = await window.pywebview.api.apply_clipboard_action(action, text);
     if (res.success) {
       resultText.innerText = res.result;
-      if (res.copied) alert("Result copied to clipboard!");
+      if (res.copied) showSpeechBubble("✔ Copied to clipboard!", 2500);
       refreshRpg();
     } else {
       resultText.innerText = `Error: ${res.error}`;
@@ -596,7 +636,7 @@ async function refreshTimeMachine() {
 function copyCommitMsg() {
   const msg = document.getElementById("tm-commit-msg").innerText;
   navigator.clipboard.writeText(msg);
-  alert("Git commit message copied to clipboard!");
+  showSpeechBubble("✔ Commit message copied!", 2500);
 }
 
 // ==================== SCREEN PEEK ====================
@@ -611,10 +651,10 @@ async function runScreenPeek() {
         box.innerHTML = formatMarkdown(res.analysis);
         refreshRpg();
       } else {
-        box.innerHTML = `<p style="color: #ff6584;">Capture error: ${res.error}</p>`;
+        box.innerHTML = `<p style="color: var(--gemini-coral);">Capture error: ${res.error}</p>`;
       }
     } catch (err) {
-      box.innerHTML = `<p style="color: #ff6584;">Error: ${err}</p>`;
+      box.innerHTML = `<p style="color: var(--gemini-coral);">Error: ${err}</p>`;
     }
   }
 }
@@ -640,7 +680,6 @@ async function generateCommand() {
     const badge = document.getElementById("pilot-badge");
     badge.innerText = res.risk.badge;
 
-    // Show Anti-Hallucination Lens patch info
     const lensInfo = document.getElementById("pilot-lens-info");
     if (res.lens_modifications && res.lens_modifications.length > 0) {
       lensInfo.classList.remove("hidden");
@@ -668,7 +707,7 @@ async function runGeneratedCommand() {
 function copyCommand() {
   if (currentGeneratedCommand) {
     navigator.clipboard.writeText(currentGeneratedCommand);
-    alert("Command copied to clipboard!");
+    showSpeechBubble("✔ Command copied!", 2500);
   }
 }
 
@@ -690,20 +729,19 @@ async function refreshChameleon() {
     const details = document.getElementById("chameleon-details");
 
     const modeLabels = {
-      eco: "🍃 ECO (Battery)",
-      balanced: "⚖️ BALANCED",
-      performance: "⚡ BEAST MODE"
+      eco: window.i18n ? i18n.t("eco") : "🍃 ECO",
+      balanced: window.i18n ? i18n.t("balanced") : "⚖️ Balanced",
+      performance: window.i18n ? i18n.t("beast") : "⚡ Beast"
     };
 
     if (pill) pill.innerText = modeLabels[profile.active_mode] || "🍃 ECO";
     if (details) {
       details.innerHTML = `
-        Mode: <b>${profile.name}</b> | Context Window: <b>${profile.context_window} tok</b> | 
-        Auto-sleep: <b>${profile.auto_sleep_seconds}s</b> | Battery: <b>${profile.is_battery ? 'Yes (Power-save)' : 'Plugged-in'}</b>
+        Mode: <b>${profile.name}</b> | Context: <b>${profile.context_window} tok</b> | 
+        Auto-sleep: <b>${profile.auto_sleep_seconds}s</b> | Power: <b>${profile.is_battery ? 'Battery' : 'AC Adapter'}</b>
       `;
     }
 
-    // Update active button
     document.querySelectorAll(".mode-btn").forEach(btn => btn.classList.remove("active"));
     const activeBtn = document.getElementById(`btn-mode-${profile.active_mode}`);
     if (activeBtn) activeBtn.classList.add("active");
@@ -721,8 +759,8 @@ async function setChameleonMode(mode) {
 function cycleChameleonMode() {
   const pill = document.getElementById("chameleon-pill");
   const current = pill.innerText;
-  if (current.includes("ECO")) setChameleonMode("balanced");
-  else if (current.includes("BALANCED")) setChameleonMode("performance");
+  if (current.includes("ECO") || current.includes("ЭКО")) setChameleonMode("balanced");
+  else if (current.includes("Balanced") || current.includes("Баланс")) setChameleonMode("performance");
   else setChameleonMode("eco");
 }
 
@@ -732,7 +770,7 @@ async function refreshKnowledgeDocs() {
     const res = await window.pywebview.api.get_indexed_documents();
     const docs = res.documents || [];
     if (docs.length === 0) {
-      listEl.innerHTML = '<div class="doc-item empty">No files indexed yet. Feed some files to Casper!</div>';
+      listEl.innerHTML = `<div class="doc-item empty">${window.i18n ? i18n.t("rag_empty") : "No files indexed yet."}</div>`;
       return;
     }
     listEl.innerHTML = docs.map(d => `
@@ -754,8 +792,10 @@ async function toggleVoice() {
   if (window.pywebview && window.pywebview.api) {
     const res = await window.pywebview.api.toggle_voice();
     isVoiceEnabled = res.voice_enabled;
-    btn.innerText = isVoiceEnabled ? "🔊 Voice ON" : "🔇 Voice OFF";
-    btn.style.color = isVoiceEnabled ? "var(--accent-cyan)" : "inherit";
+    btn.innerText = isVoiceEnabled 
+      ? (window.i18n ? i18n.t("voice_toggle_on") : "🔊 Voice ON")
+      : (window.i18n ? i18n.t("voice_toggle_off") : "🔇 Voice");
+    btn.style.color = isVoiceEnabled ? "var(--gemini-blue)" : "inherit";
   }
 }
 
@@ -765,7 +805,7 @@ function toggleDictation() {
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    alert("Speech recognition is not supported in this WebKit window. Type your message below.");
+    alert("Speech recognition is not supported in this WebKit window.");
     return;
   }
 
@@ -778,7 +818,9 @@ function toggleDictation() {
   }
 
   recognition = new SpeechRecognition();
-  recognition.lang = "ru-RU"; // or auto
+  const langMap = { ru: "ru-RU", kk: "kk-KZ", zh: "zh-CN", es: "es-ES", de: "de-DE", fr: "fr-FR", ja: "ja-JP", pt: "pt-BR", ar: "ar-SA", hi: "hi-IN", en: "en-US" };
+  const currentLang = window.i18n ? i18n.currentLang : "en";
+  recognition.lang = langMap[currentLang] || "en-US";
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
@@ -797,8 +839,7 @@ function toggleDictation() {
     handleSend();
   };
 
-  recognition.onerror = (event) => {
-    console.log("Speech recognition error:", event.error);
+  recognition.onerror = () => {
     micBtn.innerText = "🎙️";
     isDictating = false;
     setGhostMood("idle");
@@ -822,7 +863,7 @@ async function runAgentTask() {
   const resultCard = document.getElementById("agent-result");
   const outputEl = document.getElementById("agent-output");
   resultCard.classList.remove("hidden");
-  outputEl.innerHTML = "Executing OS Agent task via Apple Spotlight / System Calls...";
+  outputEl.innerHTML = "Executing OS Agent task via Apple Spotlight / Native OS Calls...";
 
   if (window.pywebview && window.pywebview.api) {
     const res = await window.pywebview.api.execute_agent_task(task);

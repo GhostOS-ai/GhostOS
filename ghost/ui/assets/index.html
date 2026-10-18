@@ -2,37 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GhostOS</title>
+  <title>GhostOS — Gemini Aura Edition</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- ==================== MODE 1: FLOATING GHOST PET ==================== -->
   <div id="pet-view" class="active pywebview-drag-region">
-    <div class="drag-zone pywebview-drag-region" title="Потяни, чтобы переместить Каспера в любое место экрана"></div>
+    <div class="drag-zone pywebview-drag-region" title="Drag Casper anywhere on screen"></div>
     
-    <!-- Speech Bubble -->
+    <!-- Speech Bubble (Auto-hides when idle, shows only on interaction) -->
     <div id="speech-bubble" class="speech-bubble">
-      <span id="speech-text">Бу! Перетащи в меня файл или кликни, чтобы пообщаться! 👻</span>
+      <span id="speech-text"></span>
     </div>
 
-    <!-- Casper SVG Character -->
-    <div id="ghost-wrapper" class="ghost-wrapper" onclick="handlePetClick(event)" ondblclick="toggleHudMode('hud')" title="Кликни, чтобы поговорить | Двойной клик — открыть пульт HUD">
+    <!-- Casper SVG Character (Gemini Aura Style) -->
+    <div id="ghost-wrapper" class="ghost-wrapper" onclick="onPetClick(event)" title="Click to interact | Double-click to open Gemini HUD">
       <svg id="ghost-svg" class="ghost-svg" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
-        <!-- Glow filters and gradients -->
+        <!-- Glow filters and Gemini signature gradients -->
         <defs>
-          <filter id="ghost-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+          <filter id="ghost-glow" x="-25%" y="-25%" width="150%" height="150%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
+
+          <!-- Gemini Signature Pearlescent Ghost Body -->
           <linearGradient id="ghost-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
-            <stop offset="60%" stop-color="#d8f4ff" stop-opacity="0.85" />
-            <stop offset="100%" stop-color="#9bf8f5" stop-opacity="0.7" />
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98" />
+            <stop offset="55%" stop-color="#e8f0fe" stop-opacity="0.94" />
+            <stop offset="100%" stop-color="#d3e3fd" stop-opacity="0.88" />
           </linearGradient>
+
+          <!-- Gemini Aurora Celestial Aura -->
           <linearGradient id="aura-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.4" />
-            <stop offset="100%" stop-color="#4facfe" stop-opacity="0.1" />
+            <stop offset="0%" stop-color="#4285f4" stop-opacity="0.45" />
+            <stop offset="50%" stop-color="#9b72cb" stop-opacity="0.3" />
+            <stop offset="100%" stop-color="#ff7597" stop-opacity="0.22" />
+          </linearGradient>
+
+          <!-- Sparkle Gradient -->
+          <linearGradient id="sparkle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1ba0fc" />
+            <stop offset="50%" stop-color="#a142f4" />
+            <stop offset="100%" stop-color="#ff5b79" />
           </linearGradient>
         </defs>
 
@@ -52,112 +64,128 @@
         " fill="url(#ghost-grad)" filter="url(#ghost-glow)" />
 
         <!-- Ghost Left Eye -->
-        <ellipse id="eye-left" class="eye" cx="65" cy="65" rx="6" ry="8" fill="#1b2a4a" />
+        <ellipse id="eye-left" class="eye" cx="65" cy="65" rx="6" ry="8" fill="#081026" />
         <circle id="eye-pupil-left" cx="67" cy="63" r="2.5" fill="#ffffff" />
 
         <!-- Ghost Right Eye -->
-        <ellipse id="eye-right" class="eye" cx="95" cy="65" rx="6" ry="8" fill="#1b2a4a" />
+        <ellipse id="eye-right" class="eye" cx="95" cy="65" rx="6" ry="8" fill="#081026" />
         <circle id="eye-pupil-right" cx="97" cy="63" r="2.5" fill="#ffffff" />
 
-        <!-- Cheeks Blush -->
-        <ellipse cx="56" cy="76" rx="4" ry="2.5" fill="#ff9cb0" opacity="0.6" />
-        <ellipse cx="104" cy="76" rx="4" ry="2.5" fill="#ff9cb0" opacity="0.6" />
+        <!-- Cheeks Blush (Soft Gemini Coral Pink) -->
+        <ellipse id="blush-left" cx="56" cy="76" rx="4" ry="2.5" fill="#ff7597" opacity="0.55" />
+        <ellipse id="blush-right" cx="104" cy="76" rx="4" ry="2.5" fill="#ff7597" opacity="0.55" />
 
         <!-- Ghost Mouth -->
-        <path id="mouth" class="mouth" d="M 73 80 Q 80 88 87 80" stroke="#1b2a4a" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        <path id="mouth" class="mouth" d="M 73 80 Q 80 88 87 80" stroke="#081026" stroke-width="2.5" stroke-linecap="round" fill="none" />
 
         <!-- ================= UNLOCKABLE ACCESSORIES (RPG EVOLUTION) ================= -->
         <!-- 1. Headphones (Active during audio recording) -->
         <g id="accessory-headphones" class="accessory" style="display: none;">
-          <path d="M 50 65 A 35 35 0 0 1 110 65" fill="none" stroke="#00f2fe" stroke-width="4" stroke-linecap="round" />
-          <rect x="44" y="60" width="8" height="18" rx="4" fill="#00f2fe" />
-          <rect x="108" y="60" width="8" height="18" rx="4" fill="#00f2fe" />
+          <path d="M 50 65 A 35 35 0 0 1 110 65" fill="none" stroke="#7cacf8" stroke-width="4" stroke-linecap="round" />
+          <rect x="44" y="60" width="8" height="18" rx="4" fill="#4285f4" />
+          <rect x="108" y="60" width="8" height="18" rx="4" fill="#4285f4" />
         </g>
 
-        <!-- 2. Cyber Visor / Glasses (Unlocked at Level 3: Code Specter) -->
+        <!-- 2. Cyber Visor (Level 3: Code Specter) -->
         <g id="accessory-visor" class="accessory" style="display: none;">
-          <path d="M 52 61 L 108 61 L 104 72 L 56 72 Z" fill="rgba(0, 242, 254, 0.85)" stroke="#fff" stroke-width="1.5" filter="url(#ghost-glow)" />
-          <line x1="42" y1="64" x2="52" y2="64" stroke="#00f2fe" stroke-width="2" />
-          <line x1="108" y1="64" x2="118" y2="64" stroke="#00f2fe" stroke-width="2" />
+          <path d="M 52 61 L 108 61 L 104 72 L 56 72 Z" fill="rgba(66, 133, 244, 0.85)" stroke="#fff" stroke-width="1.5" filter="url(#ghost-glow)" />
+          <line x1="42" y1="64" x2="52" y2="64" stroke="#7cacf8" stroke-width="2" />
+          <line x1="108" y1="64" x2="118" y2="64" stroke="#7cacf8" stroke-width="2" />
         </g>
 
-        <!-- 3. Magic Spellbook (Unlocked at Level 5: Grand Scribe) -->
+        <!-- 3. Magic Spellbook (Level 5: Grand Scribe) -->
         <g id="accessory-book" class="accessory" style="display: none;">
-          <rect x="30" y="105" width="28" height="20" rx="3" fill="#9b51e0" stroke="#00f2fe" stroke-width="1.5" />
+          <rect x="30" y="105" width="28" height="20" rx="3" fill="#a142f4" stroke="#7cacf8" stroke-width="1.5" />
           <line x1="44" y1="105" x2="44" y2="125" stroke="#fff" stroke-width="1" />
           <circle cx="38" cy="115" r="2" fill="#ffd700" />
         </g>
 
-        <!-- 4. Golden Crown (Unlocked at Level 6: Void Sentinel) -->
+        <!-- 4. Golden Crown (Level 6: Void Sentinel) -->
         <g id="accessory-crown" class="accessory" style="display: none;">
           <polygon points="62,28 70,12 80,24 90,12 98,28" fill="#ffd700" stroke="#ffae00" stroke-width="1.5" filter="url(#ghost-glow)" />
-          <circle cx="70" cy="12" r="2" fill="#00f2fe" />
-          <circle cx="80" cy="24" r="2" fill="#ff6584" />
-          <circle cx="90" cy="12" r="2" fill="#00f2fe" />
+          <circle cx="70" cy="12" r="2" fill="#4285f4" />
+          <circle cx="80" cy="24" r="2" fill="#ff7597" />
+          <circle cx="90" cy="12" r="2" fill="#a142f4" />
         </g>
       </svg>
     </div>
 
     <!-- Drop target overlay -->
     <div id="drop-indicator" class="drop-indicator">
-      <span>🍕 Feed Me Files! (RAG)</span>
+      <span data-i18n="feed_prompt">🍕 Feed Me Files! (RAG)</span>
     </div>
 
     <!-- Mini Bottom Controls -->
     <div class="pet-bar pywebview-drag-region">
-      <span class="status-dot online" title="Casper Онлайн & 100% Приватно"></span>
-      <span id="pet-rpg-badge" class="rpg-pill" title="Уровень Casper RPG">🌱 Wisp Lv.1</span>
-      <button class="pet-btn" onclick="quickOpenFolder(event)" title="📂 Открыть проект в Finder">📂</button>
-      <button class="pet-btn" id="pet-fly-btn" onclick="quickToggleFly(event)" title="✈️ Режим полёта / парения">✈️</button>
-      <button class="pet-btn" id="pet-voice-btn" onclick="quickToggleVoice(event)" title="🗣️ Озвучка ответов (macOS say)">🗣️</button>
-      <button class="expand-btn" onclick="toggleHudMode('hud')" title="💬 Открыть командный пульт (HUD)">💬</button>
+      <span class="status-dot online" title="Casper Online & 100% Private"></span>
+      <span id="pet-rpg-badge" class="rpg-pill" data-i18n="rpg_default">Lv.1 Wisp</span>
+      <button class="pet-btn" onclick="quickOpenFolder(event)" title="Open folder in Finder">📂</button>
+      <button class="pet-btn" id="pet-fly-btn" onclick="quickToggleFly(event)" title="Flight Mode">✈️</button>
+      <button class="pet-btn" id="pet-voice-btn" onclick="quickToggleVoice(event)" title="Voice Output">🗣️</button>
+      <button class="expand-btn" onclick="toggleHudMode('hud')" title="Open HUD">💬</button>
     </div>
   </div>
 
 
-  <!-- ==================== MODE 2: QUICK HUD (RAYCAST/SPOTLIGHT STYLE) ==================== -->
+  <!-- ==================== MODE 2: QUICK HUD (GEMINI OBSIDIAN AURA) ==================== -->
   <div id="hud-view" class="hidden">
     <!-- Top Bar with draggable header -->
     <div class="hud-header pywebview-drag-region">
       <div class="hud-brand">
-        <span class="brand-ghost">👻</span>
-        <span class="brand-title">GhostOS HUD</span>
-        <span id="hud-rpg-tag" class="brand-tag">Lv.1 Wisp (0 XP)</span>
-        <span id="chameleon-pill" class="chameleon-pill" onclick="cycleChameleonMode()" title="Click to cycle Eco / Balanced / Beast">🍃 ECO</span>
+        <span class="gemini-sparkle">✦</span>
+        <span class="brand-title">GhostOS</span>
+        <span class="brand-sub" data-i18n="brand_sub">Gemini Aura</span>
+        <span id="hud-rpg-tag" class="brand-tag">Lv.1 Wisp</span>
+        <span id="chameleon-pill" class="chameleon-pill" onclick="cycleChameleonMode()" title="Toggle Power Profile" data-i18n="eco">🍃 ECO</span>
       </div>
       <div class="hud-actions no-drag">
-        <button class="icon-btn" onclick="toggleHudMode('pet')" title="Return to Floating Pet">◀ Pet</button>
-        <button class="icon-btn" onclick="minimizeWindow()" title="Minimize">─</button>
+        <!-- Language Selector -->
+        <select id="lang-select" class="lang-select" onchange="i18n.setLanguage(this.value)" title="Language">
+          <option value="en">🇺🇸 EN</option>
+          <option value="ru">🇷🇺 RU</option>
+          <option value="kk">🇰🇿 KK</option>
+          <option value="zh">🇨🇳 ZH</option>
+          <option value="es">🇪🇸 ES</option>
+          <option value="de">🇩🇪 DE</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="ja">🇯🇵 JA</option>
+          <option value="pt">🇧🇷 PT</option>
+          <option value="ar">🇸🇦 AR</option>
+          <option value="hi">🇮🇳 HI</option>
+        </select>
+        <button class="icon-btn" onclick="toggleHudMode('pet')" data-i18n="return_pet" title="Return to Pet">◀ Pet</button>
+        <button class="icon-btn" onclick="minimizeWindow()" data-i18n="minimize" title="Minimize">─</button>
       </div>
     </div>
 
     <!-- Omnibar Input -->
     <div class="omnibar-container">
-      <span class="omnibar-icon">🔮</span>
+      <span class="omnibar-sparkle">✦</span>
       <input 
         id="hud-input" 
         class="omnibar-input" 
         type="text" 
-        placeholder="Ask Casper, or speak, or 'найди pdf на рабочем столе', 'погода в Алматы'..." 
+        data-i18n-ph="placeholder"
+        placeholder="Ask Casper, or speak, or 'open downloads', 'weather in Almaty'..." 
         autocomplete="off"
         autofocus
       />
-      <button id="mic-btn" class="icon-btn" onclick="toggleDictation()" title="Voice Dictation (Speech-to-Text)">🎙️</button>
-      <button id="voice-toggle-btn" class="icon-btn" onclick="toggleVoice()" title="Toggle Voice Responses (TTS)">🔇 Voice</button>
-      <button id="send-btn" class="send-btn" onclick="handleSend()">Send ↵</button>
+      <button id="mic-btn" class="icon-btn" onclick="toggleDictation()" title="Voice Dictation">🎙️</button>
+      <button id="voice-toggle-btn" class="icon-btn" onclick="toggleVoice()" data-i18n="voice_toggle_off" title="Toggle Voice">🔇 Voice</button>
+      <button id="send-btn" class="send-btn" onclick="handleSend()" data-i18n="send">Send ↵</button>
     </div>
 
-    <!-- Navigation Pills -->
+    <!-- Navigation Pills (Stable, No-Scrollbar Segmented Tabs) -->
     <div class="hud-nav">
-      <button class="nav-pill active" onclick="switchTab('chat')">💬 Chat</button>
-      <button class="nav-pill" onclick="switchTab('agent')">🤖 OS Agent</button>
-      <button class="nav-pill" onclick="switchTab('web')">🌐 Web Search</button>
-      <button class="nav-pill" onclick="switchTab('clipboard')">📋 Clipboard</button>
-      <button class="nav-pill" onclick="switchTab('screen')">👁️ Screen Peek</button>
-      <button class="nav-pill" onclick="switchTab('autopilot')">⚡ Autopilot</button>
-      <button class="nav-pill" onclick="switchTab('timemachine')">🕒 Time Machine</button>
-      <button class="nav-pill" onclick="switchTab('rag')">📚 Knowledge</button>
-      <button class="nav-pill" onclick="switchTab('vram')">🧠 VRAM & Chameleon</button>
+      <button class="nav-pill active" onclick="switchTab('chat')" data-i18n="nav_chat">💬 Chat</button>
+      <button class="nav-pill" onclick="switchTab('agent')" data-i18n="nav_agent">🤖 OS Agent</button>
+      <button class="nav-pill" onclick="switchTab('web')" data-i18n="nav_web">🌐 Web Search</button>
+      <button class="nav-pill" onclick="switchTab('clipboard')" data-i18n="nav_clip">📋 Clipboard</button>
+      <button class="nav-pill" onclick="switchTab('screen')" data-i18n="nav_screen">👁️ Screen Peek</button>
+      <button class="nav-pill" onclick="switchTab('autopilot')" data-i18n="nav_auto">⚡ Autopilot</button>
+      <button class="nav-pill" onclick="switchTab('timemachine')" data-i18n="nav_time">🕒 Time Machine</button>
+      <button class="nav-pill" onclick="switchTab('rag')" data-i18n="nav_rag">📚 Knowledge</button>
+      <button class="nav-pill" onclick="switchTab('vram')" data-i18n="nav_vram">🧠 VRAM & Hardware</button>
     </div>
 
     <!-- Content Panels -->
@@ -166,11 +194,11 @@
       <div id="tab-chat" class="tab-pane active">
         <div id="chat-messages" class="chat-messages">
           <div class="msg ghost">
-            <div class="msg-avatar">👻</div>
+            <div class="msg-avatar">✦</div>
             <div class="msg-bubble">
-              <b>Boo! Casper is online.</b><br>
-              Running in <span id="welcome-mode" style="color:var(--accent-cyan);">Adaptive Eco Mode</span> on your Mac with zero cloud leaks.<br>
-              Try double-copying anything or click <b>Clipboard</b> to inspect it!
+              <b data-i18n="welcome_title">Boo! Casper is online.</b><br>
+              <span data-i18n="welcome_desc">Running in Adaptive Gemini Mode on your Mac with zero cloud leaks.</span><br>
+              <span style="color:var(--text-muted); font-size:11.5px;" data-i18n="welcome_tip">Click Casper to interact, double-click to expand HUD, or drag files onto him!</span>
             </div>
           </div>
         </div>
@@ -179,12 +207,12 @@
       <!-- OS Agent Tab -->
       <div id="tab-agent" class="tab-pane">
         <div class="pane-header">
-          <h3>🤖 Ghost Desktop Agent (Apple Spotlight mdfind)</h3>
+          <h3 data-i18n="agent_title">🤖 Ghost Desktop Agent (Apple Spotlight mdfind)</h3>
         </div>
         <div class="autopilot-box">
           <div class="input-row">
-            <input id="agent-input" type="text" placeholder="e.g., найди все pdf на рабочем столе, создай папку Project_X..." />
-            <button class="action-btn" onclick="runAgentTask()">Execute Task</button>
+            <input id="agent-input" type="text" data-i18n-ph="agent_ph" placeholder="e.g., find all pdf files on desktop, create folder Project_X..." />
+            <button class="action-btn" onclick="runAgentTask()" data-i18n="agent_btn">Execute Task</button>
           </div>
           <div id="agent-result" class="pilot-card hidden">
             <div id="agent-output" style="font-size: 13px; line-height: 1.5;"></div>
@@ -195,12 +223,12 @@
       <!-- Web Search Tab -->
       <div id="tab-web" class="tab-pane">
         <div class="pane-header">
-          <h3>🌐 Live Web Search (Zero Cloud Bloat)</h3>
+          <h3 data-i18n="web_title">🌐 Live Web Search (Zero Cloud Bloat)</h3>
         </div>
         <div class="autopilot-box">
           <div class="input-row">
-            <input id="web-input" type="text" placeholder="e.g., погода в Алматы, курс доллара, Python 3.13..." />
-            <button class="action-btn" onclick="runWebSearch()">Search Web</button>
+            <input id="web-input" type="text" data-i18n-ph="web_ph" placeholder="e.g., weather in Almaty, USD exchange rate, Python 3.13 features..." />
+            <button class="action-btn" onclick="runWebSearch()" data-i18n="web_btn">Search Web</button>
           </div>
           <div id="web-result" class="pilot-card hidden">
             <div id="web-output" style="font-size: 13px; line-height: 1.5;"></div>
@@ -211,12 +239,12 @@
       <!-- Phantom Clipboard Tab -->
       <div id="tab-clipboard" class="tab-pane">
         <div class="pane-header">
-          <h3>📋 Phantom Clipboard Inspector</h3>
-          <button class="action-btn" onclick="refreshClipboard()">Inspect Clipboard</button>
+          <h3 data-i18n="clip_title">📋 Phantom Clipboard Inspector</h3>
+          <button class="action-btn" onclick="refreshClipboard()" data-i18n="clip_btn">Inspect Clipboard</button>
         </div>
         <div class="clipboard-box">
           <div class="clip-meta">
-            <span id="clip-badge" class="pilot-badge">🔍 Analyzing...</span>
+            <span id="clip-badge" class="pilot-badge" data-i18n="clip_analyzing">🔍 Analyzing...</span>
             <span id="clip-title" class="clip-title">Contextual 1-click action</span>
           </div>
           <div class="clip-preview-container">
@@ -235,23 +263,23 @@
       <!-- Screen Peek Tab -->
       <div id="tab-screen" class="tab-pane">
         <div class="pane-header">
-          <h3>👁️ Active Screen Inspector</h3>
-          <button class="action-btn" onclick="runScreenPeek()">Capture & Inspect</button>
+          <h3 data-i18n="screen_title">👁️ Active Screen Inspector</h3>
+          <button class="action-btn" onclick="runScreenPeek()" data-i18n="screen_btn">Capture & Inspect</button>
         </div>
         <div id="screen-result" class="result-box">
-          <p class="placeholder-text">Click "Capture & Inspect" to analyze the current active window.</p>
+          <p class="placeholder-text" data-i18n="screen_ph">Click 'Capture & Inspect' to analyze the frontmost window.</p>
         </div>
       </div>
 
       <!-- Autopilot Tab -->
       <div id="tab-autopilot" class="tab-pane">
         <div class="pane-header">
-          <h3>⚡ Safe Terminal Autopilot (Anti-Hallucination Lens)</h3>
+          <h3 data-i18n="auto_title">⚡ Safe Terminal Autopilot (Anti-Hallucination Lens)</h3>
         </div>
         <div class="autopilot-box">
           <div class="input-row">
-            <input id="pilot-input" type="text" placeholder="e.g., find all files bigger than 100MB" />
-            <button class="action-btn" onclick="generateCommand()">Plan Command</button>
+            <input id="pilot-input" type="text" data-i18n-ph="auto_ph" placeholder="e.g., find all files bigger than 100MB" />
+            <button class="action-btn" onclick="generateCommand()" data-i18n="auto_plan_btn">Plan Command</button>
           </div>
           <div id="pilot-result" class="pilot-card hidden">
             <div class="pilot-badge" id="pilot-badge">🟢 SAFE</div>
@@ -259,8 +287,8 @@
             <p id="pilot-desc" class="pilot-desc"></p>
             <div id="pilot-lens-info" class="lens-info hidden"></div>
             <div class="pilot-actions">
-              <button class="run-btn" id="pilot-run-btn" onclick="runGeneratedCommand()">Run in Terminal ⚡</button>
-              <button class="copy-btn" onclick="copyCommand()">Copy</button>
+              <button class="run-btn" id="pilot-run-btn" onclick="runGeneratedCommand()" data-i18n="auto_run_btn">Run in Terminal ⚡</button>
+              <button class="copy-btn" onclick="copyCommand()" data-i18n="auto_copy_btn">Copy</button>
             </div>
             <div id="pilot-output-box" class="output-box hidden">
               <h4>Execution Output:</h4>
@@ -273,18 +301,18 @@
       <!-- Time Machine Tab -->
       <div id="tab-timemachine" class="tab-pane">
         <div class="pane-header">
-          <h3>🕒 Ghost Time Machine (Session Journal)</h3>
-          <button class="action-btn" onclick="refreshTimeMachine()">Refresh Session</button>
+          <h3 data-i18n="time_title">🕒 Ghost Time Machine (Session Journal)</h3>
+          <button class="action-btn" onclick="refreshTimeMachine()" data-i18n="time_btn">Refresh Session</button>
         </div>
         <div class="timemachine-box">
           <div id="tm-summary" class="tm-summary-card">
             Scanning workspace session activity...
           </div>
           <div class="commit-suggester">
-            <h4>💡 Recommended Git Commit Message:</h4>
+            <h4 data-i18n="time_commit_title">💡 Recommended Git Commit Message:</h4>
             <div class="commit-row">
               <code id="tm-commit-msg">feat(core): initial session commit</code>
-              <button class="copy-btn" onclick="copyCommitMsg()">Copy</button>
+              <button class="copy-btn" onclick="copyCommitMsg()" data-i18n="auto_copy_btn">Copy</button>
             </div>
           </div>
         </div>
@@ -293,60 +321,57 @@
       <!-- RAG Knowledge Tab -->
       <div id="tab-rag" class="tab-pane">
         <div class="pane-header">
-          <h3>📚 Zero-DB Local Knowledge Base</h3>
-          <button class="action-btn" onclick="refreshKnowledgeDocs()">Refresh List</button>
+          <h3 data-i18n="rag_title">📚 Zero-DB Local Knowledge Base</h3>
+          <button class="action-btn" onclick="refreshKnowledgeDocs()" data-i18n="rag_btn">Refresh List</button>
         </div>
-        <p class="hint-text">💡 Drag & drop any PDF, code file, or notes onto Casper to index them here instantly (+15 XP!).</p>
+        <p class="hint-text" data-i18n="rag_hint">💡 Drag & drop any PDF, code file, or notes onto Casper to index them instantly (+15 XP!).</p>
         <div id="rag-doc-list" class="doc-list">
-          <div class="doc-item empty">No files indexed yet. Feed some files to Casper!</div>
+          <div class="doc-item empty" data-i18n="rag_empty">No files indexed yet. Feed some files to Casper!</div>
         </div>
       </div>
 
       <!-- VRAM & Chameleon Tab -->
       <div id="tab-vram" class="tab-pane">
         <div class="pane-header">
-          <h3>🧠 VRAM Juggler & Memory Chameleon</h3>
-          <button class="action-btn" onclick="refreshVramStats()">Refresh</button>
+          <h3 data-i18n="vram_title">🧠 VRAM Juggler & Memory Chameleon</h3>
+          <button class="action-btn" onclick="refreshVramStats()" data-i18n="vram_btn">Refresh Diagnostics</button>
         </div>
         <div class="vram-grid">
           <div class="stat-card">
             <span class="stat-num" id="stat-active-vram">0 MB</span>
-            <span class="stat-label">Active Model VRAM</span>
+            <span class="stat-label" data-i18n="vram_active">Active Model VRAM</span>
           </div>
           <div class="stat-card highlight">
             <span class="stat-num" id="stat-saved-vram">+4,600 MB</span>
-            <span class="stat-label">VRAM Saved via Swapping</span>
+            <span class="stat-label" data-i18n="vram_saved">VRAM Saved via Swapping</span>
           </div>
           <div class="stat-card">
             <span class="stat-num" id="stat-swaps">0</span>
-            <span class="stat-label">Total Swaps Executed</span>
+            <span class="stat-label" data-i18n="vram_swaps">Total Swaps Executed</span>
           </div>
           <div class="stat-card">
             <span class="stat-num" id="stat-ram-percent">--%</span>
-            <span class="stat-label">System RAM Used</span>
+            <span class="stat-label" data-i18n="vram_ram">System RAM Used</span>
           </div>
         </div>
 
         <div class="chameleon-control-card">
-          <h4>🦎 Memory Chameleon Runtime Profile:</h4>
+          <h4 data-i18n="vram_profile_title">🦎 Memory Chameleon Runtime Profile:</h4>
           <div class="profile-modes">
-            <button class="mode-btn" id="btn-mode-eco" onclick="setChameleonMode('eco')">🍃 ECO (Battery)</button>
+            <button class="mode-btn" id="btn-mode-eco" onclick="setChameleonMode('eco')">🍃 ECO</button>
             <button class="mode-btn" id="btn-mode-balanced" onclick="setChameleonMode('balanced')">⚖️ Balanced</button>
-            <button class="mode-btn" id="btn-mode-performance" onclick="setChameleonMode('performance')">⚡ Beast Mode</button>
+            <button class="mode-btn" id="btn-mode-performance" onclick="setChameleonMode('performance')">⚡ Beast</button>
             <button class="mode-btn" id="btn-mode-auto" onclick="setChameleonMode('auto')">🔄 Auto-Detect</button>
           </div>
           <div id="chameleon-details" class="chameleon-details">
             Detecting hardware constraints...
           </div>
         </div>
-
-        <div class="juggler-explainer">
-          <p><b>Hardware Protection:</b> Context Vacuum compresses prompts by up to 60%, and KV-Cache Freezer pages context to SSD on sleep, preventing Out-Of-Memory crashes on 4GB-8GB laptops.</p>
-        </div>
       </div>
     </div>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="ghost.js"></script>
 </body>
 </html>

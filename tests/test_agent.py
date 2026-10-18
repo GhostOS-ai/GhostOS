@@ -25,9 +25,25 @@ class TestGhostOSAgent(unittest.TestCase):
             self.assertTrue(target.exists())
 
     def test_intent_parsing(self):
-        res = GhostOSAgent.execute_intent("найди все pdf на рабочем столе")
-        self.assertTrue(res["handled"])
-        self.assertEqual(res["action"], "find_files")
+        # Russian
+        res_ru = GhostOSAgent.execute_intent("найди все pdf на рабочем столе")
+        self.assertTrue(res_ru["handled"])
+        self.assertEqual(res_ru["action"], "find_files")
+
+        # English
+        res_en = GhostOSAgent.execute_intent("find files report.docx on desktop")
+        self.assertTrue(res_en["handled"])
+        self.assertEqual(res_en["action"], "find_files")
+
+        # Kazakh
+        res_kk = GhostOSAgent.execute_intent("жұмыс үстелінен pdf тап")
+        self.assertTrue(res_kk["handled"])
+        self.assertEqual(res_kk["action"], "find_files")
+
+        # Create folder in English & Russian
+        res_mkdir = GhostOSAgent.execute_intent("create folder TestApp on desktop")
+        self.assertTrue(res_mkdir["handled"])
+        self.assertEqual(res_mkdir["action"], "create_folder")
 
 if __name__ == "__main__":
     unittest.main()

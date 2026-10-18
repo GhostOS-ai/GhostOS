@@ -118,7 +118,7 @@ class GhostBridgeAPI:
 
     def toggle_mode(self, target_mode: str) -> Dict[str, Any]:
         """
-        Smoothly resize window between Pet mode (240x280) and HUD mode (720x560).
+        Smoothly resize window between Pet mode (240x280) and HUD mode (740x580).
         """
         import webview
         self.current_mode = target_mode
@@ -130,20 +130,48 @@ class GhostBridgeAPI:
                     screens = webview.screens
                     if screens:
                         s = screens[0]
-                        hud_x = max(40, (s.width - 720) // 2)
-                        hud_y = max(40, (s.height - 560) // 3)
+                        hud_x = max(20, (s.width - 740) // 2)
+                        hud_y = max(20, (s.height - 580) // 3)
+                        self.window.resize(740, 580)
                         self.window.move(hud_x, hud_y)
+                    else:
+                        self.window.resize(740, 580)
                 except Exception:
                     pass
-                self.window.resize(720, 560)
             else:
-                self.window.resize(240, 280)
                 try:
+                    self.window.resize(240, 280)
                     if hasattr(self, '_pet_x') and self._pet_x is not None:
                         self.window.move(self._pet_x, self._pet_y)
                 except Exception:
                     pass
         return {"mode": self.current_mode}
+
+    def get_system_locale(self) -> Dict[str, str]:
+        """Detect system language locale for automatic translation."""
+        import locale
+        import subprocess
+        try:
+            proc = subprocess.run(["defaults", "read", "-g", "AppleLanguages"], capture_output=True, text=True, timeout=1)
+            if proc.returncode == 0 and proc.stdout:
+                m = re.search(r'"([a-z]{2})(?:-[A-Za-z]+)?"', proc.stdout)
+                if m:
+                    return {"locale": m.group(1).lower()}
+        except Exception:
+            pass
+
+        try:
+            loc = locale.getdefaultlocale()[0]
+            if loc:
+                return {"locale": loc.split('_')[0].lower()}
+        except Exception:
+            pass
+        return {"locale": "en"}
+
+    def set_locale(self, lang_code: str) -> Dict[str, Any]:
+        """Set active interface language."""
+        self.locale = lang_code.lower()
+        return {"locale": self.locale}
 
     def toggle_wandering(self) -> Dict[str, Any]:
         """Toggle Casper gently wandering / floating across the desktop."""

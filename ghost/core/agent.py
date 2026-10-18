@@ -119,24 +119,32 @@ class GhostOSAgent:
         p = prompt.lower().strip()
 
         # 1. Intent: Find files
-        # e.g.: "найди все pdf на рабочем столе", "find report.docx in downloads"
-        if any(trigger in p for trigger in ["найди", "поиск", "где лежит", "find file", "search for"]):
+        # e.g.: "найди все pdf на рабочем столе", "find report.docx in downloads", "жұмыс үстелінен pdf тап"
+        if any(trigger in p for trigger in ["найди", "поиск", "где лежит", "find files", "find file", "find", "search for", "search", "тап", "ізде", "查找", "搜索", "buscar"]):
             # Detect target folder
             search_folder = None
-            if "рабоч" in p or "desktop" in p:
+            if "рабоч" in p or "desktop" in p or "үстел" in p or "桌面" in p or "escritorio" in p:
                 search_folder = str(Path.home() / "Desktop")
-            elif "загруз" in p or "download" in p:
+            elif "загруз" in p or "download" in p or "жүктеу" in p or "下载" in p or "descargas" in p:
                 search_folder = str(Path.home() / "Downloads")
-            elif "документ" in p or "document" in p:
+            elif "документ" in p or "document" in p or "құжат" in p or "文档" in p:
                 search_folder = str(Path.home() / "Documents")
 
             # Extract search query
             clean = p
-            for prefix in ["найди все файлы", "найди файлы", "найди файл", "найди все", "найди", "поиск", "где лежит", "find files", "find file", "search for"]:
+            for prefix in ["найди все файлы", "найди файлы", "найди файл", "найди все", "найди", "поиск", "где лежит", 
+                           "find files", "find file", "find", "search for", "search", "ізде", "查找", "搜索", "buscar"]:
                 if clean.startswith(prefix):
                     clean = clean[len(prefix):].strip()
                     break
-            query = re.sub(r'\s*(на рабочем столе|в загрузках|в документах|on desktop|in downloads)\s*', '', clean).strip()
+
+            # Strip trailing verbs (for SOV languages like Kazakh: "pdf файлдарын тап", "файлдарды тап")
+            for suffix in ["файлдарды тап", "файлдарды ізде", "файлды тап", "файл тап", "тап", "ізде"]:
+                if clean.endswith(suffix):
+                    clean = clean[:-len(suffix)].strip()
+                    break
+
+            query = re.sub(r'\s*(на рабочем столе|в загрузках|в документах|on desktop|in downloads|жұмыс үстелінен|жүктеулерден)\s*', '', clean).strip()
             if not query:
                 query = "pdf"
 
@@ -161,15 +169,15 @@ class GhostOSAgent:
             }
 
         # 2. Intent: Create folder
-        # e.g.: "создай папку Проект в Загрузках", "create folder Test on desktop"
-        if any(trigger in p for trigger in ["создай папку", "сделай директорию", "create folder", "mkdir"]):
-            match = re.search(r'(создай папку|сделай директорию|create folder|mkdir)\s+([^\s]+)', p)
-            folder_name = match.group(2) if match else "Новая_папка"
+        # e.g.: "создай папку Проект в Загрузках", "create folder Test on desktop", "папка жаса"
+        if any(trigger in p for trigger in ["создай папку", "сделай директорию", "create folder", "make folder", "mkdir", "папка жаса", "бума жаса", "新建文件夹", "创建文件夹", "crear carpeta"]):
+            match = re.search(r'(создай папку|сделай директорию|create folder|make folder|mkdir|папка жаса|бума жаса|新建文件夹|创建文件夹|crear carpeta)\s+([^\s]+)', p)
+            folder_name = match.group(2) if match else "New_Folder"
 
             base_dir = Path.home()
-            if "загруз" in p or "download" in p:
+            if "загруз" in p or "download" in p or "жүктеу" in p or "下载" in p:
                 base_dir = Path.home() / "Downloads"
-            elif "рабоч" in p or "desktop" in p:
+            elif "рабоч" in p or "desktop" in p or "үстел" in p or "桌面" in p:
                 base_dir = Path.home() / "Desktop"
             elif "документ" in p or "document" in p:
                 base_dir = Path.home() / "Documents"
@@ -184,7 +192,7 @@ class GhostOSAgent:
 
         # 3. Intent: Organize files
         # e.g.: "перемести скриншоты в папку Скрины на рабочем столе"
-        if "перемести" in p or "organize" in p or "move" in p:
+        if any(w in p for w in ["перемести", "organize", "move", "жылжыт", "移动"]):
             if "скриншот" in p or "screenshot" in p or "png" in p:
                 desktop = Path.home() / "Desktop"
                 target = desktop / "Screenshots"
@@ -196,8 +204,10 @@ class GhostOSAgent:
                 }
 
         # 4. Intent: Open Folder in Finder
-        # e.g.: "открой папку", "открой загрузки", "открой рабочий стол", "open downloads"
-        if any(trigger in p for trigger in ["открой папку", "открой директорию", "открой finder", "открой загрузки", "открой рабочий", "открой проекты", "open folder", "open directory"]):
+        # e.g.: "открой папку", "открой загрузки", "открой рабочий стол", "open downloads", "папканы аш"
+        if any(trigger in p for trigger in ["открой папку", "открой директорию", "открой finder", "открой загрузки", "открой рабочий", "открой проекты", 
+                                            "open folder", "open directory", "open downloads", "open desktop", "open finder", "open project",
+                                            "папканы аш", "жүктеулерді аш", "打开文件夹", "打开访达", "abrir carpeta"]):
             target_path = Path.home()
             folder_title = "домашнюю папку"
 
