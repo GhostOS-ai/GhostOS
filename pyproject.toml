@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ghostos"
 version = "0.1.0"
 authors = [
-  { name = "KIB.best", email = "contact@kib.best" },
+  { name = "KIB.best", email = "GhostOS@kib.best" },
 ]
 description = "The Invisible, Featherweight, Offline Desktop AI Companion & Copilot"
 readme = "README.md"
@@ -34,5 +34,5 @@ dependencies = [
 ghost = "ghost.cli.main:main"
 
 [project.urls]
-"Homepage" = "https://github.com/your-username/ghostos"
-"Bug Tracker" = "https://github.com/your-username/ghostos/issues"
+"Homepage" = "https://github.com/GhostOS-ai/GhostOS"
+"Bug Tracker" = "https://github.com/GhostOS-ai/GhostOS/issues"

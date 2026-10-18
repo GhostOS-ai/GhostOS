@@ -4,7 +4,7 @@ Fast, beautiful, offline AI assistant right in your terminal.
 """
 import sys
 import argparse
-from typing import List
+from typing import List, Optional, Dict, Any
 
 from rich.console import Console
 from rich.panel import Panel
@@ -307,11 +307,85 @@ def cmd_say(text: str) -> None:
     console.print(f"[bold cyan]🗣️ Speaking:[/bold cyan] {text}")
     voice.speak(text, async_mode=False)
 
+def cmd_write(mode: str = "polish", text: Optional[str] = None) -> None:
+    """Ghostwriter: Inline text rewrite & transformation via clipboard or text."""
+    from ghost.core.ghostwriter import Ghostwriter
+    writer = Ghostwriter()
+    if text:
+        res = writer.rewrite_text(text, mode=mode)
+        if res.get("success"):
+            console.print(Panel(res["result"], title=f"[bold cyan]✍️ Ghostwriter ({res['title']})[/bold cyan]", border_style="cyan"))
+        else:
+            console.print(f"[red]Error: {res.get('error')}[/red]")
+    else:
+        res = writer.rewrite_clipboard(mode=mode)
+        if res.get("success"):
+            console.print(f"[bold green]✔ Rewritten and copied to clipboard![/bold green] ([dim]{res['title']}[/dim])")
+            console.print(Panel(res["result"], title="[bold cyan]📋 Clipboard Content[/bold cyan]", border_style="cyan"))
+        else:
+            console.print(f"[red]Error: {res.get('error')}[/red]")
+
+def cmd_vault(action: str = "list", key: Optional[str] = None, value: Optional[str] = None) -> None:
+    """Memory Vault: Cross-session personal context and facts."""
+    from ghost.core.memory_vault import MemoryVault
+    vault = MemoryVault()
+    if action == "remember" and key and value:
+        vault.remember(key, value)
+        console.print(f"[bold green]✔ Learned:[/bold green] [cyan]{key}[/cyan] = {value}")
+    elif action == "forget" and key:
+        success = vault.forget(key)
+        if success:
+            console.print(f"[yellow]✔ Forgotten:[/yellow] {key}")
+        else:
+            console.print(f"[dim]Fact '{key}' was not found in vault.[/dim]")
+    else:
+        facts = vault.get_all_facts()
+        if not facts:
+            console.print("[dim]Memory Vault is currently empty. Teach Casper with 'ghost vault remember <key> <value>'.[/dim]")
+            return
+        table = Table(title="🧠 GhostOS Memory Vault (Long-Term Facts)", border_style="cyan")
+        table.add_column("Category", style="cyan")
+        table.add_column("Key", style="bold white")
+        table.add_column("Value", style="green")
+        for f in facts:
+            table.add_row(f["category"], f["fact_key"], f["fact_value"])
+        console.print(table)
+
+def cmd_standup() -> None:
+    """Daily Standup & Commit Crafter."""
+    from ghost.core.time_machine import GhostTimeMachine
+    standup = GhostTimeMachine.generate_daily_standup()
+    console.print(Panel(Markdown(standup), title="[bold cyan]📅 Daily Standup Report[/bold cyan]", border_style="cyan"))
+
+def cmd_sandbox(command: str) -> None:
+    """Terminal Sandbox Lens: Deep safety analysis."""
+    from ghost.core.lens import GhostLens
+    res = GhostLens.verify_and_patch(command)
+    box = res.get("sandbox", {})
+    safety = box.get("safety_level", "SAFE")
+
+    color = "green" if safety == "SAFE" else ("yellow" if safety == "CAUTION" else "red")
+    badge = f"[{color} bold]{safety}[/{color} bold]"
+
+    console.print(f"\nCommand: [white bold]{command}[/white bold]")
+    console.print(f"Safety Level: {badge}")
+
+    if box.get("is_blocked"):
+        console.print(f"[red bold]⛔ BLOCKED BY SANDBOX:[/red bold] {box.get('danger_reason')}")
+        if box.get("safe_alternative"):
+            console.print(f"[green]Safe alternative:[/green] {box.get('safe_alternative')}")
+    elif box.get("danger_reason"):
+        console.print(f"[yellow]Warning:[/yellow] {box.get('danger_reason')}")
+        if box.get("safe_alternative"):
+            console.print(f"[green]Safe alternative:[/green] {box.get('safe_alternative')}")
+    else:
+        console.print("[green]✔ Command passed all anti-hallucination and destructive checks.[/green]")
+
 def main() -> None:
     KNOWN_COMMANDS = {
         "ask", "chat", "pet", "eat", "rag", "screen", "exec", "status",
         "clip", "clipboard", "time", "timemachine", "rpg", "chameleon",
-        "web", "agent", "say",
+        "web", "agent", "say", "write", "vault", "standup", "sandbox",
         "-h", "--help"
     }
     if len(sys.argv) > 1 and sys.argv[1] not in KNOWN_COMMANDS and not sys.argv[1].startswith("-"):
@@ -372,6 +446,21 @@ def main() -> None:
     say_parser = subparsers.add_parser("say", help="Speak text aloud using native speech synthesis")
     say_parser.add_argument("text", nargs="+", help="Text to speak")
 
+    # Exclusive Killer Suite
+    write_parser = subparsers.add_parser("write", help="Ghostwriter: AI inline text transformation")
+    write_parser.add_argument("--mode", default="polish", choices=["polish", "polite", "grammar", "summarize", "translate_en", "translate_ru", "code_explain", "code_fix"], help="Transformation mode")
+    write_parser.add_argument("text", nargs="*", help="Optional text (if omitted, reads and rewrites clipboard)")
+
+    vault_parser = subparsers.add_parser("vault", help="Memory Vault: Long-term cross-session user memory")
+    vault_parser.add_argument("action", nargs="?", default="list", choices=["list", "remember", "forget"], help="Action")
+    vault_parser.add_argument("key", nargs="?", help="Fact key")
+    vault_parser.add_argument("value", nargs="*", help="Fact value")
+
+    subparsers.add_parser("standup", help="Daily Standup & Commit Crafter: Generate ready-to-share report")
+
+    sandbox_parser = subparsers.add_parser("sandbox", help="Terminal Sandbox Lens: inspect command safety")
+    sandbox_parser.add_argument("command", nargs="+", help="Shell command to inspect")
+
     args, unknown = parser.parse_known_args()
 
     engine = GhostEngine()
@@ -422,6 +511,15 @@ def main() -> None:
         cmd_agent(" ".join(args.task))
     elif args.subcommand == "say":
         cmd_say(" ".join(args.text))
+    elif args.subcommand == "write":
+        cmd_write(mode=args.mode, text=" ".join(args.text) if args.text else None)
+    elif args.subcommand == "vault":
+        val_str = " ".join(args.value) if args.value else None
+        cmd_vault(action=args.action, key=args.key, value=val_str)
+    elif args.subcommand == "standup":
+        cmd_standup()
+    elif args.subcommand == "sandbox":
+        cmd_sandbox(" ".join(args.command))
 
 if __name__ == "__main__":
     main()

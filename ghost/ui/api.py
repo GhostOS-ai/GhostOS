@@ -62,16 +62,23 @@ class GhostBridgeAPI:
                     "citations": [web_res.get("source", "Internet")]
                 }
 
-        # 3. Check local docs first (Zero-DB RAG)
+        # 3. Check Memory Vault (Long-Term Facts) & Zero-DB RAG
+        from ghost.core.memory_vault import MemoryVault
+        vault = MemoryVault()
+        vault.auto_extract_facts(prompt)
+        vault_ctx = vault.get_context_block()
+
         docs = self.rag.search(prompt, top_k=2)
-        context = ""
+        doc_ctx = ""
         cited_files = []
         if docs:
-            context = "\n\n".join([f"[{d['filename']}]: {d['content']}" for d in docs])
+            doc_ctx = "\n\n".join([f"[{d['filename']}]: {d['content']}" for d in docs])
             cited_files = list(set([d["filename"] for d in docs]))
 
+        combined_context = f"{vault_ctx}\n\n{doc_ctx}".strip()
+
         # 4. Neural LLM / Smart Assistant
-        reply = self.engine.ask(prompt, context=context)
+        reply = self.engine.ask(prompt, context=combined_context)
         CasperRPG.add_xp(10, "chat")
         VoiceEngine().speak(reply, async_mode=True)
         return {
@@ -297,3 +304,41 @@ class GhostBridgeAPI:
         """Fetch live web search context."""
         from ghost.core.web_search import WebSearchEngine
         return WebSearchEngine.search_web(query)
+
+    # ==================== EXCLUSIVE KILLER SUITE ====================
+    def ghostwrite(self, text: str, mode: str = "polish") -> Dict[str, Any]:
+        """Ghostwriter: Inline text rewrite & transformation."""
+        from ghost.core.ghostwriter import Ghostwriter
+        return Ghostwriter(self.engine).rewrite_text(text, mode=mode)
+
+    def ghostwrite_clipboard(self, mode: str = "polish") -> Dict[str, Any]:
+        """Ghostwriter: Read clipboard, transform, and write back."""
+        from ghost.core.ghostwriter import Ghostwriter
+        return Ghostwriter(self.engine).rewrite_clipboard(mode=mode)
+
+    def get_memory_vault_facts(self) -> Dict[str, Any]:
+        """Memory Vault: Get all remembered cross-session user facts."""
+        from ghost.core.memory_vault import MemoryVault
+        return {"facts": MemoryVault().get_all_facts()}
+
+    def add_memory_vault_fact(self, key: str, value: str, category: str = "general") -> Dict[str, Any]:
+        """Memory Vault: Add or update a personal user fact."""
+        from ghost.core.memory_vault import MemoryVault
+        success = MemoryVault().remember(key, value, category)
+        return {"success": success}
+
+    def forget_memory_vault_fact(self, key: str) -> Dict[str, Any]:
+        """Memory Vault: Delete a fact from long-term memory."""
+        from ghost.core.memory_vault import MemoryVault
+        success = MemoryVault().forget(key)
+        return {"success": success}
+
+    def get_daily_standup(self) -> Dict[str, Any]:
+        """Daily Standup & Commit Crafter: Generate ready-to-share standup."""
+        from ghost.core.time_machine import GhostTimeMachine
+        return {"standup": GhostTimeMachine.generate_daily_standup()}
+
+    def sandbox_check_command(self, command: str) -> Dict[str, Any]:
+        """Terminal Sandbox Lens: Deep safety inspection of shell commands."""
+        from ghost.core.lens import GhostLens
+        return GhostLens.verify_and_patch(command)

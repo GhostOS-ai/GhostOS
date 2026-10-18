@@ -4,8 +4,8 @@ setup(
     name="ghostos",
     version="0.1.0",
     author="KIB.best",
-    author_email="contact@kib.best",
-    url="https://github.com/kib-best/ghostos",
+    author_email="GhostOS@kib.best",
+    url="https://github.com/GhostOS-ai/GhostOS",
     packages=find_packages(),
     include_package_data=True,
     package_data={

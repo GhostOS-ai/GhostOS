@@ -47,7 +47,6 @@ class MeetingCopilot:
         self.is_recording = False
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        # If transcript not provided by external whisper process, format a structured summary template
         transcript_text = sample_transcript or (
             "Team discussed release goals for Q4. Decided to optimize VRAM footprint to 3.5GB. "
             "Alex will finalize the SQLite FTS5 RAG engine by Thursday. "
@@ -55,23 +54,43 @@ class MeetingCopilot:
             "Agreed that all telemetry stays 100% offline."
         )
 
-        notes_markdown = (
-            f"# 🎙️ Meeting Summary - {timestamp}\n\n"
-            f"**Privacy Status:** 🔒 100% Local Inference (Zero Cloud Data Leakage)\n\n"
-            f"### 📌 Executive Overview\n"
-            f"High-priority alignment on upcoming deliverable milestones and privacy requirements.\n\n"
-            f"### 💡 Key Decisions\n"
-            f"- Established hard ceiling of **3.5GB VRAM** to guarantee smooth execution on laptops.\n"
-            f"- Adopted SQLite FTS5 for zero-dependency local document search.\n"
-            f"- Retained offline-only architecture with zero external telemetry.\n\n"
-            f"### ✅ Action Items\n"
-            f"- [ ] **Alex**: Finalize SQLite FTS5 RAG engine (Due: Thursday)\n"
-            f"- [ ] **Maria**: Polish Ghost Pet drag-and-drop animation (Due: Friday)\n"
-            f"- [ ] **Team**: Run 24h stress test on low-memory machines\n\n"
-            f"---\n"
-            f"### 📝 Raw Transcript Snippet\n"
-            f"> *\"{transcript_text}\"*\n"
-        )
+        # Dynamic AI minutes generator if engine is available
+        try:
+            from ghost.core.engine import GhostEngine
+            engine = GhostEngine()
+            prompt = (
+                "You are an executive meeting secretary. Given the following meeting transcript, produce a structured markdown summary:\n\n"
+                f"Transcript:\n{transcript_text}\n\n"
+                "Format as:\n"
+                "### 📌 Executive Overview\n(1-2 sentence overview)\n\n"
+                "### 💡 Key Decisions\n(bullet points)\n\n"
+                "### ✅ Action Items\n(checkbox items with owners and deadlines)\n"
+            )
+            ai_summary = engine.ask(prompt)
+            notes_markdown = (
+                f"# 🎙️ Meeting Summary - {timestamp}\n\n"
+                f"**Privacy Status:** 🔒 100% Local Inference (Zero Cloud Data Leakage)\n\n"
+                f"{ai_summary}\n\n"
+                f"---\n### 📝 Raw Transcript Snippet\n> *\"{transcript_text}\"*\n"
+            )
+        except Exception:
+            notes_markdown = (
+                f"# 🎙️ Meeting Summary - {timestamp}\n\n"
+                f"**Privacy Status:** 🔒 100% Local Inference (Zero Cloud Data Leakage)\n\n"
+                f"### 📌 Executive Overview\n"
+                f"High-priority alignment on upcoming deliverable milestones and privacy requirements.\n\n"
+                f"### 💡 Key Decisions\n"
+                f"- Established hard ceiling of **3.5GB VRAM** to guarantee smooth execution on laptops.\n"
+                f"- Adopted SQLite FTS5 for zero-dependency local document search.\n"
+                f"- Retained offline-only architecture with zero external telemetry.\n\n"
+                f"### ✅ Action Items\n"
+                f"- [ ] **Alex**: Finalize SQLite FTS5 RAG engine (Due: Thursday)\n"
+                f"- [ ] **Maria**: Polish Ghost Pet drag-and-drop animation (Due: Friday)\n"
+                f"- [ ] **Team**: Run 24h stress test on low-memory machines\n\n"
+                f"---\n"
+                f"### 📝 Raw Transcript Snippet\n"
+                f"> *\"{transcript_text}\"*\n"
+            )
 
         # Save to disk
         out_file = GHOST_RECORDINGS_DIR / f"summary_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.md"

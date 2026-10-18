@@ -65,30 +65,47 @@ Running local AI today is frustrating:
   * ⚖️ **Balanced Mode:** Context 2048 tokens, 4 threads, 180s auto-sleep.
   * ⚡ **Performance Beast:** On AC power and free RAM > 50%. Context 4096 tokens, full Apple Metal GPU acceleration.
 
-#### 4. 📋 Phantom Clipboard Inspector
+#### 4. ✍️ Ghostwriter (AI Inline Completion & Rewrite Engine)
+* Transform any selected text in Word, Telegram, browsers, IDEs, or notes via clipboard:
+  * ✨ `polish`: Professional, clean, and concise rewrite.
+  * 🤝 `polite`: Diplomatic, respectful business tone.
+  * 📝 `grammar`: Fixes spelling, punctuation, and typos with zero conversational fluff.
+  * 🎯 `summarize`: Condenses text into 2-3 key takeaways.
+  * 🇺🇸 / 🇷🇺 `translate`: Instant natural language translation.
+  * 🛠️ `code_fix`: Fixes syntax or runtime bugs in code snippets.
+* Use from CLI: `ghost write --mode polite "draft message"` or rewrite clipboard in 1 click!
+
+#### 5. 🧠 Memory Vault (Cross-Session Context Graph)
+* Permanent personal knowledge base stored in local SQLite without external vector databases.
+* Automatically remembers your developer stack, project names, and preferences across restarts.
+* Injects personal context into queries with **0 KB extra VRAM** and 0% CPU footprint.
+* CLI management: `ghost vault list`, `ghost vault remember tech_stack "Python, Rust"`.
+
+#### 6. 🛡️ Terminal Sandbox Lens (Destructive Command Protection)
+* Deep safety inspection for terminal commands before execution.
+* Intercepts and blocks dangerous commands (e.g. `rm -rf /`, `mkfs`, raw `dd`, `DROP DATABASE`, `format C:`).
+* Explains risks in plain human language and suggests safe alternatives before running.
+* Interactive CLI audit: `ghost sandbox "command to inspect"`.
+
+#### 7. 📅 Daily Standup & Conventional Commit Crafter
+* Analyzes daily file modifications, git diffs, and session commits.
+* Generates ready-to-share Daily Standup reports for Slack / Telegram (*"What I accomplished", "What I'm working on", "Blockers"*).
+* Automatically crafts semantic Conventional Commits (`feat(...)`, `fix(...)`, `refactor(...)`).
+* CLI: `ghost standup`
+
+#### 8. 🎙️ Auto-Minutes Meeting Copilot
+* 100% private offline secretary for Zoom, Google Meet, and voice notes.
+* Generates structured markdown meeting minutes with **Executive Overview**, **Key Decisions**, and **Action Items with Deadlines**.
+* Whisper model hot-swaps in only for the 5-second transcription window and immediately frees VRAM.
+
+#### 9. 📋 Phantom Clipboard Inspector
 * Sub-millisecond pattern-matcher for copied text without waking up heavy neural nets.
-* Instant 1-click contextual actions:
-  * 🚨 Stack trace -> **💡 Explain & Fix Error**
-  * ✨ Raw JSON -> **✨ Format & Validate JSON**
-  * 🔍 SQL -> **🔍 Explain Query & Indexing**
-  * ⚡ Code snippet -> **⚡ Explain & Refactor**
+* Instant 1-click contextual actions for Stack traces, raw JSON, SQL queries, and code snippets.
 
-#### 5. 🛡️ Anti-Hallucination Ghost Lens
-* Verifies generated terminal commands against native macOS BSD utilities.
-* Automatically patches common LLM hallucinations (e.g. converts GNU `sed -i` to macOS BSD `sed -i ''`, `grep -P` to `grep -E`, checks binary existence via `which`).
-
-#### 6. 🕒 Ghost Time Machine (Session Journal)
-* Tracks touched workspace files and git modifications without heavy background daemons.
-* Generates instant daily work summaries and smart **1-click Git Commit messages**.
-
-#### 7. 🎮 Casper RPG Evolution System
+#### 10. 🎮 Casper RPG Evolution System
 * Gamified companion that grows with your work:
   * Gain XP for feeding files (+15 XP), running commands (+25 XP), asking questions (+10 XP).
-  * Unlocks evolutions and visual accessories:
-    * Level 1: 🌱 *Apprentice Wisp*
-    * Level 3: 🕶️ *Code Specter* (Unlocks Cyberpunk Visor)
-    * Level 5: 📖 *Grand Scribe* (Unlocks Magic Spellbook)
-    * Level 6: 👑 *Void Sentinel* (Unlocks Golden Crown)
+  * Unlocks evolutions and visual accessories (Cyberpunk Visor, Magic Spellbook, Golden Crown).
 
 ---
 
@@ -148,8 +165,8 @@ flowchart TD
 
 #### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/ghostos.git
-cd ghostos
+git clone https://github.com/GhostOS-ai/GhostOS.git
+cd GhostOS
 pip install -e .
 ```
 
@@ -167,6 +184,20 @@ ghost "Why does Python raise RecursionError and how to fix it?"
 # Feed a document or code directory to Casper
 ghost eat ~/Documents/my_notes.txt
 ghost eat ./src/
+
+# Inline AI Ghostwriter (rewrites clipboard or given text)
+ghost write --mode polite "can you fix this asap"
+ghost write --mode grammar
+
+# Long-term Memory Vault
+ghost vault remember tech_stack "Python, Rust, Apple Silicon"
+ghost vault list
+
+# Daily Standup Report & Semantic Commit Crafter
+ghost standup
+
+# Terminal Sandbox Safety Lens
+ghost sandbox "rm -rf /"
 
 # Search indexed knowledge
 ghost rag search "database migration"

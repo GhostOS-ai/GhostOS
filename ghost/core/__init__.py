@@ -16,6 +16,8 @@ from ghost.core.rpg import CasperRPG
 from ghost.core.voice import VoiceEngine
 from ghost.core.agent import GhostOSAgent
 from ghost.core.web_search import WebSearchEngine
+from ghost.core.memory_vault import MemoryVault
+from ghost.core.ghostwriter import Ghostwriter
 
 __all__ = [
     "GhostEngine",
@@ -33,4 +35,6 @@ __all__ = [
     "VoiceEngine",
     "GhostOSAgent",
     "WebSearchEngine",
+    "MemoryVault",
+    "Ghostwriter",
 ]

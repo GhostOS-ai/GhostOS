@@ -22,5 +22,19 @@ class TestGhostLens(unittest.TestCase):
         res = GhostLens.verify_and_patch(cmd)
         self.assertTrue(res["is_valid"])
 
+    def test_sandbox_destructive_blocked(self):
+        cmd = "rm -rf /"
+        res = GhostLens.verify_and_patch(cmd)
+        sandbox = res.get("sandbox", {})
+        self.assertEqual(sandbox.get("safety_level"), "CRITICAL")
+        self.assertTrue(sandbox.get("is_blocked"))
+
+    def test_sandbox_safe_command(self):
+        cmd = "ls -la"
+        res = GhostLens.verify_and_patch(cmd)
+        sandbox = res.get("sandbox", {})
+        self.assertEqual(sandbox.get("safety_level"), "SAFE")
+        self.assertFalse(sandbox.get("is_blocked"))
+
 if __name__ == "__main__":
     unittest.main()

@@ -15,22 +15,52 @@ class PhantomClipboard:
 
     @staticmethod
     def get_clipboard_text() -> str:
-        """Read system clipboard on macOS via pbpaste."""
+        """Read system clipboard across macOS, Windows, and Linux."""
+        import sys
         try:
-            res = subprocess.run("pbpaste", shell=True, capture_output=True, text=True, timeout=2)
-            return res.stdout.strip()
+            if sys.platform == "darwin":
+                res = subprocess.run("pbpaste", shell=True, capture_output=True, text=True, timeout=2)
+                return res.stdout.strip()
+            elif sys.platform == "win32":
+                res = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-Clipboard"], capture_output=True, text=True, timeout=2)
+                return res.stdout.strip()
+            else:
+                for tool in ["xclip -selection clipboard -o", "xsel --clipboard --output", "wl-paste"]:
+                    try:
+                        res = subprocess.run(tool, shell=True, capture_output=True, text=True, timeout=1)
+                        if res.returncode == 0:
+                            return res.stdout.strip()
+                    except Exception:
+                        continue
         except Exception:
-            return ""
+            pass
+        return ""
 
     @staticmethod
     def set_clipboard_text(text: str) -> bool:
-        """Write text to system clipboard on macOS via pbcopy."""
+        """Write text to system clipboard across macOS, Windows, and Linux."""
+        import sys
         try:
-            proc = subprocess.Popen("pbcopy", shell=True, stdin=subprocess.PIPE, text=True)
-            proc.communicate(text, timeout=2)
-            return proc.returncode == 0
+            if sys.platform == "darwin":
+                proc = subprocess.Popen("pbcopy", shell=True, stdin=subprocess.PIPE, text=True)
+                proc.communicate(text, timeout=2)
+                return proc.returncode == 0
+            elif sys.platform == "win32":
+                proc = subprocess.Popen(["powershell", "-NoProfile", "-Command", "Set-Clipboard -Value $input"], stdin=subprocess.PIPE, text=True)
+                proc.communicate(text, timeout=2)
+                return proc.returncode == 0
+            else:
+                for tool in ["xclip -selection clipboard", "xsel --clipboard --input", "wl-copy"]:
+                    try:
+                        proc = subprocess.Popen(tool, shell=True, stdin=subprocess.PIPE, text=True)
+                        proc.communicate(text, timeout=2)
+                        if proc.returncode == 0:
+                            return True
+                    except Exception:
+                        continue
         except Exception:
-            return False
+            pass
+        return False
 
     @classmethod
     def inspect(cls, custom_text: Optional[str] = None) -> Dict[str, Any]:
