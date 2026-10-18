@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ghostos"
 version = "0.1.0"
 authors = [
-  { name = "GhostOS Contributors" },
+  { name = "KIB.best", email = "contact@kib.best" },
 ]
 description = "The Invisible, Featherweight, Offline Desktop AI Companion & Copilot"
 readme = "README.md"
@@ -14,7 +14,10 @@ requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Desktop Environment",
 ]

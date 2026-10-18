@@ -11,6 +11,7 @@
 ```
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Author: KIB.best](https://img.shields.io/badge/Author-KIB.best-8A2BE2.svg)](https://kib.best)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Platform](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon%20%7C%20Linux%20%7C%20Windows-brightgreen.svg)]()
 [![Idle RAM](https://img.shields.io/badge/Idle%20RAM-%3C35%20MB-success.svg)]()
@@ -215,4 +216,4 @@ python3 -m unittest discover tests
 
 ### 📄 License
 
-MIT License © 2026 GhostOS Contributors. Free for personal and commercial use.
+MIT License © 2026 KIB.best. Free for personal and commercial use.

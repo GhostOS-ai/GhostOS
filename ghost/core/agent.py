@@ -243,11 +243,17 @@ class GhostOSAgent:
                     folder_title = target_path.name
 
             try:
-                subprocess.run(f"open '{target_path}'", shell=True, check=True)
+                import sys
+                if sys.platform == "darwin":
+                    subprocess.run(f"open '{target_path}'", shell=True, check=True)
+                elif sys.platform == "win32":
+                    os.startfile(str(target_path))
+                else:
+                    subprocess.run(["xdg-open", str(target_path)], check=True)
                 return {
                     "handled": True,
                     "action": "open_folder",
-                    "output": f"📂 Открыл {folder_title} в Finder (`{target_path}`)!"
+                    "output": f"📂 Открыл {folder_title} (`{target_path}`)!"
                 }
             except Exception as e:
                 return {

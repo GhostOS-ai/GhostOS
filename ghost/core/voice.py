@@ -87,13 +87,31 @@ class VoiceEngine:
         self.stop()
 
         def _run():
-            cmd = ["say"]
-            if chosen_voice:
-                cmd.extend(["-v", chosen_voice])
-            cmd.append(clean)
+            import sys
             try:
-                self._current_proc = subprocess.Popen(cmd)
-                self._current_proc.wait()
+                if sys.platform == "darwin":
+                    cmd = ["say"]
+                    if chosen_voice:
+                        cmd.extend(["-v", chosen_voice])
+                    cmd.append(clean)
+                    self._current_proc = subprocess.Popen(cmd)
+                    self._current_proc.wait()
+                elif sys.platform == "win32":
+                    escaped_clean = clean.replace('"', '`"').replace("'", "''")
+                    ps_cmd = (
+                        f'Add-Type -AssemblyName System.Speech; '
+                        f'$syn = New-Object System.Speech.Synthesis.SpeechSynthesizer; '
+                        f'$syn.Speak("{escaped_clean}")'
+                    )
+                    self._current_proc = subprocess.Popen(["powershell", "-NoProfile", "-Command", ps_cmd])
+                    self._current_proc.wait()
+                elif sys.platform.startswith("linux"):
+                    try:
+                        self._current_proc = subprocess.Popen(["spd-say", clean])
+                        self._current_proc.wait()
+                    except Exception:
+                        self._current_proc = subprocess.Popen(["espeak", clean])
+                        self._current_proc.wait()
             except Exception as e:
                 logger.warning(f"Voice output failed: {e}")
 

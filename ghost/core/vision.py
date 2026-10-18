@@ -20,64 +20,90 @@ class ScreenInspector:
         self.screenshot_path = GHOST_CACHE_DIR / "last_screen.png"
 
     def get_frontmost_app(self) -> str:
-        """Get the name of currently active frontmost application via AppleScript."""
-        cmd = """osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true'"""
-        try:
-            res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=2)
-            return res.stdout.strip() or "Desktop"
-        except Exception:
-            return "Unknown"
+        """Get the name of currently active frontmost application across macOS, Windows, Linux."""
+        import sys
+        if sys.platform == "darwin":
+            cmd = """osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true'"""
+            try:
+                res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=2)
+                return res.stdout.strip() or "Desktop"
+            except Exception:
+                return "Desktop"
+        elif sys.platform == "win32":
+            try:
+                import ctypes
+                hwnd = ctypes.windll.user32.GetForegroundWindow()
+                length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+                buff = ctypes.create_unicode_buffer(length + 1)
+                ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+                return buff.value or "Desktop"
+            except Exception:
+                return "Desktop"
+        elif sys.platform.startswith("linux"):
+            try:
+                res = subprocess.run("xdotool getactivewindow getwindowname", shell=True, capture_output=True, text=True, timeout=2)
+                return res.stdout.strip() or "Desktop"
+            except Exception:
+                return "Desktop"
+        return "Desktop"
 
     def capture_screen(self, mode: str = "full") -> Dict[str, Any]:
         """
-        Capture screenshot on macOS without camera shutter sound:
-        - 'full': entire screen (-x: mute sound)
-        - 'selection': interactive mouse marquee drag (-i)
-        - 'window': interactive click on window (-w)
+        Capture screenshot across macOS, Windows, and Linux:
+        - macOS: silent native screencapture
+        - Windows / Linux: native Pillow ImageGrab
         """
+        import sys
         output_file = str(self.screenshot_path)
-        
-        if mode == "selection":
-            cmd = f"screencapture -i -x {output_file}"
-        elif mode == "window":
-            cmd = f"screencapture -w -x {output_file}"
-        else:
-            # Full screen silent capture
-            cmd = f"screencapture -x {output_file}"
-
         active_app = self.get_frontmost_app()
 
+        if sys.platform == "darwin":
+            if mode == "selection":
+                cmd = f"screencapture -i -x {output_file}"
+            elif mode == "window":
+                cmd = f"screencapture -w -x {output_file}"
+            else:
+                cmd = f"screencapture -x {output_file}"
+
+            try:
+                res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=10)
+                if res.returncode == 0 and os.path.exists(output_file) and os.path.getsize(output_file) > 0:
+                    return {
+                        "success": True,
+                        "file_path": output_file,
+                        "active_app": active_app,
+                        "mode": mode,
+                        "fallback": False,
+                        "message": f"Captured {mode} screen from {active_app}."
+                    }
+            except Exception:
+                pass
+
+        # Universal fallback via Pillow ImageGrab (Windows, Linux, macOS fallback)
         try:
-            res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=10)
-            if res.returncode != 0 or not os.path.exists(output_file) or os.path.getsize(output_file) == 0:
-                # Permission or headless display fallback
+            from PIL import ImageGrab
+            img = ImageGrab.grab()
+            if img:
+                img.save(output_file, "PNG")
                 return {
                     "success": True,
-                    "file_path": None,
+                    "file_path": output_file,
                     "active_app": active_app,
                     "mode": mode,
-                    "fallback": True,
-                    "message": f"Active window '{active_app}' detected (Grant macOS Screen Recording permission in System Settings for full pixel captures)."
+                    "fallback": False,
+                    "message": f"Captured active screen ({img.size[0]}x{img.size[1]}) from {active_app}."
                 }
+        except Exception:
+            pass
 
-            return {
-                "success": True,
-                "file_path": output_file,
-                "active_app": active_app,
-                "mode": mode,
-                "fallback": False,
-                "message": f"Captured {mode} screen from {active_app}."
-            }
-        except subprocess.TimeoutExpired:
-            return {"success": False, "error": "Screen capture timed out."}
-        except Exception as e:
-            return {
-                "success": True,
-                "file_path": None,
-                "active_app": active_app,
-                "fallback": True,
-                "message": f"Window '{active_app}' inspected."
-            }
+        return {
+            "success": True,
+            "file_path": None,
+            "active_app": active_app,
+            "mode": mode,
+            "fallback": True,
+            "message": f"Active window '{active_app}' detected."
+        }
 
     def analyze_screen(self, prompt: str = "Explain what is on the screen and identify any errors.") -> Dict[str, Any]:
         """
