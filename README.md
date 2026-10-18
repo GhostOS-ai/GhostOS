@@ -26,10 +26,12 @@
   <a href="docs/README_PT.md"><b>Português</b></a>
 </p>
 
+[![PyPI version](https://img.shields.io/pypi/v/ghostos-ai.svg?color=blue)](https://pypi.org/project/ghostos-ai/)
+[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Upcoming%20Launch-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/ghostos?launch=ghostos)
+[![GitHub Stars](https://badgen.net/github/stars/GhostOS-ai/GhostOS?icon=github&color=yellow)](https://github.com/GhostOS-ai/GhostOS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Author: KIB.best](https://img.shields.io/badge/Author-KIB.best-8A2BE2.svg)](https://kib.best)
 [![Email](https://img.shields.io/badge/Contact-GhostOS%40kib.best-0071e3.svg)](mailto:GhostOS@kib.best)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-brightgreen.svg)]()
 [![Idle RAM](https://img.shields.io/badge/Idle%20RAM-%3C35%20MB-success.svg)]()
 [![Peak VRAM](https://img.shields.io/badge/Peak%20VRAM-%E2%89%A43.5%20GB-blueviolet.svg)]()
