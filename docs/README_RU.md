@@ -27,7 +27,7 @@
 </p>
 
 [![Лицензия: MIT](https://img.shields.io/badge/Лицензия-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Автор: KIB.best](https://img.shields.io/badge/Автор-KIB.best-8A2BE2.svg)](https://kib.best)
+[![Автор: KIB.best](https://img.shields.io/badge/Автор-KIB.best-8A2BE2.svg)](https://github.com/GhostOS-ai/GhostOS)
 [![Email](https://img.shields.io/badge/Связь-GhostOS%40kib.best-0071e3.svg)](mailto:GhostOS@kib.best)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Платформа](https://img.shields.io/badge/платформа-macOS%20%7C%20Windows%20%7C%20Linux-brightgreen.svg)]()
@@ -250,6 +250,6 @@ GhostOS спроектирован для бескомпромиссной ко�
 
 ### 📄 Лицензия и авторство
 
-- **Автор:** [KIB.best](https://kib.best)
+- **Автор:** [KIB.best](https://github.com/GhostOS-ai/GhostOS)
 - **Email:** [GhostOS@kib.best](mailto:GhostOS@kib.best)
 - **Лицензия:** MIT License © 2026 KIB.best. Бесплатно для личного и коммерческого использования.

@@ -27,7 +27,7 @@
 </p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Author: KIB.best](https://img.shields.io/badge/Author-KIB.best-8A2BE2.svg)](https://kib.best)
+[![Author: KIB.best](https://img.shields.io/badge/Author-KIB.best-8A2BE2.svg)](https://github.com/GhostOS-ai/GhostOS)
 [![Email](https://img.shields.io/badge/Contact-GhostOS%40kib.best-0071e3.svg)](mailto:GhostOS@kib.best)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-brightgreen.svg)]()
@@ -69,6 +69,6 @@ ghost pet
 
 ### 📄 开源许可证与作者信息
 
-- **作者:** [KIB.best](https://kib.best)
+- **作者:** [KIB.best](https://github.com/GhostOS-ai/GhostOS)
 - **邮箱:** [GhostOS@kib.best](mailto:GhostOS@kib.best)
 - **许可证:** MIT License © 2026 KIB.best. 免费供个人与商业使用。

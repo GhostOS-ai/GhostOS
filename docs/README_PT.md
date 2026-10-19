@@ -27,7 +27,7 @@
 </p>
 
 [![Licença: MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Autor: KIB.best](https://img.shields.io/badge/Autor-KIB.best-8A2BE2.svg)](https://kib.best)
+[![Autor: KIB.best](https://img.shields.io/badge/Autor-KIB.best-8A2BE2.svg)](https://github.com/GhostOS-ai/GhostOS)
 [![Email](https://img.shields.io/badge/Contato-GhostOS%40kib.best-0071e3.svg)](mailto:GhostOS@kib.best)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Plataforma](https://img.shields.io/badge/plataforma-macOS%20%7C%20Windows%20%7C%20Linux-brightgreen.svg)]()
@@ -81,6 +81,6 @@ ghost pet
 
 ### 📄 Licença e Autor
 
-- **Autor:** [KIB.best](https://kib.best)
+- **Autor:** [KIB.best](https://github.com/GhostOS-ai/GhostOS)
 - **Contato:** [GhostOS@kib.best](mailto:GhostOS@kib.best)
 - **Licença:** MIT License © 2026 KIB.best.
