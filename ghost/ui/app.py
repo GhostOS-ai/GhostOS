@@ -10,10 +10,27 @@ import webview
 
 from ghost.ui.api import GhostBridgeAPI
 
+def set_macos_dock_icon():
+    """Sets custom Casper Ghost icon in macOS Dock instead of default Python rocket."""
+    if sys.platform == "darwin":
+        try:
+            from AppKit import NSApplication, NSImage
+            app = NSApplication.sharedApplication()
+            icon_file = Path(__file__).parent / "assets" / "icon.png"
+            if not icon_file.exists():
+                icon_file = Path(__file__).parents[2] / "avatar.jpg"
+            if icon_file.exists():
+                img = NSImage.alloc().initWithContentsOfFile_(str(icon_file))
+                if img:
+                    app.setApplicationIconImage_(img)
+        except Exception:
+            pass
+
 def launch_desktop_pet(skin: str = "glass", with_tray: bool = False):
     """
     Launches the floating transparent Casper Ghost pet on the desktop.
     """
+    set_macos_dock_icon()
     assets_dir = Path(__file__).parent / "assets"
     index_html = assets_dir / "index.html"
     
@@ -74,6 +91,7 @@ def launch_spotlight_hud(skin: str = "glass"):
     """
     Launches the Spotlight HUD directly centered on screen for quick offline queries.
     """
+    set_macos_dock_icon()
     assets_dir = Path(__file__).parent / "assets"
     index_html = assets_dir / "index.html"
     

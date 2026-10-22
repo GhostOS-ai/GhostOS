@@ -75,7 +75,17 @@ class GhostBridgeAPI:
             doc_ctx = "\n\n".join([f"[{d['filename']}]: {d['content']}" for d in docs])
             cited_files = list(set([d["filename"] for d in docs]))
 
-        combined_context = f"{vault_ctx}\n\n{doc_ctx}".strip()
+        # Greetings and small talk should not be tainted by vault context
+        p_clean = prompt.lower().strip()
+        is_small_talk = any(w in p_clean for w in ["привет", "салам", "hello", "hi", "хай", "здравствуй", "как дела", "кто ты", "что ты умеешь", "помощь"])
+        if is_small_talk:
+            combined_context = None
+        elif doc_ctx:
+            combined_context = f"{vault_ctx}\n\n{doc_ctx}".strip()
+        elif vault_ctx:
+            combined_context = vault_ctx
+        else:
+            combined_context = None
 
         # 4. Neural LLM / Smart Assistant
         reply = self.engine.ask(prompt, context=combined_context)
