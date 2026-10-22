@@ -192,12 +192,40 @@
       <!-- Chat Tab -->
       <div id="tab-chat" class="tab-pane active">
         <div id="chat-messages" class="chat-messages">
-          <div class="msg ghost">
-            <div class="msg-avatar">👻</div>
-            <div class="msg-bubble">
-              <b data-i18n="welcome_title">Boo! Casper is online.</b><br>
-              <span data-i18n="welcome_desc">Running locally on your Mac with zero cloud leaks.</span><br>
-              <span style="color:var(--text-muted); font-size:11.5px;" data-i18n="welcome_tip">Click Casper to interact, double-click to expand HUD, or drag files onto him!</span>
+          <div class="welcome-hero-box">
+            <div class="welcome-badge">👻 GhostOS Copilot • 100% Offline • <35MB RAM</div>
+            <h2 class="welcome-heading">Привет! Я твой локальный десктоп-ассистент</h2>
+            <p class="welcome-subtitle">Живу прямо на твоем Mac, помогаю с файлами, поиском, текстом и обучением на документах без облаков.</p>
+            
+            <div class="quick-action-grid">
+              <div class="quick-card" onclick="triggerQuickAction('Привет! Расскажи о себе и что ты умеешь')">
+                <span class="card-icon">👋</span>
+                <div class="card-text">
+                  <span class="card-title">Кто ты и что умеешь?</span>
+                  <span class="card-desc">Познакомиться с возможностями</span>
+                </div>
+              </div>
+              <div class="quick-card" onclick="triggerQuickAction('открой загрузки')">
+                <span class="card-icon">📂</span>
+                <div class="card-text">
+                  <span class="card-title">Открыть Загрузки</span>
+                  <span class="card-desc">Управление файлами на Mac</span>
+                </div>
+              </div>
+              <div class="quick-card" onclick="triggerQuickAction('погода в Алматы')">
+                <span class="card-icon">🌤️</span>
+                <div class="card-text">
+                  <span class="card-title">Погода в Алматы</span>
+                  <span class="card-desc">Быстрый поиск информации</span>
+                </div>
+              </div>
+              <div class="quick-card" onclick="triggerQuickAction('как скормить тебе файл?')">
+                <span class="card-icon">🍕</span>
+                <div class="card-text">
+                  <span class="card-title">Скормить документ (RAG)</span>
+                  <span class="card-desc">Перетащи PDF или код на экран</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

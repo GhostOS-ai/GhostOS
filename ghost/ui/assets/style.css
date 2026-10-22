@@ -560,6 +560,96 @@ html, body {
   border-radius: 14px 14px 14px 3px;
 }
 
+/* ==================== WELCOME HERO & QUICK ACTION CARDS ==================== */
+.welcome-hero-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.welcome-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(41, 151, 255, 0.12);
+  border: 1px solid rgba(41, 151, 255, 0.28);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2997ff;
+  letter-spacing: 0.2px;
+  margin-bottom: 12px;
+}
+
+.welcome-heading {
+  font-size: 19px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.3px;
+}
+
+.welcome-subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 auto 20px auto;
+  max-width: 520px;
+  line-height: 1.45;
+}
+
+.quick-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  text-align: left;
+}
+
+.quick-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.quick-card:hover {
+  background: rgba(41, 151, 255, 0.12);
+  border-color: rgba(41, 151, 255, 0.38);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.quick-card .card-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.quick-card .card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quick-card .card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.quick-card .card-desc {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
 /* Common UI Elements for Panes */
 .pane-header {
   margin-bottom: 12px;

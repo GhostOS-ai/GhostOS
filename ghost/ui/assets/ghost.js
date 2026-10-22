@@ -924,3 +924,11 @@ async function runWebSearch() {
     outputEl.innerHTML = formatMarkdown(res.content || "No results found.");
   }
 }
+
+// ==================== ONBOARDING QUICK ACTIONS ====================
+function triggerQuickAction(query) {
+  const input = document.getElementById("hud-input");
+  if (!input) return;
+  input.value = query;
+  handleSend();
+}
