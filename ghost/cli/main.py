@@ -234,18 +234,38 @@ def cmd_models(engine: GhostEngine) -> None:
 
     console.print(rec_table)
 
-def cmd_pet(skin: str = "glass") -> None:
+def cmd_pet(skin: str = "glass", with_tray: bool = False) -> None:
     """Launch Desktop Ghost Pet & HUD GUI."""
     try:
         from ghost.ui.app import launch_desktop_pet
         console.print(f"[bold cyan]👻 Casper ({skin} skin) is floating onto your screen...[/bold cyan]")
-        launch_desktop_pet(skin=skin)
+        if with_tray:
+            console.print("[dim]Attaching native macOS Menu Bar tray...[/dim]")
+        launch_desktop_pet(skin=skin, with_tray=with_tray)
     except Exception as e:
         console.print(f"[bold red]Failed to launch Desktop Pet UI:[/bold red] {e}")
         console.print("[dim]Falling back to interactive terminal chat...[/dim]")
         engine = GhostEngine()
         rag = ZeroDbRAG()
         cmd_chat(engine, rag)
+
+def cmd_spotlight(skin: str = "glass") -> None:
+    """Launch instant Spotlight HUD centered on screen."""
+    try:
+        from ghost.ui.app import launch_spotlight_hud
+        console.print(f"[bold cyan]🔍 Opening GhostOS Spotlight HUD ({skin} skin)...[/bold cyan]")
+        launch_spotlight_hud(skin=skin)
+    except Exception as e:
+        console.print(f"[bold red]Failed to launch Spotlight HUD:[/bold red] {e}")
+
+def cmd_tray() -> None:
+    """Launch native macOS Menu Bar controller."""
+    try:
+        from ghost.ui.tray import launch_tray
+        console.print("[bold cyan]👻 GhostOS Menu Bar icon attached to macOS status bar.[/bold cyan]")
+        launch_tray()
+    except Exception as e:
+        console.print(f"[bold red]Failed to launch Menu Bar tray:[/bold red] {e}")
 
 def cmd_clip() -> None:
     """Inspect clipboard and execute 1-click contextual action."""
@@ -420,6 +440,7 @@ def main() -> None:
         "ask", "chat", "pet", "models", "eat", "rag", "screen", "exec", "status",
         "clip", "clipboard", "time", "timemachine", "rpg", "chameleon",
         "web", "agent", "say", "write", "vault", "standup", "sandbox",
+        "spot", "spotlight", "bar", "tray",
         "-h", "--help"
     }
     if len(sys.argv) > 1 and sys.argv[1] not in KNOWN_COMMANDS and not sys.argv[1].startswith("-"):
@@ -440,6 +461,16 @@ def main() -> None:
     # Pet GUI
     pet_parser = subparsers.add_parser("pet", help="Launch floating Ghost Desktop Pet & Quick HUD")
     pet_parser.add_argument("--skin", default="glass", choices=["glass", "cyberpunk", "gold", "matrix"], help="Visual skin for Casper (glass, cyberpunk, gold, matrix)")
+    pet_parser.add_argument("--tray", action="store_true", help="Also attach native macOS Menu Bar controller")
+
+    # Spotlight HUD
+    for sp_name in ["spot", "spotlight"]:
+        sp_parser = subparsers.add_parser(sp_name, help="Launch instant floating Spotlight HUD")
+        sp_parser.add_argument("--skin", default="glass", choices=["glass", "cyberpunk", "gold", "matrix"], help="Visual skin for Spotlight HUD")
+
+    # Menu Bar Tray
+    for tray_name in ["bar", "tray"]:
+        subparsers.add_parser(tray_name, help="Launch native macOS Menu Bar controller")
 
     # Models / Hardware catalog
     subparsers.add_parser("models", help="Inspect local AI models, Ollama instances, and hardware acceleration")
@@ -516,7 +547,11 @@ def main() -> None:
     elif args.subcommand == "chat":
         cmd_chat(engine, rag)
     elif args.subcommand == "pet":
-        cmd_pet(skin=getattr(args, "skin", "glass"))
+        cmd_pet(skin=getattr(args, "skin", "glass"), with_tray=getattr(args, "tray", False))
+    elif args.subcommand in {"spot", "spotlight"}:
+        cmd_spotlight(skin=getattr(args, "skin", "glass"))
+    elif args.subcommand in {"bar", "tray"}:
+        cmd_tray()
     elif args.subcommand == "models":
         cmd_models(engine)
     elif args.subcommand == "eat":

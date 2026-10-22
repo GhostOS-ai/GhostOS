@@ -95,10 +95,31 @@ class GhostBridgeAPI:
     def ingest_dropped_content(self, filename: str, content: str) -> Dict[str, Any]:
         """Ghost eats raw dropped text/file from web drag-and-drop."""
         from ghost.config import GHOST_CACHE_DIR
+        from ghost.core.rpg import CasperRPG
         temp_file = GHOST_CACHE_DIR / filename
         try:
             temp_file.write_text(content, encoding="utf-8")
             res = self.rag.ingest_file(str(temp_file))
+            if res.get("success"):
+                CasperRPG.add_xp(25, "eat")
+            return res
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def ingest_dropped_file_base64(self, filename: str, base64_data: str) -> Dict[str, Any]:
+        """Ghost eats binary dropped file (e.g. PDF, image) via Base64 data URL."""
+        import base64
+        from ghost.config import GHOST_CACHE_DIR
+        from ghost.core.rpg import CasperRPG
+        temp_file = GHOST_CACHE_DIR / filename
+        try:
+            if "," in base64_data:
+                base64_data = base64_data.split(",", 1)[1]
+            file_bytes = base64.b64decode(base64_data)
+            temp_file.write_bytes(file_bytes)
+            res = self.rag.ingest_file(str(temp_file))
+            if res.get("success"):
+                CasperRPG.add_xp(35, "eat")
             return res
         except Exception as e:
             return {"success": False, "error": str(e)}

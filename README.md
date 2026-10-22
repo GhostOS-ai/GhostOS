@@ -159,6 +159,18 @@ ghost pet
 # Instant question with zero setup
 ghost "Why does Python raise RecursionError and how to fix it?"
 
+# Launch Casper Desktop Pet (with wardrobe skins & native menu bar)
+ghost pet --skin cyberpunk --tray
+
+# Launch centered Spotlight HUD
+ghost spot
+
+# Launch native macOS Menu Bar controller
+ghost bar
+
+# Inspect local models & hardware acceleration
+ghost models
+
 # Feed a document or source directory to Casper (Zero-DB RAG)
 ghost eat ~/Documents/my_notes.txt
 ghost eat ./src/

@@ -882,3 +882,17 @@ body.skin-matrix #aura {
   fill: rgba(0, 255, 102, 0.35) !important;
 }
 
+/* ==================== CASPER FEEDER CHEW ANIMATION ==================== */
+@keyframes ghostChewWobble {
+  0% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-7px) scale(1.08, 0.92); }
+  50% { transform: translateY(3px) scale(0.95, 1.05); }
+  75% { transform: translateY(-4px) scale(1.04, 0.96); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.ghost-wrapper.eating-chew {
+  animation: ghostChewWobble 0.45s ease-in-out infinite !important;
+}
+
+

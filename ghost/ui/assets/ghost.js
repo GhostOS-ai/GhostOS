@@ -25,6 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const urlParams = new URLSearchParams(window.location.search);
   const skin = urlParams.get("skin") || "glass";
   applySkin(skin);
+
+  // Direct Spotlight / HUD Mode launcher
+  const mode = urlParams.get("mode");
+  if (mode === "hud" || mode === "spotlight") {
+    setTimeout(() => {
+      toggleHudMode("hud");
+    }, 50);
+  }
 });
 
 function applySkin(skinName) {
@@ -373,19 +381,32 @@ function setupDragAndDrop() {
 
 function handleFileIngestion(file) {
   setGhostMood("eating");
-  showSpeechBubble(window.i18n ? i18n.t("eating") : "Nom nom nom...", 4000);
+  const wrapper = document.getElementById("ghost-wrapper");
+  if (wrapper) wrapper.classList.add("eating-chew");
+
+  showSpeechBubble(window.i18n ? i18n.t("eating") : "✨ Nom nom nom...", 4000);
   const reader = new FileReader();
+
+  const isPdfOrBinary = file.name.toLowerCase().endsWith(".pdf") || 
+                        file.name.toLowerCase().endsWith(".png") || 
+                        file.name.toLowerCase().endsWith(".jpg");
 
   reader.onload = async (event) => {
     const content = event.target.result;
     if (window.pywebview && window.pywebview.api) {
       try {
-        const res = await window.pywebview.api.ingest_dropped_content(file.name, content);
-        if (res.success) {
-          showSpeechBubble(`✔ "${file.name}" learned! +15 XP`, 3500);
+        let res;
+        if (isPdfOrBinary && window.pywebview.api.ingest_dropped_file_base64) {
+          res = await window.pywebview.api.ingest_dropped_file_base64(file.name, content);
+        } else {
+          res = await window.pywebview.api.ingest_dropped_content(file.name, content);
+        }
+
+        if (res && res.success) {
+          showSpeechBubble(`✨ Yum! "${file.name}" learned! +25 XP`, 3800);
           refreshRpg();
         } else {
-          showSpeechBubble(`Error: ${res.error}`, 3500);
+          showSpeechBubble(`Error: ${res ? res.error : "Failed to parse"}`, 3500);
         }
       } catch (err) {
         showSpeechBubble(`Error: ${err}`, 3500);
@@ -394,10 +415,15 @@ function handleFileIngestion(file) {
 
     setTimeout(() => {
       setGhostMood("idle");
-    }, 3500);
+      if (wrapper) wrapper.classList.remove("eating-chew");
+    }, 3200);
   };
 
-  reader.readAsText(file);
+  if (isPdfOrBinary) {
+    reader.readAsDataURL(file);
+  } else {
+    reader.readAsText(file);
+  }
 }
 
 // ==================== HUD INTERACTION & CHAT ====================
