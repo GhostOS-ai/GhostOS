@@ -162,18 +162,24 @@ Lokale KI leidet heutzutage unter drei massiven Problemen:
 
 ### 🚀 Schnellstart
 
-#### 1. Klonen und installieren
+#### 1. Blitzschnelle Installation
+
+**macOS & Linux (1-Zeilen-Terminal-Installer):**
 ```bash
-git clone https://github.com/GhostOS-ai/GhostOS.git
-cd GhostOS
-pip install -e .
+curl -fsSL https://raw.githubusercontent.com/GhostOS-ai/GhostOS/main/install.sh | bash
+```
+*(Auf macOS richtet dies automatisch `/Applications/GhostOS.app` mit Caspers Retina-Icon für Launchpad und Spotlight ein).*
+
+**Oder über Python pip:**
+```bash
+pip install --upgrade ghostos-ai
 ```
 
 #### 2. Casper und Oberfläche starten
 ```bash
 ghost pet
 ```
-*Casper erscheint auf Ihrem Bildschirm. Ziehen Sie Dateien auf ihn oder doppelklicken Sie für das HUD-Kontrollzentrum!*
+*Oder auf macOS: Starten Sie `GhostOS` direkt über Spotlight (`Cmd + Leertaste`), das Launchpad oder per Doppelklick auf `/Applications/GhostOS.app`!*
 
 #### 3. Direkte Nutzung über das Terminal (CLI)
 ```bash

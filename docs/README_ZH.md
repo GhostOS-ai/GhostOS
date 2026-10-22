@@ -162,18 +162,24 @@
 
 ### 🚀 快速开始
 
-#### 1. 克隆代码与依赖安装
+#### 1. 极速一键安装
+
+**macOS 与 Linux（终端一键自动安装）：**
 ```bash
-git clone https://github.com/GhostOS-ai/GhostOS.git
-cd GhostOS
-pip install -e .
+curl -fsSL https://raw.githubusercontent.com/GhostOS-ai/GhostOS/main/install.sh | bash
+```
+*(在 macOS 上，该脚本会自动生成 `/Applications/GhostOS.app` 原生应用并注册高清 Retina 视网膜图标，可在 Launchpad 或 Spotlight 随心搜索启动)。*
+
+**或通过 Python pip 安装：**
+```bash
+pip install --upgrade ghostos-ai
 ```
 
 #### 2. 唤醒桌面伴侣卡斯珀
 ```bash
 ghost pet
 ```
-*卡斯珀将浮现在桌面上。直接拖动文件投喂给他，或双击唤出 HUD 控制中心！*
+*或在 macOS 上：直接通过 Spotlight（`Cmd + 空格`）、Launchpad 启动 `GhostOS`，或双击 `/Applications/GhostOS.app` 运行！*
 
 #### 3. 终端命令行直观调用（CLI）
 ```bash

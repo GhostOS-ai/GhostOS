@@ -162,17 +162,24 @@
 
 ### 🚀 Жылдам бастау
 
-#### 1. Клондау және орнату
+#### 1. Жедел орнату
+
+**macOS және Linux үшін (терминалда бір пәрменмен орнату):**
 ```bash
-git clone https://github.com/GhostOS-ai/GhostOS.git
-cd GhostOS
-pip install -e .
+curl -fsSL https://raw.githubusercontent.com/GhostOS-ai/GhostOS/main/install.sh | bash
+```
+*(macOS жүйесінде бұл пәрмен Launchpad және Spotlight-қа Каспердің нативті Retina белгішесі бар `/Applications/GhostOS.app` қосымшасын автоматты түрде тіркейді).*
+
+**Немесе Python pip арқылы:**
+```bash
+pip install --upgrade ghostos-ai
 ```
 
 #### 2. Каспер мен интерфейсті іске қосу
 ```bash
 ghost pet
 ```
+*Немесе macOS-та `GhostOS`-ты тікелей Spotlight (`Cmd + Space`), Launchpad арқылы немесе `/Applications/GhostOS.app` үстіне екі рет басып іске қосыңыз!*
 *Каспер экраныңызда пайда болады. Оған құжаттарды сүйреп тастаңыз немесе басқару панелін ашу үшін екі рет басыңыз!*
 
 #### 3. Терминалдан (CLI) пайдалану

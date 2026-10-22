@@ -164,18 +164,24 @@ Running local AI today is frustrating and bloated:
 
 ### 🚀 Quickstart
 
-#### 1. Clone & Install
+#### 1. Instant Installation
+
+**macOS & Linux (One-line terminal installer):**
 ```bash
-git clone https://github.com/GhostOS-ai/GhostOS.git
-cd GhostOS
-pip install -e .
+curl -fsSL https://raw.githubusercontent.com/GhostOS-ai/GhostOS/main/install.sh | bash
+```
+*(On macOS, this automatically sets up `/Applications/GhostOS.app` with Casper's native Retina icon in Launchpad and Spotlight).*
+
+**Or install via Python pip:**
+```bash
+pip install --upgrade ghostos-ai
 ```
 
 #### 2. Launch Casper Desktop Pet & HUD
 ```bash
 ghost pet
 ```
-*Casper will float on your desktop. Drag any file onto him, or click him to open the HUD!*
+*Or on macOS: launch `GhostOS` directly from Spotlight (`Cmd + Space`), Launchpad, or double-click `/Applications/GhostOS.app`!*
 
 #### 3. Or use directly from Terminal (CLI)
 ```bash

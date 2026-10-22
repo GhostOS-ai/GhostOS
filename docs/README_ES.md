@@ -162,18 +162,24 @@ Ejecutar IA local hoy en día sufre de 3 problemas fundamentales:
 
 ### 🚀 Inicio rápido
 
-#### 1. Clonar e instalar
+#### 1. Instalación instantánea
+
+**macOS y Linux (Instalador en 1 línea de terminal):**
 ```bash
-git clone https://github.com/GhostOS-ai/GhostOS.git
-cd GhostOS
-pip install -e .
+curl -fsSL https://raw.githubusercontent.com/GhostOS-ai/GhostOS/main/install.sh | bash
+```
+*(En macOS, registra automáticamente `/Applications/GhostOS.app` con el icono Retina de Casper en Launchpad y Spotlight).*
+
+**O mediante Python pip:**
+```bash
+pip install --upgrade ghostos-ai
 ```
 
 #### 2. Iniciar Casper y la interfaz
 ```bash
 ghost pet
 ```
-*Casper flotará en tu escritorio. ¡Arrastra archivos sobre él o haz doble clic para abrir el centro de control!*
+*O en macOS: ¡inicie `GhostOS` directamente desde Spotlight (`Cmd + Espacio`), Launchpad o haciendo doble clic en `/Applications/GhostOS.app`!*
 
 #### 3. Uso directo mediante la terminal (CLI)
 ```bash

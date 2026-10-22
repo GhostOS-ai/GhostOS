@@ -162,18 +162,24 @@
 
 ### 🚀 クイックスタート
 
-#### 1. リポジトリのクローンとインストール
+#### 1. 即時インストール
+
+**macOS & Linux（ターミナル1行インストーラー）：**
 ```bash
-git clone https://github.com/GhostOS-ai/GhostOS.git
-cd GhostOS
-pip install -e .
+curl -fsSL https://raw.githubusercontent.com/GhostOS-ai/GhostOS/main/install.sh | bash
+```
+*(macOSでは自動的にRetina対応キャスパーアイコン付きの `/Applications/GhostOS.app` が生成され、LaunchpadやSpotlightから起動可能になります)*
+
+**または Python pip での導入：**
+```bash
+pip install --upgrade ghostos-ai
 ```
 
 #### 2. キャスパーとUIの起動
 ```bash
 ghost pet
 ```
-*画面上にキャスパーが現れます。ファイルをドラッグして食べさせるか、ダブルクリックで操作パネルを開きます！*
+*または macOS では Spotlight（`Cmd + Space`）、Launchpad、または `/Applications/GhostOS.app` をダブルクリックして起動できます！*
 
 #### 3. ターミナルから直接利用する（CLI）
 ```bash

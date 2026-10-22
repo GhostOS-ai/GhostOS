@@ -162,18 +162,24 @@
 
 ### 🚀 Быстрый старт
 
-#### 1. Клонирование и установка
+#### 1. Быстрая установка
+
+**Для macOS и Linux (установка одной командой в терминале):**
 ```bash
-git clone https://github.com/GhostOS-ai/GhostOS.git
-cd GhostOS
-pip install -e .
+curl -fsSL https://raw.githubusercontent.com/GhostOS-ai/GhostOS/main/install.sh | bash
+```
+*(На macOS скрипт автоматически создает приложение `/Applications/GhostOS.app` с официальной Retina-иконкой Каспера для Launchpad и Spotlight).*
+
+**Или через Python pip:**
+```bash
+pip install --upgrade ghostos-ai
 ```
 
 #### 2. Запуск Каспера и интерфейса
 ```bash
 ghost pet
 ```
-*Каспер появится на вашем экране. Перетащите в него файлы для обучения или кликните дважды для открытия командного центра!*
+*Или на macOS запустите `GhostOS` прямо через Spotlight (`Cmd + Space`), Launchpad или двойным кликом по `/Applications/GhostOS.app`!*
 
 #### 3. Использование из терминала (CLI)
 ```bash
