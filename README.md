@@ -114,8 +114,31 @@ Running local AI today is frustrating and bloated:
 
 #### 8. 🎮 Casper RPG Evolution System
 * Gamified companion that grows with your work:
-  * Gain XP for feeding files (+15 XP), running commands (+25 XP), asking questions (+10 XP).
+  * Gain XP for feeding files (+25 XP), running commands (+25 XP), asking questions (+10 XP).
   * Unlocks evolutions and visual accessories (Cyberpunk Visor, Magic Spellbook, Golden Crown).
+
+#### 9. 🎨 Casper Wardrobe (Visual Themes & Skins)
+* Launch Casper in distinct aesthetic themes designed for dark mode and modern workstations:
+  * 💎 `glass`: Default translucent Apple porcelain moonlight aesthetic.
+  * ⚡ `cyberpunk`: Vibrant neon cyan body with radioactive magenta aura.
+  * 👑 `gold`: Radiant royal gold aura and drop-shadows.
+  * 🟢 `matrix`: Terminal hacker phosphor-green glow.
+* CLI: `ghost pet --skin cyberpunk` or switch with 1 click from the Menu Bar!
+
+#### 10. 🍕 Casper Feeder (Physical Drag-and-Drop Ingestion)
+* Drag & drop any code file (`.py`, `.js`, `.ts`, `.json`), log, or PDF directly onto Casper.
+* Triggers interactive chewing wobble animation (`@keyframes ghostChewWobble`) and cheerful thought bubbles.
+* Ingests files into Zero-DB RAG without opening complex upload modals.
+
+#### 11. 👻 Native macOS Menu Bar Controller
+* Lightweight native `NSStatusBar` menu bar icon living right in your macOS status bar (`ghost bar` or `ghost pet --tray`).
+* 1-click Casper toggle, wardrobe skin switcher, model selector, and instant VRAM flush with **0 KB background bloat**.
+
+#### 12. 🔍 Instant Spotlight HUD
+* Fast, centered floating command bar (`ghost spot`) for instant distraction-free questions and terminal autopilot commands. Press `Esc` to instantly dismiss.
+
+#### 13. 🤖 Local Model & Hardware Acceleration Catalog
+* Scans local Ollama backends, detects downloaded models with footprints in GB, identifies hardware tier (**Apple Silicon Metal MPS**, **NVIDIA CUDA**, or **CPU**), and suggests lightweight models for 4GB–8GB RAM setups (`ghost models`).
 
 ---
 
