@@ -15,16 +15,17 @@ document.addEventListener("DOMContentLoaded", () => {
     i18n.applyTranslations();
   }
   setupDragAndDrop();
+  setupHudDragAndDrop();
   setupKeyboardShortcuts();
   setupEyeTracking();
   setupInactivitySleep();
   refreshRpg();
   refreshChameleon();
 
-  // Apply Skin from URL parameters
+  // Apply Skin from localStorage or URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const skin = urlParams.get("skin") || "glass";
-  applySkin(skin);
+  const skin = localStorage.getItem("ghostos_skin") || urlParams.get("skin") || "glass";
+  switchSkin(skin, false);
 
   // Direct Spotlight / HUD Mode launcher
   const mode = urlParams.get("mode");
@@ -38,6 +39,39 @@ document.addEventListener("DOMContentLoaded", () => {
 function applySkin(skinName) {
   document.body.classList.remove("skin-glass", "skin-cyberpunk", "skin-gold", "skin-matrix");
   document.body.classList.add(`skin-${skinName}`);
+}
+
+function switchSkin(skinName, notifyBackend = true) {
+  applySkin(skinName);
+  try {
+    localStorage.setItem("ghostos_skin", skinName);
+  } catch (e) {}
+  const select = document.getElementById("skin-select");
+  if (select && select.value !== skinName) {
+    select.value = skinName;
+  }
+  if (notifyBackend && window.pywebview && window.pywebview.api && window.pywebview.api.set_skin) {
+    window.pywebview.api.set_skin(skinName).catch(() => {});
+  }
+}
+
+function clearChatHistory() {
+  const container = document.getElementById("chat-messages");
+  if (!container) return;
+  container.innerHTML = `
+    <div class="welcome-card">
+      <h2 data-i18n="welcome_title">Бу! Каспер в сети.</h2>
+      <p data-i18n="welcome_desc">Работает 100% локально и приватно на твоём Маке с нулевыми утечками в облако.</p>
+      <div class="welcome-tip" data-i18n="welcome_tip">Кликай на Каспера, дважды кликни для открытия пульта или бросай в него файлы!</div>
+    </div>
+  `;
+  if (window.i18n) {
+    i18n.applyTranslations();
+  }
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.clear_chat) {
+    window.pywebview.api.clear_chat().catch(() => {});
+  }
+  showSpeechBubble("🧹 " + (window.i18n ? i18n.t("clear_chat", "История очищена") : "История очищена"), 2500);
 }
 
 // ==================== SPEECH BUBBLE AUTO-HIDE ====================
@@ -426,6 +460,55 @@ function handleFileIngestion(file) {
   }
 }
 
+function setupHudDragAndDrop() {
+  const hudView = document.getElementById("hud-view");
+  const overlay = document.getElementById("hud-drop-overlay");
+  if (!hudView || !overlay) return;
+
+  let dragCounter = 0;
+
+  hudView.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    dragCounter++;
+    overlay.classList.remove("hidden");
+  });
+
+  hudView.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      overlay.classList.add("hidden");
+    }
+  });
+
+  hudView.addEventListener("dragover", (e) => {
+    e.preventDefault();
+  });
+
+  hudView.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    overlay.classList.add("hidden");
+
+    if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      handleFileIngestion(file);
+      switchTab("rag");
+      setTimeout(() => refreshKnowledgeDocs(), 1200);
+    }
+  });
+}
+
+function handleManualFileInput(event) {
+  if (event && event.target && event.target.files.length > 0) {
+    const file = event.target.files[0];
+    handleFileIngestion(file);
+    switchTab("rag");
+    setTimeout(() => refreshKnowledgeDocs(), 1200);
+  }
+}
+
 // ==================== HUD INTERACTION & CHAT ====================
 function setupKeyboardShortcuts() {
   const input = document.getElementById("hud-input");
@@ -573,23 +656,88 @@ function removeTypingIndicator(id) {
 }
 
 function formatMarkdown(text) {
-  let html = text
+  if (!text) return "";
+
+  // 1. Extract triple-backtick code blocks first to protect code indentation and syntax
+  const codeBlocks = [];
+  let processed = text.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (match, lang, code) => {
+    const placeholder = `___GHOST_CODEBLOCK_${codeBlocks.length}___`;
+    codeBlocks.push({ lang: lang || "code", code: code.trim() });
+    return placeholder;
+  });
+
+  // 2. Escape HTML
+  let html = processed
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  html = html.replace(/```([a-z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-    return `<pre><code>${code.trim()}</code></pre>`;
+  // 3. Inline code
+  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  // 4. Bold and italics
+  html = html.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  html = html.replace(/\*([^*]+)\*/g, "<i>$1</i>");
+
+  // 5. Line breaks for prose
+  html = html.replace(/\n/g, "<br>");
+
+  // 6. Restore code blocks with syntax header and copy button
+  codeBlocks.forEach((item, index) => {
+    const placeholder = `___GHOST_CODEBLOCK_${index}___`;
+    const escapedCode = item.code
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    const copyLabel = window.i18n ? i18n.t("copy_code", "📋 Копировать") : "📋 Копировать";
+    const blockHtml = `
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-lang">${item.lang}</span>
+          <button class="code-copy-btn" onclick="copyCodeBlock(this)">${copyLabel}</button>
+        </div>
+        <pre><code>${escapedCode}</code></pre>
+      </div>
+    `;
+    html = html.replace(placeholder, blockHtml);
   });
 
-  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-  html = html.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
-  html = html.replace(/\n/g, "<br>");
   return html;
 }
 
-// ==================== TABS NAVIGATION ====================
+function copyCodeBlock(btn) {
+  const wrapper = btn.closest(".code-block-wrapper");
+  if (!wrapper) return;
+  const codeEl = wrapper.querySelector("pre code");
+  if (!codeEl) return;
+
+  const codeText = codeEl.innerText;
+  navigator.clipboard.writeText(codeText).then(() => {
+    const originalText = btn.innerHTML;
+    const copiedLabel = window.i18n ? i18n.t("copied", "✔ Скопировано!") : "✔ Скопировано!";
+    btn.innerHTML = copiedLabel;
+    btn.style.borderColor = "var(--mac-green)";
+    btn.style.color = "var(--mac-green)";
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.style.borderColor = "";
+      btn.style.color = "";
+    }, 2000);
+  }).catch((err) => {
+    console.error("Clipboard error:", err);
+  });
+}
+
+// ==================== TABS & SUB-TOOLS NAVIGATION ====================
 function switchTab(tabName) {
+  const subTools = ["agent", "screen", "clipboard", "autopilot", "timemachine"];
+  if (subTools.includes(tabName)) {
+    switchTab("os-tools");
+    switchSubTool(tabName);
+    return;
+  }
+
   document.querySelectorAll(".nav-pill").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
 
@@ -599,15 +747,32 @@ function switchTab(tabName) {
   const pills = Array.from(document.querySelectorAll(".nav-pill"));
   const match = pills.find(p => {
     const oc = p.getAttribute("onclick") || "";
-    return oc.includes(tabName);
+    return oc.includes(`'${tabName}'`);
   });
   if (match) match.classList.add("active");
 
   // Load heavy stats lazily only when tab is activated
   if (tabName === "vram") refreshVramStats();
   if (tabName === "rag") refreshKnowledgeDocs();
-  if (tabName === "clipboard") refreshClipboard();
-  if (tabName === "timemachine") refreshTimeMachine();
+}
+
+function switchSubTool(toolName) {
+  document.querySelectorAll(".sub-nav-pill").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".subtool-pane").forEach(p => p.classList.remove("active"));
+
+  const targetPane = document.getElementById(`subtool-${toolName}`);
+  if (targetPane) targetPane.classList.add("active");
+
+  const pills = Array.from(document.querySelectorAll(".sub-nav-pill"));
+  const match = pills.find(p => {
+    const oc = p.getAttribute("onclick") || "";
+    return oc.includes(`'${toolName}'`);
+  });
+  if (match) match.classList.add("active");
+
+  if (toolName === "screen") runScreenPeek();
+  if (toolName === "clipboard") refreshClipboard();
+  if (toolName === "timemachine") refreshTimeMachine();
 }
 
 // ==================== PHANTOM CLIPBOARD ====================

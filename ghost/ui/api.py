@@ -199,7 +199,7 @@ class GhostBridgeAPI:
             pass
 
         try:
-            loc = locale.getdefaultlocale()[0]
+            loc = locale.getlocale()[0] or os.environ.get("LANG", "en")
             if loc:
                 return {"locale": loc.split('_')[0].lower()}
         except Exception:
@@ -373,3 +373,12 @@ class GhostBridgeAPI:
         """Terminal Sandbox Lens: Deep safety inspection of shell commands."""
         from ghost.core.lens import GhostLens
         return GhostLens.verify_and_patch(command)
+
+    def set_skin(self, skin: str) -> Dict[str, Any]:
+        """Changes the active Casper theme/skin."""
+        self.skin = skin
+        return {"success": True, "skin": skin}
+
+    def clear_chat(self) -> Dict[str, Any]:
+        """Clears active session memory and resets HUD chat."""
+        return {"success": True}

@@ -140,6 +140,14 @@ Running local AI today is frustrating and bloated:
 #### 13. 🤖 Local Model & Hardware Acceleration Catalog
 * Scans local Ollama backends, detects downloaded models with footprints in GB, identifies hardware tier (**Apple Silicon Metal MPS**, **NVIDIA CUDA**, or **CPU**), and suggests lightweight models for 4GB–8GB RAM setups (`ghost models`).
 
+#### 14. 💎 Apple Glassmorphism HUD & 1-Click Code Blocks (v1.3.0)
+* **Unified 4-Tab Navigation:** Consolidated 9 cluttered tabs into 4 streamlined workspaces: `💬 Chat`, `📚 Knowledge (RAG)`, `🛠️ OS Tools` (with sub-tools: OS Agent, Screen Peek, Clipboard Inspector, Safe Terminal Autopilot, Standup Journal), and `🧠 VRAM`.
+* **Live Wardrobe Skin Switcher:** Toggle between Glass, Cyberpunk, Gold, and Matrix themes directly from the header dropdown with instant persistence.
+* **Quick Action Suggestion Chips:** 1-tap chips (`👋 What can you do?`, `🌤️ Weather in Almaty`, `📂 Open Downloads`, `📸 Screen Peek`, `📋 Inspect Clipboard`) for instant productivity.
+* **Syntax Code Blocks with 1-Click Copy:** Beautiful dark syntax blocks featuring language badges and 1-click clipboard copy buttons.
+* **Universal Fullscreen Drag-and-Drop:** Drag any file onto Casper or anywhere onto the HUD dropzone to train local Zero-DB RAG in milliseconds (+25 XP!).
+* **Native Apple Retina Dock Icon:** Bundles official Apple Retina `.icns` artwork into macOS Dock, Application switcher, and `/Applications/GhostOS.app`.
+
 ---
 
 ### 📊 Why GhostOS vs. Others?

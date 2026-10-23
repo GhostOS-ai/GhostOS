@@ -266,10 +266,33 @@ class GhostEngine:
         """
         p = prompt.lower().strip()
 
-        # 1. Greetings & Pleasantries (Russian, Kazakh, English)
+        # 1a. Greetings & Pleasantries (Kazakh)
+        if any(w in p for w in ["сәлем", "амансыз ба", "қайырлы таң", "қайырлы күн", "қайырлы кеш"]):
+            return (
+                "👻 **Сәлем!** Мен Каспермін — сенің дербес офлайн Mac көмекшіңмін.\n\n"
+                "Компьютеріңде бар болғаны ~35 МБ жедел жад (RAM) алып, 100% құпия жұмыс істеймін:\n"
+                "- 🍕 **Файлды үйрету:** кез келген PDF, код немесе конспектіні үстіме тастасаң, бірден жаттап аламын.\n"
+                "- 📂 **Файлдарды басқару:** *«жүктеулерді аш»* немесе *«құжатты тап»* деп жаз.\n"
+                "- 🌐 **Желілік іздеу:** *«Алматыдағы ауа райы»* немесе *«доллар бағамы»*.\n"
+                "- ✍️ **Ghostwriter:** кез келген бағдарламада мәтінді түзету және жинақтау.\n\n"
+                "Қазір не істейміз?"
+            )
+
+        # 1b. Greetings & Pleasantries (English)
+        if any(w in p for w in ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]):
+            return (
+                "👻 **Hello!** I'm Casper — your featherweight desktop copilot.\n\n"
+                "Running 100% locally and privately on your Mac (<35MB RAM):\n"
+                "- 🍕 **Feed me files:** drag & drop any PDF, code, or logs onto me to index them instantly.\n"
+                "- 📂 **File actions:** ask *'open downloads'*, *'find report.pdf'*.\n"
+                "- 🌐 **Live Web Search:** ask *'weather in Almaty'* or *'exchange rates'*.\n"
+                "- ✍️ **Ghostwriter:** select text anywhere and summon smart rewriting.\n\n"
+                "What are we building today?"
+            )
+
+        # 1c. Greetings & Pleasantries (Russian)
         if any(w in p for w in [
-            "привет", "здравствуй", "салам", "хай", "доброе утро", "добрый день", "добрый вечер",
-            "hello", "hi", "hey", "сәлем", "амансыз ба"
+            "привет", "здравствуй", "салам", "хай", "доброе утро", "добрый день", "добрый вечер"
         ]):
             return (
                 "👻 **Привет!** Я Каспер — твой карманный десктопный ассистент.\n\n"

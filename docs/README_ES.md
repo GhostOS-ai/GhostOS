@@ -138,6 +138,14 @@ Ejecutar IA local hoy en día sufre de 3 problemas fundamentales:
 #### 13. 🤖 Catálogo de modelos locales y aceleración por hardware
 * Inspecciona tu motor local Ollama, enumera los modelos instalados con su tamaño en GB, detecta el nivel de aceleración (**Apple Silicon Metal MPS**, **NVIDIA CUDA** o **CPU**) y recomienda modelos óptimos para equipos de 4GB–8GB RAM (`ghost models`).
 
+#### 14. 💎 HUD Glassmorphism de Apple y Bloques de Código con 1-Clic (v1.3.0)
+* **Navegación Unificada de 4 Pestañas:** Consolidación de 9 pestañas en 4 áreas organizadas: `💬 Chat`, `📚 Conocimiento (RAG)`, `🛠️ Herramientas SO` (con subherramientas: Agente SO, Captura de Pantalla, Portapapeles, Autopiloto de Terminal, Diario Standup) y `🧠 VRAM`.
+* **Selector Dinámico de Temas y Aspectos:** Cambia entre los temas Glass, Cyberpunk, Gold y Matrix desde la barra superior con guardado automático.
+* **Botones de Sugerencia Rápida:** Acciones instantáneas en 1 clic (`👋 ¿Qué puedes hacer?`, `🌤️ Clima`, `📂 Abrir Descargas`, `📸 Captura de pantalla`, `📋 Inspeccionar portapapeles`).
+* **Bloques de Código con Botón de Copiado:** Resaltado de sintaxis moderno con etiqueta de lenguaje y botón para copiar al portapapeles en 1 clic.
+* **Arrastrar y Soltar Universal en Toda la Ventana:** Arrastra cualquier archivo sobre Casper o sobre cualquier área del HUD para indexar en RAG al instante (+25 XP!).
+* **Icono Nativo Apple Retina en el Dock:** Icono `.icns` de alta resolución integrado en el Dock de macOS y `/Applications/GhostOS.app`.
+
 ---
 
 ### 📊 ¿Por qué GhostOS frente a otros?

@@ -5,7 +5,7 @@
   <title>GhostOS — Desktop Copilot</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="skin-glass">
 
   <!-- ==================== MODE 1: FLOATING GHOST PET ==================== -->
   <div id="pet-view" class="active pywebview-drag-region">
@@ -126,8 +126,17 @@
   </div>
 
 
-  <!-- ==================== MODE 2: QUICK HUD (SPACE BLACK TITANIUM) ==================== -->
+  <!-- ==================== MODE 2: QUICK HUD (APPLE GLASSMORPHISM) ==================== -->
   <div id="hud-view" class="hidden">
+    <!-- Drop Overlay in HUD Mode -->
+    <div id="hud-drop-overlay" class="hud-drop-overlay hidden">
+      <div class="hud-drop-box">
+        <span class="hud-drop-icon">🍕</span>
+        <h3>Отпустите файл для мгновенного RAG-обучения!</h3>
+        <p>Каспер выучит код, PDF или лог и сразу сможет отвечать на вопросы (+25 XP)</p>
+      </div>
+    </div>
+
     <!-- Top Bar with draggable header -->
     <div class="hud-header pywebview-drag-region">
       <div class="hud-brand">
@@ -138,8 +147,15 @@
         <span id="chameleon-pill" class="chameleon-pill" onclick="cycleChameleonMode()" title="Toggle Power Profile" data-i18n="eco">🍃 ECO</span>
       </div>
       <div class="hud-actions no-drag">
+        <!-- Live Wardrobe Skin Selector -->
+        <select id="skin-select" class="header-select" onchange="switchSkin(this.value)" title="Theme / Skin">
+          <option value="glass">💎 Glass</option>
+          <option value="cyberpunk">⚡ Cyberpunk</option>
+          <option value="gold">👑 Gold</option>
+          <option value="matrix">🟢 Matrix</option>
+        </select>
         <!-- Language Selector -->
-        <select id="lang-select" class="lang-select" onchange="i18n.setLanguage(this.value)" title="Language">
+        <select id="lang-select" class="header-select" onchange="i18n.setLanguage(this.value)" title="Language">
           <option value="en">🇺🇸 EN</option>
           <option value="ru">🇷🇺 RU</option>
           <option value="kk">🇰🇿 KK</option>
@@ -152,48 +168,56 @@
           <option value="ar">🇸🇦 AR</option>
           <option value="hi">🇮🇳 HI</option>
         </select>
-        <button class="icon-btn" onclick="toggleHudMode('pet')" data-i18n="return_pet" title="Return to Pet">◀ Pet</button>
+        <button class="icon-btn" onclick="clearChatHistory()" data-i18n="clear_chat" title="Clear Chat History">🧹 Очистить</button>
+        <button class="icon-btn" onclick="toggleHudMode('pet')" data-i18n="return_pet" title="Return to Pet">◀ Питомец</button>
         <button class="icon-btn" onclick="minimizeWindow()" data-i18n="minimize" title="Minimize">─</button>
       </div>
     </div>
 
+    <!-- Quick Suggestions Bar -->
+    <div class="quick-chips-bar no-drag">
+      <button class="chip-btn" onclick="triggerQuickAction('Привет! Что ты умеешь?')">👋 Что ты умеешь?</button>
+      <button class="chip-btn" onclick="triggerQuickAction('погода в Алматы')">🌤️ Погода в Алматы</button>
+      <button class="chip-btn" onclick="triggerQuickAction('открой загрузки')">📂 Открыть загрузки</button>
+      <button class="chip-btn" onclick="triggerQuickAction('/screen')">📸 Снимок экрана</button>
+      <button class="chip-btn" onclick="triggerQuickAction('/clip')">📋 Проверить буфер</button>
+    </div>
+
     <!-- Omnibar Input -->
-    <div class="omnibar-container">
+    <div class="omnibar-container no-drag">
       <span class="omnibar-icon">⌕</span>
       <input 
         id="hud-input" 
         class="omnibar-input" 
         type="text" 
         data-i18n-ph="placeholder"
-        placeholder="Ask Casper, or speak, or 'open downloads', 'weather in Almaty'..." 
+        placeholder="Спроси Каспера, или 'открой папку', 'найди pdf', 'погода в Алматы'..." 
         autocomplete="off"
         autofocus
       />
       <button id="mic-btn" class="icon-btn" onclick="toggleDictation()" title="Voice Dictation">🎙️</button>
-      <button id="voice-toggle-btn" class="icon-btn" onclick="toggleVoice()" data-i18n="voice_toggle_off" title="Toggle Voice">🔇 Voice</button>
-      <button id="send-btn" class="send-btn" onclick="handleSend()" data-i18n="send">Send ↵</button>
+      <button id="voice-toggle-btn" class="icon-btn" onclick="toggleVoice()" data-i18n="voice_toggle_off" title="Toggle Voice">
+        <span class="voice-wave-dot"></span>
+        <span id="voice-btn-text">🔇 Голос</span>
+      </button>
+      <button id="send-btn" class="send-btn" onclick="handleSend()" data-i18n="send">Отправить ↵</button>
     </div>
 
-    <!-- Navigation Pills (Stable, No-Scrollbar Segmented Tabs) -->
-    <div class="hud-nav">
-      <button class="nav-pill active" onclick="switchTab('chat')" data-i18n="nav_chat">💬 Chat</button>
-      <button class="nav-pill" onclick="switchTab('agent')" data-i18n="nav_agent">🤖 OS Agent</button>
-      <button class="nav-pill" onclick="switchTab('web')" data-i18n="nav_web">🌐 Web Search</button>
-      <button class="nav-pill" onclick="switchTab('clipboard')" data-i18n="nav_clip">📋 Clipboard</button>
-      <button class="nav-pill" onclick="switchTab('screen')" data-i18n="nav_screen">👁️ Screen Peek</button>
-      <button class="nav-pill" onclick="switchTab('autopilot')" data-i18n="nav_auto">⚡ Autopilot</button>
-      <button class="nav-pill" onclick="switchTab('timemachine')" data-i18n="nav_time">🕒 Time Machine</button>
-      <button class="nav-pill" onclick="switchTab('rag')" data-i18n="nav_rag">📚 Knowledge</button>
-      <button class="nav-pill" onclick="switchTab('vram')" data-i18n="nav_vram">🧠 VRAM & Hardware</button>
+    <!-- Navigation Pills (Streamlined 4-Category Segmented Switcher) -->
+    <div class="hud-nav no-drag">
+      <button class="nav-pill active" onclick="switchTab('chat')" data-i18n="nav_chat">💬 Чат</button>
+      <button class="nav-pill" onclick="switchTab('rag')" data-i18n="nav_rag">📚 Знания и RAG</button>
+      <button class="nav-pill" onclick="switchTab('os-tools')" data-i18n="nav_tools">⚡ Инструменты ОС</button>
+      <button class="nav-pill" onclick="switchTab('vram')" data-i18n="nav_vram">🧠 Память & VRAM</button>
     </div>
 
     <!-- Content Panels -->
     <div class="hud-body">
-      <!-- Chat Tab -->
+      <!-- Tab 1: Chat Tab -->
       <div id="tab-chat" class="tab-pane active">
         <div id="chat-messages" class="chat-messages">
           <div class="welcome-hero-box">
-            <div class="welcome-badge">👻 GhostOS Copilot • 100% Offline • <35MB RAM</div>
+            <div class="welcome-badge">👻 GhostOS Copilot • 100% Offline • &lt;35MB RAM</div>
             <h2 class="welcome-heading">Привет! Я твой локальный десктоп-ассистент</h2>
             <p class="welcome-subtitle">Живу прямо на твоем Mac, помогаю с файлами, поиском, текстом и обучением на документах без облаков.</p>
             
@@ -231,167 +255,159 @@
         </div>
       </div>
 
-      <!-- OS Agent Tab -->
-      <div id="tab-agent" class="tab-pane">
-        <div class="pane-header">
-          <h3 data-i18n="agent_title">🤖 Ghost Desktop Agent (Apple Spotlight mdfind)</h3>
-        </div>
-        <div class="autopilot-box">
-          <div class="input-row">
-            <input id="agent-input" type="text" data-i18n-ph="agent_ph" placeholder="e.g., find all pdf files on desktop, create folder Project_X..." />
-            <button class="action-btn" onclick="runAgentTask()" data-i18n="agent_btn">Execute Task</button>
-          </div>
-          <div id="agent-result" class="pilot-card hidden">
-            <div id="agent-output" style="font-size: 13px; line-height: 1.5;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Web Search Tab -->
-      <div id="tab-web" class="tab-pane">
-        <div class="pane-header">
-          <h3 data-i18n="web_title">🌐 Live Web Search (Zero Cloud Bloat)</h3>
-        </div>
-        <div class="autopilot-box">
-          <div class="input-row">
-            <input id="web-input" type="text" data-i18n-ph="web_ph" placeholder="e.g., weather in Almaty, USD exchange rate, Python 3.13 features..." />
-            <button class="action-btn" onclick="runWebSearch()" data-i18n="web_btn">Search Web</button>
-          </div>
-          <div id="web-result" class="pilot-card hidden">
-            <div id="web-output" style="font-size: 13px; line-height: 1.5;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Phantom Clipboard Tab -->
-      <div id="tab-clipboard" class="tab-pane">
-        <div class="pane-header">
-          <h3 data-i18n="clip_title">📋 Phantom Clipboard Inspector</h3>
-          <button class="action-btn" onclick="refreshClipboard()" data-i18n="clip_btn">Inspect Clipboard</button>
-        </div>
-        <div class="clipboard-box">
-          <div class="clip-meta">
-            <span id="clip-badge" class="pilot-badge" data-i18n="clip_analyzing">🔍 Analyzing...</span>
-            <span id="clip-title" class="clip-title">Contextual 1-click action</span>
-          </div>
-          <div class="clip-preview-container">
-            <pre><code id="clip-preview-text">// Clipboard preview will appear here</code></pre>
-          </div>
-          <div id="clip-actions-container" class="clip-actions">
-            <!-- Dynamic 1-click action buttons -->
-          </div>
-          <div id="clip-output-box" class="output-box hidden">
-            <h4>Result:</h4>
-            <pre><code id="clip-result-text"></code></pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- Screen Peek Tab -->
-      <div id="tab-screen" class="tab-pane">
-        <div class="pane-header">
-          <h3 data-i18n="screen_title">👁️ Active Screen Inspector</h3>
-          <button class="action-btn" onclick="runScreenPeek()" data-i18n="screen_btn">Capture & Inspect</button>
-        </div>
-        <div id="screen-result" class="result-box">
-          <p class="placeholder-text" data-i18n="screen_ph">Click 'Capture & Inspect' to analyze the frontmost window.</p>
-        </div>
-      </div>
-
-      <!-- Autopilot Tab -->
-      <div id="tab-autopilot" class="tab-pane">
-        <div class="pane-header">
-          <h3 data-i18n="auto_title">⚡ Safe Terminal Autopilot (Anti-Hallucination Lens)</h3>
-        </div>
-        <div class="autopilot-box">
-          <div class="input-row">
-            <input id="pilot-input" type="text" data-i18n-ph="auto_ph" placeholder="e.g., find all files bigger than 100MB" />
-            <button class="action-btn" onclick="generateCommand()" data-i18n="auto_plan_btn">Plan Command</button>
-          </div>
-          <div id="pilot-result" class="pilot-card hidden">
-            <div class="pilot-badge" id="pilot-badge">🟢 SAFE</div>
-            <pre><code id="pilot-cmd">find . -size +100M</code></pre>
-            <p id="pilot-desc" class="pilot-desc"></p>
-            <div id="pilot-lens-info" class="lens-info hidden"></div>
-            <div class="pilot-actions">
-              <button class="run-btn" id="pilot-run-btn" onclick="runGeneratedCommand()" data-i18n="auto_run_btn">Run in Terminal ⚡</button>
-              <button class="copy-btn" onclick="copyCommand()" data-i18n="auto_copy_btn">Copy</button>
-            </div>
-            <div id="pilot-output-box" class="output-box hidden">
-              <h4>Execution Output:</h4>
-              <pre><code id="pilot-stdout"></code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Time Machine Tab -->
-      <div id="tab-timemachine" class="tab-pane">
-        <div class="pane-header">
-          <h3 data-i18n="time_title">🕒 Ghost Time Machine (Session Journal)</h3>
-          <button class="action-btn" onclick="refreshTimeMachine()" data-i18n="time_btn">Refresh Session</button>
-        </div>
-        <div class="timemachine-box">
-          <div id="tm-summary" class="tm-summary-card">
-            Scanning workspace session activity...
-          </div>
-          <div class="commit-suggester">
-            <h4 data-i18n="time_commit_title">💡 Recommended Git Commit Message:</h4>
-            <div class="commit-row">
-              <code id="tm-commit-msg">feat(core): initial session commit</code>
-              <button class="copy-btn" onclick="copyCommitMsg()" data-i18n="auto_copy_btn">Copy</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RAG Knowledge Tab -->
+      <!-- Tab 2: RAG Knowledge & Files Tab -->
       <div id="tab-rag" class="tab-pane">
         <div class="pane-header">
-          <h3 data-i18n="rag_title">📚 Zero-DB Local Knowledge Base</h3>
-          <button class="action-btn" onclick="refreshKnowledgeDocs()" data-i18n="rag_btn">Refresh List</button>
+          <h3 data-i18n="rag_title">📚 Локальная база знаний Zero-DB RAG</h3>
+          <button class="action-btn" onclick="refreshKnowledgeDocs()" data-i18n="rag_btn">Обновить список</button>
         </div>
-        <p class="hint-text" data-i18n="rag_hint">💡 Drag & drop any PDF, code file, or notes onto Casper to index them instantly (+15 XP!).</p>
+        <div class="rag-drop-card" onclick="document.getElementById('rag-file-input').click()">
+          <input type="file" id="rag-file-input" style="display:none;" onchange="handleManualFileInput(event)" />
+          <span class="rag-drop-icon">🍕</span>
+          <h4>Нажмите или перетащите сюда любой файл</h4>
+          <p>Поддерживаются PDF, Python, JavaScript, JSON, Markdown, TXT и логи. Файл выучится локально без сторонних баз данных!</p>
+        </div>
         <div id="rag-doc-list" class="doc-list">
-          <div class="doc-item empty" data-i18n="rag_empty">No files indexed yet. Feed some files to Casper!</div>
+          <div class="doc-item empty" data-i18n="rag_empty">Пока нет загруженных файлов. Перетащите файл сюда или на Каспера!</div>
         </div>
       </div>
 
-      <!-- VRAM & Chameleon Tab -->
+      <!-- Tab 3: Unified OS Tools Tab -->
+      <div id="tab-os-tools" class="tab-pane">
+        <div class="sub-nav-bar">
+          <button class="sub-nav-pill active" onclick="switchSubTool('agent')">🤖 OS Агент</button>
+          <button class="sub-nav-pill" onclick="switchSubTool('screen')">👁️ Экран</button>
+          <button class="sub-nav-pill" onclick="switchSubTool('clipboard')">📋 Буфер</button>
+          <button class="sub-nav-pill" onclick="switchSubTool('autopilot')">⚡ Терминал</button>
+          <button class="sub-nav-pill" onclick="switchSubTool('timemachine')">🕒 Дейли стендап</button>
+        </div>
+
+        <!-- Tool: OS Agent -->
+        <div id="subtool-agent" class="subtool-pane active">
+          <div class="autopilot-box">
+            <div class="input-row">
+              <input id="agent-input" type="text" data-i18n-ph="agent_ph" placeholder="Например: найди все pdf файлы, создай папку Проект..." />
+              <button class="action-btn" onclick="runAgentTask()" data-i18n="agent_btn">Выполнить</button>
+            </div>
+            <div id="agent-result" class="pilot-card hidden">
+              <div id="agent-output" style="font-size: 13px; line-height: 1.5;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool: Screen Peek -->
+        <div id="subtool-screen" class="subtool-pane">
+          <div class="pane-header">
+            <h3>👁️ Анализ активного экрана через Vision</h3>
+            <button class="action-btn" onclick="runScreenPeek()" data-i18n="screen_btn">Сделать снимок и анализировать</button>
+          </div>
+          <div id="screen-result" class="result-box">
+            <p class="placeholder-text" data-i18n="screen_ph">Нажмите «Сделать снимок и анализировать», чтобы распознать окно и ошибки на экране.</p>
+          </div>
+        </div>
+
+        <!-- Tool: Clipboard Inspector -->
+        <div id="subtool-clipboard" class="subtool-pane">
+          <div class="pane-header">
+            <h3>📋 Инспектор буфера обмена</h3>
+            <button class="action-btn" onclick="refreshClipboard()" data-i18n="clip_btn">Проверить буфер</button>
+          </div>
+          <div class="clipboard-box">
+            <div class="clip-meta">
+              <span id="clip-badge" class="pilot-badge" data-i18n="clip_analyzing">🔍 Анализирую...</span>
+              <span id="clip-title" class="clip-title">Действие в 1 клик</span>
+            </div>
+            <div class="clip-preview-container">
+              <pre><code id="clip-preview-text">// Содержимое буфера появится здесь</code></pre>
+            </div>
+            <div id="clip-actions-container" class="clip-actions"></div>
+            <div id="clip-output-box" class="output-box hidden">
+              <h4>Результат:</h4>
+              <pre><code id="clip-result-text"></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool: Safe Terminal Autopilot -->
+        <div id="subtool-autopilot" class="subtool-pane">
+          <div class="autopilot-box">
+            <div class="input-row">
+              <input id="pilot-input" type="text" data-i18n-ph="auto_ph" placeholder="Например: найди все файлы больше 100МБ" />
+              <button class="action-btn" onclick="generateCommand()" data-i18n="auto_plan_btn">Спланировать команду</button>
+            </div>
+            <div id="pilot-result" class="pilot-card hidden">
+              <div class="pilot-badge" id="pilot-badge">🟢 БЕЗОПАСНО</div>
+              <pre><code id="pilot-cmd">find . -size +100M</code></pre>
+              <p id="pilot-desc" class="pilot-desc"></p>
+              <div id="pilot-lens-info" class="lens-info hidden"></div>
+              <div class="pilot-actions">
+                <button class="run-btn" id="pilot-run-btn" onclick="runGeneratedCommand()" data-i18n="auto_run_btn">Запустить в терминале ⚡</button>
+                <button class="copy-btn" onclick="copyCommand()" data-i18n="auto_copy_btn">Копировать</button>
+              </div>
+              <div id="pilot-output-box" class="output-box hidden">
+                <h4>Вывод команды:</h4>
+                <pre><code id="pilot-stdout"></code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool: Time Machine & Standup -->
+        <div id="subtool-timemachine" class="subtool-pane">
+          <div class="pane-header">
+            <h3>🕒 Стендап-отчёт за день и Git Commit</h3>
+            <button class="action-btn" onclick="refreshTimeMachine()" data-i18n="time_btn">Обновить отчёт</button>
+          </div>
+          <div class="timemachine-box">
+            <div id="tm-summary" class="tm-summary-card">
+              Анализирую изменения в коде и активность сессии...
+            </div>
+            <div class="commit-suggester">
+              <h4>💡 Рекомендуемое сообщение коммита (Conventional Commits):</h4>
+              <div class="commit-row">
+                <code id="tm-commit-msg">feat(ui): update user-friendly theme and navigation</code>
+                <button class="copy-btn" onclick="copyCommitMsg()" data-i18n="auto_copy_btn">Копировать</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: VRAM & Chameleon Tab -->
       <div id="tab-vram" class="tab-pane">
         <div class="pane-header">
-          <h3 data-i18n="vram_title">🧠 VRAM Juggler & Memory Chameleon</h3>
-          <button class="action-btn" onclick="refreshVramStats()" data-i18n="vram_btn">Refresh Diagnostics</button>
+          <h3 data-i18n="vram_title">🧠 Диспетчер VRAM Juggler и адаптивная память</h3>
+          <button class="action-btn" onclick="refreshVramStats()" data-i18n="vram_btn">Обновить статистику</button>
         </div>
         <div class="vram-grid">
           <div class="stat-card">
             <span class="stat-num" id="stat-active-vram">0 MB</span>
-            <span class="stat-label" data-i18n="vram_active">Active Model VRAM</span>
+            <span class="stat-label" data-i18n="vram_active">Активная память модели</span>
           </div>
           <div class="stat-card highlight">
             <span class="stat-num" id="stat-saved-vram">+4,600 MB</span>
-            <span class="stat-label" data-i18n="vram_saved">VRAM Saved via Swapping</span>
+            <span class="stat-label" data-i18n="vram_saved">Сэкономлено VRAM</span>
           </div>
           <div class="stat-card">
             <span class="stat-num" id="stat-swaps">0</span>
-            <span class="stat-label" data-i18n="vram_swaps">Total Swaps Executed</span>
+            <span class="stat-label" data-i18n="vram_swaps">Переключений моделей</span>
           </div>
           <div class="stat-card">
             <span class="stat-num" id="stat-ram-percent">--%</span>
-            <span class="stat-label" data-i18n="vram_ram">System RAM Used</span>
+            <span class="stat-label" data-i18n="vram_ram">Занято RAM в системе</span>
           </div>
         </div>
 
         <div class="chameleon-control-card">
-          <h4 data-i18n="vram_profile_title">🦎 Memory Chameleon Runtime Profile:</h4>
+          <h4 data-i18n="vram_profile_title">🦎 Профиль энергопотребления Memory Chameleon:</h4>
           <div class="profile-modes">
-            <button class="mode-btn" id="btn-mode-eco" onclick="setChameleonMode('eco')">🍃 ECO</button>
-            <button class="mode-btn" id="btn-mode-balanced" onclick="setChameleonMode('balanced')">⚖️ Balanced</button>
-            <button class="mode-btn" id="btn-mode-performance" onclick="setChameleonMode('performance')">⚡ Beast</button>
-            <button class="mode-btn" id="btn-mode-auto" onclick="setChameleonMode('auto')">🔄 Auto-Detect</button>
+            <button class="mode-btn" id="btn-mode-eco" onclick="setChameleonMode('eco')">🍃 ЭКО</button>
+            <button class="mode-btn" id="btn-mode-balanced" onclick="setChameleonMode('balanced')">⚖️ Баланс</button>
+            <button class="mode-btn" id="btn-mode-performance" onclick="setChameleonMode('performance')">⚡ Зверь</button>
+            <button class="mode-btn" id="btn-mode-auto" onclick="setChameleonMode('auto')">🔄 Авто</button>
           </div>
           <div id="chameleon-details" class="chameleon-details">
-            Detecting hardware constraints...
+            Определение аппаратных возможностей...
           </div>
         </div>
       </div>

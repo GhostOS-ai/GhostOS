@@ -138,6 +138,14 @@ Exécuter une IA locale aujourd'hui se heurte à 3 problèmes majeurs :
 #### 13. 🤖 Catalogue des modèles locaux et accélération matérielle
 * Analyse votre instance Ollama locale, répertorie les modèles installés avec leur taille en Go, identifie l'accélération matérielle (**Apple Silicon Metal MPS**, **NVIDIA CUDA** ou **CPU**) et recommande les modèles les plus véloces pour 4Go–8Go de RAM (`ghost models`).
 
+#### 14. 💎 Interface Apple Glassmorphism et Blocs de Code 1-Clic (v1.3.0)
+* **Navigation Unifiée à 4 Onglets :** Regroupement de 9 onglets en 4 espaces clairs : `💬 Chat`, `📚 Connaissances (RAG)`, `🛠️ Outils OS` (avec sous-outils : Agent OS, Capture d'écran, Presse-papiers, Autopilote Terminal, Journal Standup) et `🧠 VRAM`.
+* **Sélecteur de Thèmes et d'Habillages en Direct :** Basculez entre Glass, Cyberpunk, Gold et Matrix directement depuis l'en-tête avec sauvegarde instantanée.
+* **Boutons de Suggestions Rapides :** Raccourcis en 1 clic (`👋 Que sais-tu faire ?`, `🌤️ Météo`, `📂 Ouvrir Téléchargements`, `📸 Analyser l'écran`, `📋 Inspecter le presse-papiers`).
+* **Blocs de Code Élégants avec Bouton Copier :** Coloration syntaxique avec badge de langage et copie en un clic dans le presse-papiers.
+* **Glisser-Déposer Universel Plein Écran :** Déposez vos fichiers sur Casper ou n'importe où sur le HUD pour un entraînement RAG instantané (+25 XP !).
+* **Icône Native Apple Retina dans le Dock :** Artwork haute résolution `.icns` intégré au Dock macOS et à `/Applications/GhostOS.app`.
+
 ---
 
 ### 📊 Pourquoi GhostOS face aux alternatives ?

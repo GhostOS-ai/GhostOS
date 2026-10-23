@@ -138,6 +138,14 @@ Lokale KI leidet heutzutage unter drei massiven Problemen:
 #### 13. 🤖 Lokaler Modell- & Hardwarekatalog
 * Durchsucht den lokalen Ollama-Server, listet installierte Modelle mit GB-Größe auf, erkennt die Beschleunigungsstufe (**Apple Silicon Metal MPS**, **NVIDIA CUDA** oder **CPU**) und empfiehlt leichtgewichtige Modelle für Geräte mit 4GB–8GB RAM (`ghost models`).
 
+#### 14. 💎 Apple Glassmorphism HUD & 1-Klick Code-Blöcke (v1.3.0)
+* **Vereinheitlichte 4-Tab-Navigation:** Reduzierung von 9 unübersichtlichen Tabs auf 4 aufgeräumte Bereiche: `💬 Chat`, `📚 Wissensdatenbank (RAG)`, `🛠️ OS-Werkzeuge` (mit Sub-Tools: OS-Agent, Bildschirm-Scan, Zwischenablage, Sicherheits-Terminal, Standup-Journal) und `🧠 VRAM`.
+* **Live-Skin- und Themen-Wechsler:** Wechseln Sie direkt im Header zwischen Glass, Cyberpunk, Gold und Matrix mit automatischer Speicherung.
+* **Schnellaktions-Chips:** Vordefinierte 1-Klick-Aktionen (`👋 Was kannst du tun?`, `🌤️ Wetterbericht`, `📂 Downloads öffnen`, `📸 Bildschirm analysieren`, `📋 Zwischenablage prüfen`).
+* **Syntax-Codeblöcke mit 1-Klick-Kopieren:** Dunkle Codeblöcke mit Sprach-Badge und praktischem Schnellkopier-Button.
+* **Universelles Drag-and-Drop im gesamten Fenster:** Ziehen Sie Dokumente auf Casper oder die gesamte HUD-Oberfläche für blitzschnelles Zero-DB RAG-Training (+25 XP!).
+* **Natives Apple Retina Dock-Icon:** Hochauflösendes `.icns`-Symbol im macOS Dock und `/Applications/GhostOS.app`.
+
 ---
 
 ### 📊 Warum GhostOS statt Alternativen?
