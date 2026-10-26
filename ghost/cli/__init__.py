@@ -1,0 +1,3 @@
+"""
+GhostOS Command Line Interface.
+"""

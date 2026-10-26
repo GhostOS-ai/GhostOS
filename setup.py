@@ -2,10 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="ghostos-ai",
-    version="1.0.0",
+    version="2.0.0",
     author="KIB.best",
     author_email="GhostOS@kib.best",
     url="https://github.com/GhostOS-ai/GhostOS",
+    description="The Invisible, Featherweight, Offline Desktop AI Companion & Autonomous Coding Studio",
     packages=find_packages(),
     include_package_data=True,
     package_data={
