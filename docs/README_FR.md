@@ -3,15 +3,15 @@
 ```
       .---.
      /     \
-    | () () |   G H O S T O S
-     \  -  /    Le copilote d'IA invisible, ultraléger et 100% hors ligne
+    | () () |   G H O S T O S   v 2 . 0
+     \  -  /    Le copilote d'IA local et studio de développement autonome GhostCode
     /`---'\
-   /       \    [ 100% Privé • VRAM Juggler • Zero-DB RAG • Compagnon Casper ]
+   /       \    [ 100% Privé • GhostCode Autonomous IDE • Studio style ChatGPT • <35Mo RAM ]
   (_/^\_/\_/^)
 ```
 
-# 👻 GhostOS
-### L'assistant IA et compagnon de bureau ultraléger et 100% hors ligne
+# 👻 GhostOS v2.0
+### L'assistant IA ultraléger et studio autonome de développement GhostCode Studio
 
 <p align="center">
   <b>🌐 Sélection de langue / Language Select:</b><br>
@@ -59,6 +59,19 @@ Exécuter une IA locale aujourd'hui se heurte à 3 problèmes majeurs :
 ---
 
 ### ✨ Fonctionnalités exclusives
+
+#### 0. ⚡ GhostCode : Agent autonome de code et studio style ChatGPT (v2.0)
+* **Boucle autonome d'ingénierie logicielle :** La véritable alternative privée et hors ligne à Claude Code et Cursor. GhostCode élabore des plans étape par étape, inspecte les dépôts, lit et modifie les fichiers avec précision grâce aux **Unified Diffs**, exécute des tests unitaires et des commandes de terminal sécurisées, et surveille l'historique Git.
+* **Échafaudage de projets prêts pour la production en 1 clic :**
+  * `FastAPI` : API asynchrone haute performance avec validation Pydantic, middleware CORS et tests unitaires (`TestClient`).
+  * `Telegram Bot` : Application asynchrone moderne avec `python-telegram-bot`, routeurs de commandes et architecture claire.
+  * `HTML / React Landing` : Page de destination responsive et élégante au design glassmorphism.
+  * `Outil CLI Python` : Utilitaire en ligne de commande structuré avec analyseur d'arguments et suite de tests.
+* **Studio de bureau style ChatGPT & Cursor (`ghost studio`) :**
+  * **Barre latérale gauche repliable :** Historique des sessions et des projets (« Aujourd'hui », « Hier », « Projets »), basculement direct entre `Ghost Chat` (assistant IA général) et `GhostCode` (développeur autonome), Zero-DB RAG, outils OS et moniteur VRAM.
+  * **Flux d'exécution de l'agent :** Panneau gauche affichant les réflexions, les appels d'outils et les actions de GhostCode en temps réel.
+  * **Canevas interactif (Canvas) :** Panneau droit équipé de **l'Explorateur de fichiers du projet** (1 clic pour ouvrir n'importe quel fichier), du **Rédacteur de code en direct** (avec sauvegarde directe sur disque), du **Visualiseur Unified Diff** (ajouts et suppressions en couleur) et du **Terminal de travail interactif (`zsh`)**.
+* **Transition instantanée :** Revenez au compagnon flottant Casper à tout moment via le bouton `◀ В питомца` ou lancez-le depuis votre terminal via `ghost studio` ou `ghost code "tâche"`.
 
 #### 1. 👻 Compagnon de bureau interactif Casper
 * Un petit fantôme de porcelaine translucide flottant délicatement au-dessus de votre espace de travail.
@@ -153,6 +166,8 @@ Exécuter une IA locale aujourd'hui se heurte à 3 problèmes majeurs :
 | Fonctionnalité | GhostOS 👻 | Jan.ai / LM Studio | Ollama | AnythingLLM |
 | :--- | :---: | :---: | :---: | :---: |
 | **Empreinte RAM de l'interface** | **~35 Mo** (Moteur natif) | ~850 Mo (Electron) | Aucune (CLI seul) | ~1.1 Go (Electron + BDD) |
+| **Agent de code autonome (GhostCode)** | **Oui (Intégré v2.0)** | ❌ Non | ❌ Non | ❌ Non |
+| **Studio style ChatGPT & Cursor** | **Oui (1120x740)** | ❌ Non | ❌ Non | ❌ Non |
 | **Compagnon interactif** | **Oui (Casper RPG)** | ❌ Non | ❌ Non | ❌ Non |
 | **RAG par glisser-déposer** | **Oui (Déposer sur le familier)**| ❌ Téléversement manuel | ❌ Importation manuelle | ❌ Téléversement manuel |
 | **Changement dynamique de modèle** | **Oui (VRAM Juggler)** | ❌ Crash OOM sur faible VRAM| ❌ Manuel via CLI | ❌ Crash OOM sur faible VRAM |
@@ -191,6 +206,13 @@ ghost pet
 
 #### 3. Utilisation directe dans le terminal (CLI)
 ```bash
+# Lancer le studio complet ChatGPT & GhostCode (1120x740)
+ghost studio
+
+# Tâche d'ingénierie logicielle autonome avec GhostCode CLI
+ghost code "cree un projet fastapi nomme my_service"
+ghost code "lance les tests et corrige les erreurs"
+
 # Poser une question rapide au modèle local
 ghost "Quelle est la différence entre processus et threads en Python ?"
 

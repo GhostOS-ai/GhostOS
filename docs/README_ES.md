@@ -3,15 +3,15 @@
 ```
       .---.
      /     \
-    | () () |   G H O S T O S
-     \  -  /    El copiloto de IA local e invisible, ultraligero y 100% offline
+    | () () |   G H O S T O S   v 2 . 0
+     \  -  /    El copiloto de IA local y estudio de desarrollo autónomo GhostCode
     /`---'\
-   /       \    [ 100% Privado • VRAM Juggler • Zero-DB RAG • Mascota Casper ]
+   /       \    [ 100% Privado • GhostCode Autonomous IDE • Estudio estilo ChatGPT • <35MB RAM ]
   (_/^\_/\_/^)
 ```
 
-# 👻 GhostOS
-### Asistente y compañero de escritorio con IA ultraligero y 100% offline
+# 👻 GhostOS v2.0
+### Asistente y compañero con IA ultraligero y estudio autónomo GhostCode Studio
 
 <p align="center">
   <b>🌐 Selección de idioma / Language Select:</b><br>
@@ -59,6 +59,19 @@ Ejecutar IA local hoy en día sufre de 3 problemas fundamentales:
 ---
 
 ### ✨ Características exclusivas
+
+#### 0. ⚡ GhostCode: Agente autónomo de programación y estudio estilo ChatGPT (v2.0)
+* **Bucle autónomo de ingeniería de software:** La alternativa 100% offline y privada a Claude Code y Cursor. GhostCode formula planes paso a paso, explora repositorios, lee y edita archivos con precisión mediante **Unified Diff**, ejecuta pruebas unitarias y comandos de terminal, y analiza el historial de Git.
+* **Andamiaje de proyectos completos en 1 clic:**
+  * `FastAPI`: API asíncrona de alto rendimiento con validación Pydantic, middleware CORS y pruebas unitarias (`TestClient`).
+  * `Telegram Bot`: Aplicación asíncrona moderna con `python-telegram-bot`, enrutadores de comandos y arquitectura limpia.
+  * `HTML / React Landing`: Página de aterrizaje moderna y responsive con estética glassmorphism.
+  * `Herramienta CLI en Python`: Utilidad de línea de comandos estructurada con parser de argumentos y suite de pruebas.
+* **Estudio de escritorio estilo ChatGPT & Cursor (`ghost studio`):**
+  * **Barra lateral izquierda plegable:** Historial de sesiones y proyectos («Hoy», «Ayer», «Proyectos»), selector directo entre `Ghost Chat` (asistente de IA general) y `GhostCode` (programador autónomo), Zero-DB RAG, herramientas del sistema y monitor VRAM.
+  * **Flujo de pasos del agente:** Panel izquierdo que muestra los pensamientos, llamadas a herramientas y acciones de GhostCode en tiempo real.
+  * **Lienzo interactivo (Canvas):** Panel derecho con **Explorador de archivos del proyecto** (1 clic para abrir cualquier archivo), **Editor de código en vivo** (con guardado directo en disco), **Visor de Unified Diff** (código añadido y eliminado resaltado) y **Terminal interactiva de espacio de trabajo (`zsh`)**.
+* **Transición fluida:** Vuelve a la mascota flotante Casper en cualquier momento con el botón `◀ В питомца` o lánzalo desde la terminal con `ghost studio` o `ghost code "tarea"`.
 
 #### 1. 👻 Mascota de escritorio interactiva Casper
 * Un espíritu translúcido y elegante que flota discretamente sobre tu espacio de trabajo.
@@ -153,6 +166,8 @@ Ejecutar IA local hoy en día sufre de 3 problemas fundamentales:
 | Característica | GhostOS 👻 | Jan.ai / LM Studio | Ollama | AnythingLLM |
 | :--- | :---: | :---: | :---: | :---: |
 | **Consumo de RAM de la interfaz** | **~35 MB** (Motor nativo) | ~850 MB (Electron) | No (Solo terminal) | ~1.1 GB (Electron + BD) |
+| **Agente de código autónomo (GhostCode)** | **Sí (Integrado v2.0)** | ❌ No | ❌ No | ❌ No |
+| **Estudio estilo ChatGPT & Cursor** | **Sí (1120x740)** | ❌ No | ❌ No | ❌ No |
 | **Mascota de escritorio** | **Sí (Casper RPG)** | ❌ No | ❌ No | ❌ No |
 | **RAG arrastrando archivos**| **Sí (Soltar en la mascota)**| ❌ Subida manual | ❌ Importación manual | ❌ Subida manual |
 | **Intercambio dinámico de modelos** | **Sí (VRAM Juggler)** | ❌ Error OOM en baja VRAM| ❌ Manual por CLI | ❌ Error OOM en baja VRAM |
@@ -191,6 +206,13 @@ ghost pet
 
 #### 3. Uso directo mediante la terminal (CLI)
 ```bash
+# Iniciar el estudio completo ChatGPT & GhostCode (1120x740)
+ghost studio
+
+# Tarea de ingeniería de software autónoma con GhostCode CLI
+ghost code "crea un proyecto fastapi llamado my_service"
+ghost code "ejecuta las pruebas y corrige los fallos"
+
 # Pregunta instantánea al modelo local
 ghost "¿Cuál es la diferencia entre procesos e hilos en Python?"
 

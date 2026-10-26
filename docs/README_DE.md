@@ -3,15 +3,15 @@
 ```
       .---.
      /     \
-    | () () |   G H O S T O S
-     \  -  /    Der unsichtbare, ultraleichte, 100% lokale Desktop-KI-Copilot
+    | () () |   G H O S T O S   v 2 . 0
+     \  -  /    Der lokale Desktop-KI-Copilot & autonomes GhostCode Studio
     /`---'\
-   /       \    [ 100% Privat • VRAM Juggler • Zero-DB RAG • Casper Desktop-Pet ]
+   /       \    [ 100% Privat • GhostCode Autonomes IDE • ChatGPT Studio • <35MB RAM ]
   (_/^\_/\_/^)
 ```
 
-# 👻 GhostOS
-### Der ultraleichte, autonome lokale KI-Assistent und Desktop-Begleiter
+# 👻 GhostOS v2.0
+### Der ultraleichte, autonome lokale KI-Assistent und GhostCode Entwicklerstudio
 
 <p align="center">
   <b>🌐 Sprachauswahl / Language Select:</b><br>
@@ -59,6 +59,19 @@ Lokale KI leidet heutzutage unter drei massiven Problemen:
 ---
 
 ### ✨ Exklusive Funktionen
+
+#### 0. ⚡ GhostCode: Autonomer Coding-Agent & ChatGPT Studio (v2.0)
+* **Autonome Software-Entwicklungsschleife:** Die private Offline-Alternative zu Claude Code und Cursor. GhostCode formuliert Pläne, durchsucht Codebases, liest und editiert Dateien mit **Unified Diffs**, führt Unit-Tests und sichere Terminalbefehle aus und überwacht den Git-Verlauf.
+* **Sofortiges Projekt-Scaffolding in 1 Klick:**
+  * `FastAPI`: Asynchrone Hochleistungs-API mit Pydantic-Validierung, CORS-Middleware und Unit-Tests (`TestClient`).
+  * `Telegram Bot`: Moderne asynchrone `python-telegram-bot`-Anwendung mit strukturierter Architektur.
+  * `HTML / React Landing`: Elegante, konvertierende Landingpage im modernen Glassmorphism-Design.
+  * `Python CLI Tool`: Strukturiertes Konsolenprogramm mit Argument-Parser und Test-Suite.
+* **ChatGPT & Cursor Split Desktop Studio (`ghost studio`):**
+  * **Einklappbare linke Seitenleiste:** Sitzungs- und Projekthistorie („Heute“, „Gestern“, „Projekte“), Modus-Umschaltung zwischen `Ghost Chat` (allgemeine KI) und `GhostCode` (autonomes Programmieren), Zero-DB RAG, OS-Tools, VRAM Juggler, aktives Verzeichnis und Modellanzeige.
+  * **Agenten-Ausführungsstream:** Linkes Panel mit Live-Streaming von Gedanken, Tool-Aufrufen und Ergebnissen.
+  * **Interaktive Canvas:** Rechtes Panel mit **Projekt-Dateiexplorer** (1-Klick-Öffnen jeder Datei), **Live-Code-Editor** (mit Direktspeicherung), **Unified Diff Viewer** (Farbhervorhebung von Änderungen) und **Interaktivem Workspace-Terminal (`zsh`)**.
+* **Nahtlose Umschaltung:** Jederzeit mit dem `◀ В питомца`-Button zum leichten Casper Desktop-Pet zurückkehren oder direkt per `ghost studio` bzw. `ghost code "Aufgabe"` starten.
 
 #### 1. 👻 Interaktives Desktop-Pet Casper
 * Ein federleichter, sanft über dem Desktop schwebender kleiner Geist.
@@ -153,6 +166,8 @@ Lokale KI leidet heutzutage unter drei massiven Problemen:
 | Funktion | GhostOS 👻 | Jan.ai / LM Studio | Ollama | AnythingLLM |
 | :--- | :---: | :---: | :---: | :---: |
 | **GUI-Speicherverbrauch** | **~35 MB** (Native Engine) | ~850 MB (Electron) | Keine (Nur CLI) | ~1.1 GB (Electron + DB) |
+| **Autonomer Coding-Agent (GhostCode)** | **Ja (Integriert v2.0)** | ❌ Nein | ❌ Nein | ❌ Nein |
+| **ChatGPT & Cursor Studio** | **Ja (1120x740)** | ❌ Nein | ❌ Nein | ❌ Nein |
 | **Interaktives Desktop-Pet** | **Ja (Casper RPG)** | ❌ Nein | ❌ Nein | ❌ Nein |
 | **RAG durch Drag & Drop**| **Ja (Auf Pet ziehen)** | ❌ Manuelle Uploads | ❌ Manueller Import | ❌ Manuelle Uploads |
 | **Dynamischer Modellwechsel**| **Ja (VRAM Juggler)** | ❌ Absturz bei wenig VRAM| ❌ Manuell per CLI | ❌ Absturz bei wenig VRAM |
@@ -191,6 +206,13 @@ ghost pet
 
 #### 3. Direkte Nutzung über das Terminal (CLI)
 ```bash
+# Vollwertiges ChatGPT & GhostCode Studio starten (1120x740)
+ghost studio
+
+# Autonome Software-Entwicklungsaufgabe via GhostCode CLI
+ghost code "erstelle ein fastapi projekt namens my_service"
+ghost code "fuehre tests aus und behebe fehler"
+
 # Schnelle Frage an das lokale Modell
 ghost "Was ist der Unterschied zwischen Prozessen und Threads in Python?"
 

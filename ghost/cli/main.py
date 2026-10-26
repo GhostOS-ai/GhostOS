@@ -258,6 +258,59 @@ def cmd_spotlight(skin: str = "glass") -> None:
     except Exception as e:
         console.print(f"[bold red]Failed to launch Spotlight HUD:[/bold red] {e}")
 
+def cmd_studio(skin: str = "glass", workspace: Optional[str] = None) -> None:
+    """Launch GhostOS Studio v2.0 (The Unified ChatGPT-style AI & GhostCode IDE)."""
+    try:
+        from ghost.ui.app import launch_studio
+        console.print(f"[bold cyan]👻 Opening GhostOS Studio v2.0 ({skin} skin)...[/bold cyan]")
+        if workspace:
+            console.print(f"[dim]Workspace: {workspace}[/dim]")
+        launch_studio(skin=skin, workspace=workspace)
+    except Exception as e:
+        console.print(f"[bold red]Failed to launch Studio GUI:[/bold red] {e}")
+
+def cmd_code(task: Optional[str] = None, workspace: Optional[str] = None) -> None:
+    """Autonomous AI Software Engineer (Claude Code style) in the terminal."""
+    import os
+    from ghost.core.coder import GhostCodeAgent
+    agent = GhostCodeAgent(workspace_dir=workspace or os.getcwd())
+    console.print(Panel(
+        f"[bold cyan]⚡ GhostCode — Autonomous AI Software Engineer[/bold cyan]\n"
+        f"[dim]Active Workspace: {agent.workspace_dir}[/dim]\n"
+        f"[dim]Type your coding goal, or 'exit' / 'quit' to finish.[/dim]",
+        border_style="cyan"
+    ))
+    if task:
+        _run_code_task_cli(agent, task)
+        return
+
+    while True:
+        try:
+            prompt = console.input("[bold cyan]ghost-code > [/bold cyan]").strip()
+            if not prompt:
+                continue
+            if prompt.lower() in ["exit", "quit", "q"]:
+                console.print("[dim]Goodbye from GhostCode! 👋[/dim]")
+                break
+            _run_code_task_cli(agent, prompt)
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[dim]GhostCode session closed.[/dim]")
+            break
+
+def _run_code_task_cli(agent, prompt: str):
+    def on_event(ev):
+        etype = ev.get("type")
+        data = ev.get("data")
+        if etype == "thought":
+            console.print(f"[dim cyan]🤔 {data}[/dim cyan]")
+        elif etype == "tool_call":
+            console.print(f"[bold yellow]🛠️ {data}[/bold yellow]")
+        elif etype == "tool_result":
+            console.print(f"[bold green]✔ {data}[/bold green]")
+
+    res = agent.run_task(prompt, event_callback=on_event)
+    console.print(Panel(Markdown(res.get("summary", "Done.")), title="[bold cyan]⚡ GhostCode Result[/bold cyan]", border_style="cyan"))
+
 def cmd_tray() -> None:
     """Launch native macOS Menu Bar controller."""
     try:
@@ -440,7 +493,7 @@ def main() -> None:
         "ask", "chat", "pet", "models", "eat", "rag", "screen", "exec", "status",
         "clip", "clipboard", "time", "timemachine", "rpg", "chameleon",
         "web", "agent", "say", "write", "vault", "standup", "sandbox",
-        "spot", "spotlight", "bar", "tray",
+        "spot", "spotlight", "bar", "tray", "studio", "code", "coder",
         "-h", "--help"
     }
     if len(sys.argv) > 1 and sys.argv[1] not in KNOWN_COMMANDS and not sys.argv[1].startswith("-"):
@@ -516,6 +569,15 @@ def main() -> None:
     say_parser.add_argument("text", nargs="+", help="Text to speak")
 
     # Exclusive Killer Suite
+    studio_parser = subparsers.add_parser("studio", help="Launch GhostOS Studio (ChatGPT-style AI & GhostCode IDE)")
+    studio_parser.add_argument("--skin", default="glass", choices=["glass", "cyberpunk", "gold", "matrix"])
+    studio_parser.add_argument("--dir", default=None, help="Workspace directory to open")
+
+    for c_name in ["code", "coder"]:
+        c_parser = subparsers.add_parser(c_name, help="Autonomous AI Coding Agent in terminal (like Claude Code)")
+        c_parser.add_argument("task", nargs="*", help="Optional coding task to execute")
+        c_parser.add_argument("--dir", default=None, help="Workspace directory to operate on")
+
     write_parser = subparsers.add_parser("write", help="Ghostwriter: AI inline text transformation")
     write_parser.add_argument("--mode", default="polish", choices=["polish", "polite", "grammar", "summarize", "translate_en", "translate_ru", "code_explain", "code_fix"], help="Transformation mode")
     write_parser.add_argument("text", nargs="*", help="Optional text (if omitted, reads and rewrites clipboard)")
@@ -593,6 +655,11 @@ def main() -> None:
         cmd_vault(action=args.action, key=args.key, value=val_str)
     elif args.subcommand == "standup":
         cmd_standup()
+    elif args.subcommand == "studio":
+        cmd_studio(skin=getattr(args, "skin", "glass"), workspace=getattr(args, "dir", None))
+    elif args.subcommand in {"code", "coder"}:
+        task_str = " ".join(args.task) if args.task else None
+        cmd_code(task=task_str, workspace=getattr(args, "dir", None))
     elif args.subcommand == "sandbox":
         cmd_sandbox(" ".join(args.command))
 

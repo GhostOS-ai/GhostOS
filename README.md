@@ -3,15 +3,15 @@
 ```
       .---.
      /     \
-    | () () |   G H O S T O S
-     \  -  /    The Invisible, Featherweight, Offline Desktop AI Copilot
+    | () () |   G H O S T O S   v 2 . 0
+     \  -  /    The Offline Desktop AI Companion & GhostCode Studio
     /`---'\
-   /       \    [ 100% Private • Dynamic VRAM Juggler • Zero-DB RAG • Casper Pet ]
+   /       \    [ 100% Private • GhostCode Autonomous IDE • ChatGPT Studio • <35MB RAM ]
   (_/^\_/\_/^)
 ```
 
-# 👻 GhostOS
-### The Featherweight, Offline AI Assistant & Desktop Companion
+# 👻 GhostOS v2.0
+### The Featherweight, Offline AI Assistant & GhostCode Autonomous Studio
 
 <p align="center">
   <b>🌐 Language Select / Выбор языка / Тілді таңдау / 语言选择:</b><br>
@@ -61,6 +61,19 @@ Running local AI today is frustrating and bloated:
 ---
 
 ### ✨ Exclusive Killer Features
+
+#### 0. ⚡ GhostCode: Autonomous Coding Agent & ChatGPT Studio (v2.0)
+* **Autonomous Software Engineering Loop:** Offline alternative to Claude Code and Cursor. Formulates plans, inspects repositories, reads and edits files with **Unified Diffs**, runs safe terminal commands, and inspects Git history.
+* **Instant Production Scaffolding:** Generate full projects in seconds:
+  * `FastAPI`: High-performance asynchronous API with Pydantic validation, CORS middleware, and unit tests (`TestClient`).
+  * `Telegram Bot`: Modern async `python-telegram-bot` application with handlers and clean architecture.
+  * `HTML / React Landing`: Elegant, high-converting glassmorphism landing page.
+  * `Python CLI Tool`: Structured command-line utility with argument parser and test suite.
+* **ChatGPT & Cursor Split Desktop Studio (`ghost studio`):**
+  * **Collapsible Left Sidebar:** Session and project history ("Today", "Yesterday", "Projects"), instant mode switcher (`Ghost Chat` for general conversational AI, `GhostCode` for autonomous engineering, `Zero-DB RAG`, `OS Tools`, `VRAM Juggler`), active workspace badge, and model indicator.
+  * **Agent Execution Stream:** Left pane streaming the autonomous agent's thought process, tool calls, and execution steps.
+  * **Interactive Canvas:** Right pane equipped with **Project Files Explorer** (1-click to open any file), **Live Code Editor** (with instant Save to disk), **Unified Diff Viewer** (colored additions and deletions), and **Interactive Workspace Terminal (`zsh`)**.
+* **Seamless Mode Switching:** Switch from full Studio view back to Casper desktop pet with 1 click (`◀ В питомца` button) or launch directly from terminal via `ghost studio` or `ghost code "task"`.
 
 #### 1. 👻 Casper: The Living Desktop Pet
 * A quiet, translucent porcelain ghost that floats gently over your workspace.
@@ -155,6 +168,8 @@ Running local AI today is frustrating and bloated:
 | Feature | GhostOS 👻 | Jan.ai / LM Studio | Ollama | AnythingLLM |
 | :--- | :---: | :---: | :---: | :---: |
 | **GUI Memory Footprint** | **~35 MB** (Native Engine) | ~850 MB (Electron) | None (CLI only) | ~1.1 GB (Electron + DB) |
+| **Autonomous Coding Agent (GhostCode)** | **Yes (Built-in v2.0)** | ❌ No | ❌ No | ❌ No |
+| **ChatGPT / Cursor Split Studio** | **Yes (1120x740)** | ❌ No | ❌ No | ❌ No |
 | **Desktop Pet Companion** | **Yes (Casper RPG)** | ❌ No | ❌ No | ❌ No |
 | **Drag & Drop RAG Ingestion**| **Yes (Drop onto Pet)** | ❌ Manual upload | ❌ Manual import | ❌ Manual upload |
 | **Dynamic VRAM Swapping** | **Yes (VRAM Juggler)** | ❌ OOM on low VRAM | ❌ Manual CLI | ❌ OOM on low VRAM |
@@ -193,6 +208,13 @@ ghost pet
 
 #### 3. Or use directly from Terminal (CLI)
 ```bash
+# Launch ChatGPT & GhostCode Split Studio (1120x740)
+ghost studio
+
+# Autonomous Software Engineering Task via GhostCode CLI
+ghost code "create a fastapi project named my_service"
+ghost code "run tests and fix any failing assertions"
+
 # Instant question with zero setup
 ghost "Why does Python raise RecursionError and how to fix it?"
 

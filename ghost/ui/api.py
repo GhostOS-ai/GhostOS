@@ -156,12 +156,28 @@ class GhostBridgeAPI:
 
     def toggle_mode(self, target_mode: str) -> Dict[str, Any]:
         """
-        Smoothly resize window between Pet mode (240x280) and HUD mode (740x580).
+        Smoothly resize window between Pet (240x280), HUD (740x580), and Studio (1120x740).
         """
         import webview
         self.current_mode = target_mode
         if self.window:
-            if target_mode == "hud":
+            if target_mode == "studio":
+                try:
+                    if not hasattr(self, '_pet_x') or self._pet_x is None:
+                        self._pet_x = self.window.x
+                        self._pet_y = self.window.y
+                    screens = webview.screens
+                    if screens:
+                        s = screens[0]
+                        w_x = max(20, (s.width - 1120) // 2)
+                        w_y = max(20, (s.height - 740) // 2)
+                        self.window.resize(1120, 740)
+                        self.window.move(w_x, w_y)
+                    else:
+                        self.window.resize(1120, 740)
+                except Exception:
+                    pass
+            elif target_mode == "hud":
                 try:
                     self._pet_x = self.window.x
                     self._pet_y = self.window.y
@@ -382,3 +398,141 @@ class GhostBridgeAPI:
     def clear_chat(self) -> Dict[str, Any]:
         """Clears active session memory and resets HUD chat."""
         return {"success": True}
+
+    # ==================== GHOSTCODE & CHATGPT STUDIO METHODS ====================
+
+    def get_coder(self):
+        """Returns or initializes GhostCodeAgent."""
+        if not hasattr(self, "_coder") or self._coder is None:
+            from ghost.core.coder import GhostCodeAgent
+            self._coder = GhostCodeAgent()
+        return self._coder
+
+    def get_workspace_info(self) -> Dict[str, Any]:
+        """GhostCode: Return active workspace root, directory tree, and git status."""
+        coder = self.get_coder()
+        tree_res = coder.list_dir(max_depth=3)
+        git = coder.git_status()
+        tree = tree_res.get("tree", [])
+        files = [item["path"] for item in tree if item.get("type") == "file"]
+        return {
+            "status": "ok",
+            "success": True,
+            "workspace": coder.workspace_dir,
+            "tree": tree,
+            "files": files,
+            "git": git
+        }
+
+    def set_workspace_path(self, path: str) -> Dict[str, Any]:
+        """GhostCode: Change active workspace directory."""
+        res = self.get_coder().set_workspace(path)
+        res["status"] = "ok" if res.get("success") else "error"
+        return res
+
+    def run_code_task(self, prompt: str) -> Dict[str, Any]:
+        """GhostCode: Execute autonomous software engineering task."""
+        from ghost.core.rpg import CasperRPG
+        res = self.get_coder().run_task(prompt)
+        res["status"] = "ok" if res.get("success") else "error"
+        CasperRPG.add_xp(35, "code_task")
+        return res
+
+    def read_code_file(self, relative_path: str) -> Dict[str, Any]:
+        """GhostCode: Read file content for code editor / diff viewer."""
+        res = self.get_coder().read_file(relative_path)
+        res["status"] = "ok" if res.get("success") else "error"
+        return res
+
+    def save_code_file(self, relative_path: str, content: str) -> Dict[str, Any]:
+        """GhostCode: Save edited file content from code editor."""
+        res = self.get_coder().write_file(relative_path, content, overwrite=True)
+        res["status"] = "ok" if res.get("success") else "error"
+        res["bytes"] = res.get("bytes_written", len(content.encode("utf-8")))
+        return res
+
+    def scaffold_project_api(self, template: str, project_name: str) -> Dict[str, Any]:
+        """GhostCode: Scaffold new project from template."""
+        from ghost.core.rpg import CasperRPG
+        res = self.get_coder().scaffold_project(template, project_name)
+        res["status"] = "ok" if res.get("success") else "error"
+        CasperRPG.add_xp(50, "scaffold")
+        return res
+
+    def get_git_details(self) -> Dict[str, Any]:
+        """GhostCode: Get git branch and diff."""
+        return self.get_coder().git_status()
+
+    def run_studio_terminal(self, command: str) -> Dict[str, Any]:
+        """GhostCode: Run shell command in workspace terminal."""
+        res = self.get_coder().run_command(command)
+        res["status"] = "ok" if res.get("success") else "error"
+        res["output"] = res.get("stdout") or res.get("output", "")
+        return res
+
+    def get_saved_sessions(self) -> Dict[str, Any]:
+        """ChatGPT Studio: Return list of saved chat and code sessions."""
+        from ghost.config import GHOST_CACHE_DIR, ensure_dirs
+        ensure_dirs()
+        sessions_file = GHOST_CACHE_DIR / "studio_sessions.json"
+        if not sessions_file.exists():
+            return {"sessions": []}
+        try:
+            with open(sessions_file, "r", encoding="utf-8") as f:
+                return {"sessions": json.load(f)}
+        except Exception:
+            return {"sessions": []}
+
+    def save_studio_session(self, session_id: str, title: str, mode: str, messages: list) -> Dict[str, Any]:
+        """ChatGPT Studio: Persist active chat/code session."""
+        from ghost.config import GHOST_CACHE_DIR, ensure_dirs
+        import time
+        ensure_dirs()
+        sessions_file = GHOST_CACHE_DIR / "studio_sessions.json"
+        sessions = []
+        if sessions_file.exists():
+            try:
+                with open(sessions_file, "r", encoding="utf-8") as f:
+                    sessions = json.load(f)
+            except Exception:
+                sessions = []
+
+        existing = next((s for s in sessions if s.get("id") == session_id), None)
+        if existing:
+            existing["title"] = title
+            existing["mode"] = mode
+            existing["messages"] = messages
+            existing["updated_at"] = int(time.time())
+        else:
+            sessions.insert(0, {
+                "id": session_id,
+                "title": title,
+                "mode": mode,
+                "messages": messages,
+                "created_at": int(time.time()),
+                "updated_at": int(time.time())
+            })
+
+        sessions = sessions[:50]
+        try:
+            with open(sessions_file, "w", encoding="utf-8") as f:
+                json.dump(sessions, f, ensure_ascii=False, indent=2)
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def delete_studio_session(self, session_id: str) -> Dict[str, Any]:
+        """ChatGPT Studio: Delete session by ID."""
+        from ghost.config import GHOST_CACHE_DIR
+        sessions_file = GHOST_CACHE_DIR / "studio_sessions.json"
+        if not sessions_file.exists():
+            return {"success": True}
+        try:
+            with open(sessions_file, "r", encoding="utf-8") as f:
+                sessions = json.load(f)
+            sessions = [s for s in sessions if s.get("id") != session_id]
+            with open(sessions_file, "w", encoding="utf-8") as f:
+                json.dump(sessions, f, ensure_ascii=False, indent=2)
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}

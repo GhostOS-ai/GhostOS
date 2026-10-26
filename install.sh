@@ -19,10 +19,10 @@ echo -e "${PURPLE}"
 cat << "EOF"
       .---.
      /     \
-    | () () |   G H O S T O S
-     \  -  /    The Invisible, Featherweight, Offline Desktop AI Copilot
+    | () () |   G H O S T O S   v 2 . 0
+     \  -  /    The Offline Desktop AI Companion & GhostCode Studio
     /`---'\
-   /       \    [ 100% Private • <35MB RAM • Dynamic VRAM Juggler • Zero-DB RAG ]
+   /       \    [ 100% Private • GhostCode Autonomous IDE • ChatGPT Studio • <35MB RAM ]
   (_/^\_/\_/^)
 EOF
 echo -e "${NC}"
@@ -82,7 +82,7 @@ LAUNCHER
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.3.0</string>
+    <string>2.0.0</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.15</string>
     <key>NSHighResolutionCapable</key>
@@ -101,14 +101,17 @@ PLIST
 fi
 
 echo -e "\n${GREEN}======================================================${NC}"
-echo -e "${GREEN}🎉 GhostOS successfully installed!${NC}"
+echo -e "${GREEN}🎉 GhostOS v2.0 successfully installed!${NC}"
 echo -e "${GREEN}======================================================${NC}\n"
 
-echo -e "You can launch GhostOS in two ways:"
-echo -e "  1. ${YELLOW}ghost pet${NC}           (Run from any terminal)"
-echo -e "  2. ${YELLOW}Launch from Spotlight / Applications${NC} (Open 'GhostOS.app')"
+echo -e "You can launch GhostOS in three ways:"
+echo -e "  1. ${YELLOW}ghost studio${NC}        (ChatGPT & GhostCode Autonomous Studio)"
+echo -e "  2. ${YELLOW}ghost pet${NC}           (Floating Casper desktop pet with tray)"
+echo -e "  3. ${YELLOW}Launch from Spotlight / Applications${NC} (Open 'GhostOS.app')"
 echo -e ""
 echo -e "Try these commands:"
+echo -e "  • ${CYAN}ghost studio${NC}               (Full split IDE + General AI Chat studio)"
+echo -e "  • ${CYAN}ghost code \"create fastapi\"${NC} (Autonomous software engineer via CLI)"
 echo -e "  • ${CYAN}ghost spot${NC}                 (Instant Spotlight HUD query bar)"
 echo -e "  • ${CYAN}ghost pet --skin cyberpunk${NC} (Launch with Neon theme)"
 echo -e "  • ${CYAN}ghost models${NC}               (Inspect local AI hardware acceleration)"

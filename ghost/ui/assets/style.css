@@ -1259,4 +1259,653 @@ body.skin-matrix #aura {
   user-select: text;
 }
 
+/* ==================== GHOSTOS v2.0 STUDIO & CHATGPT SIDEBAR ==================== */
+.studio-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--mac-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+/* Sidebar Styles (ChatGPT / Cursor Style) */
+.studio-sidebar {
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
+  height: 100vh;
+  background: rgba(13, 16, 23, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  z-index: 20;
+  user-select: none;
+}
+
+.studio-sidebar.collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-100%);
+  border-right: none;
+}
+
+.sidebar-header {
+  padding: 14px 14px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sidebar-brand-avatar {
+  font-size: 20px;
+  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+}
+
+.sidebar-brand-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.sidebar-brand-name {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.2px;
+  background: linear-gradient(135deg, #ffffff 40%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sidebar-brand-ver {
+  font-size: 10px;
+  color: var(--mac-accent);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sidebar-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.sidebar-action-btn:hover {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+  transform: translateY(-1px);
+}
+
+.sidebar-action-btn.secondary {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  margin-top: -4px;
+}
+
+.sidebar-action-btn.secondary:hover {
+  background: rgba(16, 185, 129, 0.20);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #fff;
+}
+
+.sidebar-action-icon {
+  font-size: 14px;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sidebar-section-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: rgba(255, 255, 255, 0.38);
+  padding: 4px 10px;
+}
+
+.sidebar-mode-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.sidebar-mode-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.sidebar-mode-item.active {
+  background: rgba(99, 102, 241, 0.18);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.sidebar-mode-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--mac-accent);
+}
+
+.mode-icon {
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+}
+
+.mode-badge-new {
+  margin-left: auto;
+  font-size: 9px;
+  padding: 2px 5px;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  border-radius: 5px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-history-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.sidebar-history-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sidebar-footer {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(10, 12, 17, 0.7);
+}
+
+.sidebar-pill-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar-pill-badge span.accent-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+/* ==================== STUDIO MAIN AREA ==================== */
+.studio-main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--mac-bg);
+  position: relative;
+}
+
+.studio-topbar {
+  height: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: rgba(18, 22, 31, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  z-index: 10;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.studio-panes-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.studio-pane {
+  display: none;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.studio-pane.active {
+  display: flex !important;
+}
+
+/* ==================== GHOSTCODE SPLIT IDE ==================== */
+.coder-split-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Left Subpane: Agent Stream */
+.coder-agent-pane {
+  flex: 1;
+  min-width: 360px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(13, 16, 23, 0.7);
+  overflow: hidden;
+}
+
+.coder-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.coder-ws-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coder-git-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+}
+
+.coder-chips-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.015);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+}
+
+.coder-stream-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.coder-step-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
+  animation: fadeIn 0.18s ease;
+}
+
+.coder-step-card.thought {
+  border-left: 3px solid var(--mac-accent);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.coder-step-card.action {
+  border-left: 3px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.coder-step-card.success {
+  border-left: 3px solid #10b981;
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.coder-step-card.error {
+  border-left: 3px solid #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.coder-input-container {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 18, 25, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.coder-task-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.15s;
+}
+
+.coder-task-input:focus {
+  border-color: var(--mac-accent);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
+}
+
+/* Right Subpane: Code Canvas / Diff / Explorer / Terminal */
+.coder-canvas-pane {
+  flex: 1.3;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 12, 17, 0.9);
+  overflow: hidden;
+}
+
+.canvas-tabs-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(20, 24, 34, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.canvas-tab-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.canvas-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.canvas-tab-btn.active {
+  background: rgba(99, 102, 241, 0.18);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.canvas-tab-content {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.canvas-tab-content.active {
+  display: flex;
+}
+
+/* File Explorer & Live Editor */
+.file-explorer-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+}
+
+.file-chip {
+  padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.file-chip:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #fff;
+}
+
+.file-chip.active {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #fff;
+}
+
+.code-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.canvas-code-editor {
+  flex: 1;
+  width: 100%;
+  background: #090b10;
+  color: #e2e8f0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  padding: 14px 16px;
+  border: none;
+  outline: none;
+  resize: none;
+  white-space: pre;
+  tab-size: 4;
+}
+
+/* Diff Viewer */
+.diff-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.canvas-diff-pre {
+  flex: 1;
+  margin: 0;
+  padding: 14px 16px;
+  background: #090b10;
+  color: #e2e8f0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow: auto;
+  user-select: text;
+}
+
+/* Terminal Console Box */
+.canvas-terminal-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #06080c;
+  overflow: hidden;
+}
+
+.terminal-stdout {
+  flex: 1;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: #a7f3d0;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+.terminal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.terminal-prompt-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mac-accent);
+}
+
+.terminal-cmd-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+
 

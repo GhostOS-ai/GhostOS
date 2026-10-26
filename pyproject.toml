@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ghostos-ai"
-version = "1.3.0"
+version = "2.0.0"
 authors = [
   { name = "KIB.best", email = "GhostOS@kib.best" },
 ]
-description = "The Invisible, Featherweight, Offline Desktop AI Companion & Copilot"
+description = "The Invisible, Featherweight, Offline Desktop AI Companion & Autonomous Coding Studio"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [

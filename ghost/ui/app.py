@@ -135,5 +135,55 @@ def launch_spotlight_hud(skin: str = "glass"):
     api.set_window(window)
     webview.start(debug=False)
 
+def launch_studio(skin: str = "glass", workspace: str = None):
+    """
+    Launches GhostOS Studio v2.0 (The Unified ChatGPT-style AI & GhostCode IDE).
+    """
+    set_macos_dock_icon()
+    assets_dir = Path(__file__).parent / "assets"
+    index_html = assets_dir / "index.html"
+
+    if not index_html.exists():
+        raise FileNotFoundError(f"Missing UI assets at: {index_html}")
+
+    api = GhostBridgeAPI()
+    api.skin = skin
+    api.current_mode = "studio"
+    if workspace:
+        api.get_coder().set_workspace(workspace)
+
+    try:
+        screens = webview.screens
+        if screens:
+            primary = screens[0]
+            start_x = max(20, (primary.width - 1120) // 2)
+            start_y = max(20, (primary.height - 740) // 2)
+        else:
+            start_x = 100
+            start_y = 60
+    except Exception:
+        start_x = 100
+        start_y = 60
+
+    window_url = f"{index_html.as_uri()}?skin={skin}&mode=studio"
+    window = webview.create_window(
+        title="GhostOS Studio — AI & Code Copilot",
+        url=window_url,
+        js_api=api,
+        width=1120,
+        height=740,
+        x=start_x,
+        y=start_y,
+        frameless=True,
+        transparent=True,
+        on_top=False,
+        easy_drag=True,
+        shadow=True,
+        text_select=True,
+    )
+
+    api.set_window(window)
+    webview.start(debug=False)
+
 if __name__ == "__main__":
     launch_desktop_pet()

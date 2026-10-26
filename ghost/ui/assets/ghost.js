@@ -27,13 +27,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const skin = localStorage.getItem("ghostos_skin") || urlParams.get("skin") || "glass";
   switchSkin(skin, false);
 
-  // Direct Spotlight / HUD Mode launcher
+  // Direct Spotlight / HUD / Studio Mode launcher
   const mode = urlParams.get("mode");
-  if (mode === "hud" || mode === "spotlight") {
+  if (mode === "hud" || mode === "spotlight" || mode === "studio") {
     setTimeout(() => {
-      toggleHudMode("hud");
+      toggleHudMode(mode === "studio" ? "studio" : "hud");
+      if (mode === "studio") {
+        switchStudioMode("chat");
+      }
     }, 50);
   }
+  setupStudioListeners();
 });
 
 function applySkin(skinName) {
@@ -117,20 +121,20 @@ function onPetClick(event) {
   }, 220);
 }
 
-// Toggle between Floating Casper and Spotlight HUD
+// Toggle between Floating Casper and Spotlight HUD / Studio
 function toggleHudMode(mode) {
   currentMode = mode;
   const petView = document.getElementById("pet-view");
   const hudView = document.getElementById("hud-view");
 
-  if (mode === "hud") {
+  if (mode === "hud" || mode === "studio") {
     petView.classList.add("hidden");
     hudView.classList.remove("hidden");
     hideSpeechBubble();
 
     // Smooth resize via WebKit Cocoa Bridge
     if (window.pywebview && window.pywebview.api) {
-      window.pywebview.api.toggle_mode("hud");
+      window.pywebview.api.toggle_mode(mode);
     }
 
     setTimeout(() => {
@@ -141,6 +145,7 @@ function toggleHudMode(mode) {
     // Light asynchronous header refreshes without blocking
     refreshRpg();
     refreshChameleon();
+    refreshWorkspaceExplorer();
   } else {
     hudView.classList.add("hidden");
     petView.classList.remove("hidden");
@@ -1097,3 +1102,303 @@ function triggerQuickAction(query) {
   input.value = query;
   handleSend();
 }
+
+// ==================== GHOSTOS v2.0 STUDIO & GHOSTCODE CONTROLLER ====================
+let activeStudioMode = "chat";
+let activeOpenedFile = "";
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function switchStudioMode(mode) {
+  activeStudioMode = mode;
+  // Update sidebar active item
+  document.querySelectorAll(".sidebar-mode-item").forEach((el) => {
+    el.classList.remove("active");
+  });
+  const navBtn = document.getElementById(`nav-mode-${mode}`);
+  if (navBtn) navBtn.classList.add("active");
+
+  // Update studio panes
+  document.querySelectorAll(".studio-pane").forEach((pane) => {
+    pane.classList.remove("active");
+  });
+  const targetPane = document.getElementById(`tab-${mode}`);
+  if (targetPane) targetPane.classList.add("active");
+
+  // Update topbar breadcrumb
+  const badgeTitle = document.getElementById("topbar-mode-title");
+  if (badgeTitle) {
+    const titles = {
+      chat: "💬 Ghost Chat",
+      code: "⚡ GhostCode Studio",
+      rag: "📚 Zero-DB RAG",
+      "os-tools": "🛠️ OS Tools",
+      vram: "🧠 Memory Juggler"
+    };
+    badgeTitle.innerText = titles[mode] || "GhostOS Studio";
+  }
+
+  if (mode === "code") {
+    refreshWorkspaceExplorer();
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById("studio-sidebar");
+  if (!sidebar) return;
+  sidebar.classList.toggle("collapsed");
+}
+
+function startNewChat() {
+  clearChatHistory();
+  switchStudioMode("chat");
+  const input = document.getElementById("hud-input");
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+}
+
+function startNewProject() {
+  switchStudioMode("code");
+  const input = document.getElementById("coder-task-input");
+  if (input) {
+    input.placeholder = "Например: Создай FastAPI проект с тестами...";
+    input.focus();
+  }
+}
+
+function switchCanvasTab(tabName) {
+  document.querySelectorAll(".canvas-tab-btn").forEach((btn) => btn.classList.remove("active"));
+  document.querySelectorAll(".canvas-tab-content").forEach((tab) => tab.classList.remove("active"));
+
+  const btn = document.getElementById(`tab-btn-canvas-${tabName}`);
+  const content = document.getElementById(`canvas-tab-${tabName}`);
+  if (btn) btn.classList.add("active");
+  if (content) content.classList.add("active");
+}
+
+async function refreshWorkspaceExplorer() {
+  if (!window.pywebview || !window.pywebview.api || !window.pywebview.api.get_workspace_info) {
+    return;
+  }
+  try {
+    const info = await window.pywebview.api.get_workspace_info();
+    const wsDisplay = document.getElementById("coder-ws-path-display");
+    const sidebarWs = document.getElementById("sidebar-ws-name");
+    const gitBadge = document.getElementById("coder-git-branch-badge");
+    const filesContainer = document.getElementById("project-files-list");
+
+    if (wsDisplay) wsDisplay.innerText = info.workspace || "...";
+    if (sidebarWs) sidebarWs.innerText = (info.workspace ? info.workspace.split("/").pop() : "Проект");
+    if (gitBadge && info.git) {
+      gitBadge.innerText = `🌿 ${info.git.branch || "main"}${info.git.is_clean ? "" : " *"}`;
+    }
+
+    if (filesContainer && info.files) {
+      if (info.files.length === 0) {
+        filesContainer.innerHTML = `<span style="color: rgba(255,255,255,0.4); font-size: 11px;">Нет файлов в рабочей папке</span>`;
+      } else {
+        filesContainer.innerHTML = info.files.map((f) => {
+          const isAct = f === activeOpenedFile ? "active" : "";
+          const fname = f.split("/").pop();
+          return `<div class="file-chip ${isAct}" onclick="openProjectFile('${f}')" title="${f}">📄 ${fname}</div>`;
+        }).join("");
+      }
+    }
+
+    // If active file is empty and files exist, open the first file
+    if (!activeOpenedFile && info.files && info.files.length > 0) {
+      const preferred = info.files.find(f => f.endsWith(".py") || f.endsWith(".js") || f.endsWith(".html") || f.endsWith(".md")) || info.files[0];
+      openProjectFile(preferred);
+    }
+  } catch (err) {
+    console.error("refreshWorkspaceExplorer error:", err);
+  }
+}
+
+async function openProjectFile(filePath) {
+  activeOpenedFile = filePath;
+  const titleEl = document.getElementById("active-file-title");
+  const editorEl = document.getElementById("active-file-editor");
+  if (titleEl) titleEl.innerText = filePath.split("/").pop();
+
+  // Highlight active chip
+  document.querySelectorAll(".file-chip").forEach((chip) => {
+    chip.classList.toggle("active", chip.getAttribute("title") === filePath);
+  });
+
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.read_code_file) {
+    try {
+      const res = await window.pywebview.api.read_code_file(filePath);
+      if (res && res.status === "ok") {
+        if (editorEl) editorEl.value = res.content;
+      } else if (res && res.error) {
+        if (editorEl) editorEl.value = `// Ошибка чтения файла: ${res.error}`;
+      }
+    } catch (err) {
+      if (editorEl) editorEl.value = `// Ошибка: ${err}`;
+    }
+  }
+  switchCanvasTab("files");
+}
+
+async function saveActiveFileEdits() {
+  if (!activeOpenedFile) {
+    alert("Выберите файл для сохранения");
+    return;
+  }
+  const editorEl = document.getElementById("active-file-editor");
+  if (!editorEl) return;
+  const content = editorEl.value;
+
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.save_code_file) {
+    try {
+      const res = await window.pywebview.api.save_code_file(activeOpenedFile, content);
+      if (res && res.status === "ok") {
+        showSpeechBubble(`💾 Файл сохранён (${res.bytes} байт)`, 2000);
+      } else {
+        alert("Ошибка при сохранении: " + (res.error || "Неизвестная ошибка"));
+      }
+    } catch (err) {
+      alert("Ошибка при сохранении: " + err);
+    }
+  }
+}
+
+function triggerCoderAction(task) {
+  const input = document.getElementById("coder-task-input");
+  if (input) {
+    input.value = task;
+    handleCoderTaskSend();
+  }
+}
+
+async function handleCoderTaskSend() {
+  const input = document.getElementById("coder-task-input");
+  if (!input) return;
+  const task = input.value.trim();
+  if (!task) return;
+
+  const streamLog = document.getElementById("coder-steps-log");
+  if (!streamLog) return;
+
+  // Append user task step
+  const userCard = document.createElement("div");
+  userCard.className = "coder-step-card thought";
+  userCard.innerHTML = `🎯 <b>Задача:</b> ${escapeHtml(task)}`;
+  streamLog.appendChild(userCard);
+
+  // Append in-progress indicator
+  const progressCard = document.createElement("div");
+  progressCard.className = "coder-step-card action";
+  progressCard.id = "coder-running-card";
+  progressCard.innerHTML = `⚙️ <i>GhostCode выполняет автономное исследование и генерацию...</i>`;
+  streamLog.appendChild(progressCard);
+  streamLog.scrollTop = streamLog.scrollHeight;
+
+  input.value = "";
+  setGhostMood("coding");
+
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.run_code_task) {
+    try {
+      const res = await window.pywebview.api.run_code_task(task);
+      const runningEl = document.getElementById("coder-running-card");
+      if (runningEl) runningEl.remove();
+
+      const resultCard = document.createElement("div");
+      if (res.status === "ok") {
+        resultCard.className = "coder-step-card success";
+        let detailHtml = `✔ <b>Выполнено:</b> ${escapeHtml(res.summary || "Задача завершена.")}`;
+        if (res.files_touched && res.files_touched.length > 0) {
+          detailHtml += `<br><small style="color: #6ee7b7;">Файлы: ${res.files_touched.map(f => `<code>${f}</code>`).join(", ")}</small>`;
+        }
+        if (res.command_output) {
+          detailHtml += `<pre style="margin-top:6px;font-size:11px;background:rgba(0,0,0,0.4);padding:6px;border-radius:4px;overflow-x:auto;"><code>${escapeHtml(res.command_output.slice(0, 300))}</code></pre>`;
+        }
+        resultCard.innerHTML = detailHtml;
+
+        // If diff exists, update diff viewer
+        if (res.diff) {
+          const diffViewer = document.getElementById("active-diff-viewer");
+          if (diffViewer) diffViewer.innerText = res.diff;
+          switchCanvasTab("diff");
+        }
+      } else {
+        resultCard.className = "coder-step-card error";
+        resultCard.innerHTML = `❌ <b>Ошибка:</b> ${escapeHtml(res.error || "Не удалось выполнить задачу")}`;
+      }
+      streamLog.appendChild(resultCard);
+      streamLog.scrollTop = streamLog.scrollHeight;
+
+      // Refresh workspace explorer
+      refreshWorkspaceExplorer();
+      refreshRpg();
+    } catch (err) {
+      const runningEl = document.getElementById("coder-running-card");
+      if (runningEl) runningEl.remove();
+
+      const errCard = document.createElement("div");
+      errCard.className = "coder-step-card error";
+      errCard.innerHTML = `❌ <b>Исключение:</b> ${escapeHtml(String(err))}`;
+      streamLog.appendChild(errCard);
+    }
+  }
+  setGhostMood("idle");
+}
+
+async function executeTerminalCommand(cmd) {
+  const stdoutEl = document.getElementById("terminal-stdout");
+  if (!stdoutEl) return;
+  stdoutEl.innerHTML += `\n<span style="color:#60a5fa;">zsh $ ${escapeHtml(cmd)}</span>\n`;
+  stdoutEl.scrollTop = stdoutEl.scrollHeight;
+
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.run_studio_terminal) {
+    try {
+      const res = await window.pywebview.api.run_studio_terminal(cmd);
+      if (res && res.output) {
+        stdoutEl.innerHTML += `${escapeHtml(res.output)}\n`;
+      } else if (res && res.error) {
+        stdoutEl.innerHTML += `<span style="color:#ef4444;">${escapeHtml(res.error)}</span>\n`;
+      }
+    } catch (err) {
+      stdoutEl.innerHTML += `<span style="color:#ef4444;">${escapeHtml(String(err))}</span>\n`;
+    }
+    stdoutEl.scrollTop = stdoutEl.scrollHeight;
+  }
+}
+
+function setupStudioListeners() {
+  const terminalInput = document.getElementById("terminal-cmd-input");
+  if (terminalInput) {
+    terminalInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        const cmd = terminalInput.value.trim();
+        if (cmd) {
+          terminalInput.value = "";
+          executeTerminalCommand(cmd);
+        }
+      }
+    });
+  }
+
+  const coderInput = document.getElementById("coder-task-input");
+  if (coderInput) {
+    coderInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleCoderTaskSend();
+      }
+    });
+  }
+}
+
