@@ -33,19 +33,45 @@ class GhostCodeAgent:
     and testing code in any workspace directory.
     """
 
+    @staticmethod
+    def _resolve_safe_workspace(candidate: Optional[str] = None) -> str:
+        """Ensures the workspace directory is always writable and never system root '/'."""
+        if candidate:
+            try:
+                resolved = os.path.abspath(os.path.expanduser(candidate))
+                if resolved != "/" and os.path.exists(resolved) and os.access(resolved, os.W_OK):
+                    return resolved
+                elif resolved != "/":
+                    os.makedirs(resolved, exist_ok=True)
+                    if os.access(resolved, os.W_OK):
+                        return resolved
+            except Exception:
+                pass
+
+        try:
+            cwd = os.getcwd()
+            if cwd and cwd != "/" and os.access(cwd, os.W_OK):
+                return os.path.abspath(cwd)
+        except Exception:
+            pass
+
+        default_dir = os.path.expanduser("~/GhostProjects")
+        try:
+            os.makedirs(default_dir, exist_ok=True)
+            return default_dir
+        except Exception:
+            return os.path.expanduser("~")
+
     def __init__(self, workspace_dir: Optional[str] = None, model: str = "auto", api_key: Optional[str] = None):
-        self.workspace_dir = os.path.abspath(workspace_dir or os.getcwd())
+        self.workspace_dir = self._resolve_safe_workspace(workspace_dir)
         self.model = model
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
         self.history: List[Dict[str, Any]] = []
         self.active_plan: List[Dict[str, Any]] = []
 
     def set_workspace(self, path: str) -> Dict[str, Any]:
-        """Sets the active workspace root directory."""
-        abs_path = os.path.abspath(path)
-        if not os.path.exists(abs_path):
-            os.makedirs(abs_path, exist_ok=True)
-        self.workspace_dir = abs_path
+        """Sets the active workspace root directory safely."""
+        self.workspace_dir = self._resolve_safe_workspace(path)
         return {"success": True, "workspace": self.workspace_dir}
 
     # ==================== TOOL 1: FILE SYSTEM TOOLS ====================
@@ -281,7 +307,8 @@ class GhostCodeAgent:
         Instantly scaffolds complete production-ready application templates.
         Templates: fastapi, telegram_bot, react_landing, python_cli, flask_api, html_landing.
         """
-        dest = os.path.join(target_dir or self.workspace_dir, project_name)
+        base_dir = self._resolve_safe_workspace(target_dir or self.workspace_dir)
+        dest = os.path.join(base_dir, project_name)
         os.makedirs(dest, exist_ok=True)
 
         created_files = []
@@ -499,7 +526,22 @@ if __name__ == "__main__":
 
     def run_task(self, prompt: str, event_callback: Optional[Callable[[Dict[str, Any]], None]] = None) -> Dict[str, Any]:
         """
-        Executes an autonomous coding task:
+        Executes an autonomous coding task with full error handling.
+        """
+        try:
+            return self._run_task_core(prompt, event_callback)
+        except Exception as e:
+            return {
+                "success": False,
+                "task": prompt,
+                "error": f"Ошибка агента: {str(e)}",
+                "summary": f"Не удалось выполнить задачу: {str(e)}",
+                "steps": []
+            }
+
+    def _run_task_core(self, prompt: str, event_callback: Optional[Callable[[Dict[str, Any]], None]] = None) -> Dict[str, Any]:
+        """
+        Core autonomous coding logic:
         1. Formulates step-by-step plan.
         2. Inspects workspace and target files.
         3. Executes changes, runs tests, fixes issues.
