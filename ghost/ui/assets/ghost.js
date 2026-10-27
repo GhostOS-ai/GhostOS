@@ -63,10 +63,43 @@ function clearChatHistory() {
   const container = document.getElementById("chat-messages");
   if (!container) return;
   container.innerHTML = `
-    <div class="welcome-card">
-      <h2 data-i18n="welcome_title">Бу! Каспер в сети.</h2>
-      <p data-i18n="welcome_desc">Работает 100% локально и приватно на твоём Маке с нулевыми утечками в облако.</p>
-      <div class="welcome-tip" data-i18n="welcome_tip">Кликай на Каспера, дважды кликни для открытия пульта или бросай в него файлы!</div>
+    <div class="chat-welcome-container">
+      <div class="welcome-avatar">👻</div>
+      <h1 class="welcome-title">Чем я могу помочь сегодня?</h1>
+      <p class="welcome-subtitle">
+        Ваш персональный локальный ИИ. Пишите код, анализируйте файлы и управляйте macOS в полной приватности.
+      </p>
+
+      <div class="welcome-prompt-grid">
+        <div class="prompt-card" onclick="triggerQuickAction('Напиши скрипт на Python для автоматизации поиска дубликатов файлов')">
+          <span class="prompt-icon">💡</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Написать скрипт на Python</span>
+            <span class="prompt-desc">Автоматизация задач и утилиты</span>
+          </div>
+        </div>
+        <div class="prompt-card highlight" onclick="switchStudioMode('code')">
+          <span class="prompt-icon">⚡</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Открыть GhostCode IDE</span>
+            <span class="prompt-desc">Автономная разработка проектов</span>
+          </div>
+        </div>
+        <div class="prompt-card" onclick="triggerQuickAction('Объясни, как работает Zero-DB RAG и локальная векторная память')">
+          <span class="prompt-icon">📚</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Изучить и объяснить тему</span>
+            <span class="prompt-desc">Архитектура, алгоритмы и документация</span>
+          </div>
+        </div>
+        <div class="prompt-card" onclick="triggerQuickAction('Погода в Алматы и курс доллара')">
+          <span class="prompt-icon">🌤️</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Погода и курсы валют</span>
+            <span class="prompt-desc">Быстрый поиск информации</span>
+          </div>
+        </div>
+      </div>
     </div>
   `;
   if (window.i18n) {
@@ -110,7 +143,7 @@ function onPetClick(event) {
     clearTimeout(petClickDebounceTimer);
     petClickDebounceTimer = null;
     hideSpeechBubble();
-    toggleHudMode("hud");
+    toggleHudMode("studio");
     return;
   }
 
@@ -517,15 +550,21 @@ function handleManualFileInput(event) {
 // ==================== HUD INTERACTION & CHAT ====================
 function setupKeyboardShortcuts() {
   const input = document.getElementById("hud-input");
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-    if (e.key === "Escape") {
-      toggleHudMode("pet");
-    }
-  });
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+      if (e.key === "Escape") {
+        toggleHudMode("pet");
+      }
+    });
+    input.addEventListener("input", () => {
+      input.style.height = "auto";
+      input.style.height = Math.min(input.scrollHeight, 160) + "px";
+    });
+  }
 
   const pilotInput = document.getElementById("pilot-input");
   if (pilotInput) {
@@ -546,38 +585,48 @@ async function handleSend() {
   // Slash commands routing
   if (query.startsWith("/clip")) {
     input.value = "";
-    switchTab("clipboard");
+    input.style.height = "auto";
+    switchStudioMode("os-tools");
+    switchSubTool("clipboard");
     refreshClipboard();
     return;
   }
   if (query.startsWith("/time")) {
     input.value = "";
-    switchTab("timemachine");
+    input.style.height = "auto";
+    switchStudioMode("os-tools");
+    switchSubTool("timemachine");
     refreshTimeMachine();
     return;
   }
   if (query.startsWith("/screen")) {
     input.value = "";
-    switchTab("screen");
+    input.style.height = "auto";
+    switchStudioMode("os-tools");
+    switchSubTool("screen");
     runScreenPeek();
     return;
   }
   if (query.startsWith("/rag")) {
     input.value = "";
-    switchTab("rag");
+    input.style.height = "auto";
+    switchStudioMode("rag");
     refreshKnowledgeDocs();
     return;
   }
   if (query.startsWith("/status") || query.startsWith("/vram")) {
     input.value = "";
-    switchTab("vram");
+    input.style.height = "auto";
+    switchStudioMode("vram");
     refreshVramStats();
     return;
   }
   if (query.startsWith("/exec")) {
     const task = query.replace(/^\/exec\s*/, "");
     input.value = "";
-    switchTab("autopilot");
+    input.style.height = "auto";
+    switchStudioMode("os-tools");
+    switchSubTool("autopilot");
     if (task) {
       document.getElementById("pilot-input").value = task;
       generateCommand();
@@ -588,6 +637,7 @@ async function handleSend() {
   // Regular Chat message
   appendMessage("user", query);
   input.value = "";
+  input.style.height = "auto";
   isThinking = true;
   setGhostMood("thinking");
 
@@ -619,6 +669,12 @@ async function handleSend() {
 
 function appendMessage(sender, text, citations = []) {
   const container = document.getElementById("chat-messages");
+  if (!container) return;
+
+  // Remove welcome hero if this is the first message
+  const welcome = container.querySelector(".chat-welcome-container, .welcome-hero-box, .welcome-card");
+  if (welcome) welcome.remove();
+
   const msgDiv = document.createElement("div");
   msgDiv.className = `msg ${sender}`;
 
@@ -626,7 +682,7 @@ function appendMessage(sender, text, citations = []) {
   let formattedText = formatMarkdown(text);
 
   if (citations && citations.length > 0) {
-    formattedText += `<div style="margin-top: 6px; font-size: 11px; color: var(--mac-accent);">📚 Cited: ${citations.join(", ")}</div>`;
+    formattedText += `<div style="margin-top: 6px; font-size: 11px; color: var(--mac-accent);">📚 Источники: ${citations.join(", ")}</div>`;
   }
 
   msgDiv.innerHTML = `
@@ -635,7 +691,8 @@ function appendMessage(sender, text, citations = []) {
   `;
 
   container.appendChild(msgDiv);
-  container.scrollTop = container.scrollHeight;
+  const viewport = container.closest(".chat-viewport") || container;
+  viewport.scrollTop = viewport.scrollHeight;
 }
 
 function appendTypingIndicator() {
@@ -647,7 +704,14 @@ function appendTypingIndicator() {
   div.innerHTML = `
     <div class="msg-avatar">👻</div>
     <div class="msg-bubble" style="font-style: italic; color: var(--mac-accent);">
-      ${window.i18n ? i18n.t("thinking") : "Thinking with local neural weights..."}
+      ${window.i18n ? i18n.t("thinking") : "Думаю над ответом..."}
+    </div>
+  `;
+  container.appendChild(div);
+  const viewport = container.closest(".chat-viewport") || container;
+  viewport.scrollTop = viewport.scrollHeight;
+  return id;
+}
     </div>
   `;
   container.appendChild(div);
@@ -1173,6 +1237,20 @@ function startNewProject() {
   if (input) {
     input.placeholder = "Например: Создай FastAPI проект с тестами...";
     input.focus();
+  }
+}
+
+async function changeWorkspaceDir() {
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.choose_workspace_folder) {
+    try {
+      const res = await window.pywebview.api.choose_workspace_folder();
+      if (res && res.status === "ok" && res.workspace) {
+        refreshWorkspaceExplorer();
+        showSpeechBubble(`📂 Папка: ${res.workspace.split("/").pop()}`, 2500);
+      }
+    } catch (err) {
+      console.error("changeWorkspaceDir error:", err);
+    }
   }
 }
 

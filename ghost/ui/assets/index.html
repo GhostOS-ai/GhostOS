@@ -2,24 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GhostOS — Desktop Copilot</title>
+  <title>GhostOS Studio — AI & Code Copilot</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="skin-glass">
 
-  <!-- ==================== MODE 1: FLOATING GHOST PET ==================== -->
+  <!-- ==================== MODE 1: FLOATING GHOST PET (MINIMIZED VIEW) ==================== -->
   <div id="pet-view" class="active pywebview-drag-region">
     <div class="drag-zone pywebview-drag-region" title="Drag Casper anywhere on screen"></div>
     
-    <!-- Speech Bubble (Auto-hides when idle, shows only on interaction) -->
+    <!-- Speech Bubble (Auto-hides when idle, shows on interaction) -->
     <div id="speech-bubble" class="speech-bubble">
       <span id="speech-text"></span>
     </div>
 
     <!-- Casper SVG Character (Ethereal Moonlight Style) -->
-    <div id="ghost-wrapper" class="ghost-wrapper" onclick="onPetClick(event)" title="Click to interact | Double-click to open Copilot HUD">
+    <div id="ghost-wrapper" class="ghost-wrapper" onclick="onPetClick(event)" title="Click to interact | Double-click to expand Studio">
       <svg id="ghost-svg" class="ghost-svg" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
-        <!-- Glow filters and porcelain gradients -->
         <defs>
           <filter id="ghost-glow" x="-25%" y="-25%" width="150%" height="150%">
             <feGaussianBlur stdDeviation="4.5" result="blur" />
@@ -39,12 +38,6 @@
             <stop offset="65%" stop-color="#0071e3" stop-opacity="0.14" />
             <stop offset="100%" stop-color="#0a192f" stop-opacity="0" />
           </radialGradient>
-
-          <!-- Accent Highlight Gradient -->
-          <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#2997ff" />
-            <stop offset="100%" stop-color="#0071e3" />
-          </linearGradient>
         </defs>
 
         <!-- Outer Aura -->
@@ -62,182 +55,161 @@
           C 35 145, 40 120, 40 80 Z
         " fill="url(#ghost-grad)" filter="url(#ghost-glow)" />
 
-        <!-- Ghost Left Eye -->
+        <!-- Eyes -->
         <ellipse id="eye-left" class="eye" cx="65" cy="65" rx="6" ry="8" fill="#0d1117" />
         <circle id="eye-pupil-left" cx="67" cy="63" r="2.5" fill="#ffffff" />
-
-        <!-- Ghost Right Eye -->
         <ellipse id="eye-right" class="eye" cx="95" cy="65" rx="6" ry="8" fill="#0d1117" />
         <circle id="eye-pupil-right" cx="97" cy="63" r="2.5" fill="#ffffff" />
 
-        <!-- Cheeks Blush (Delicate Soft Coral Rose) -->
+        <!-- Cheeks Blush -->
         <ellipse id="blush-left" cx="56" cy="76" rx="4" ry="2.5" fill="#ff6b8b" opacity="0.38" />
         <ellipse id="blush-right" cx="104" cy="76" rx="4" ry="2.5" fill="#ff6b8b" opacity="0.38" />
 
-        <!-- Ghost Mouth -->
+        <!-- Mouth -->
         <path id="mouth" class="mouth" d="M 73 80 Q 80 88 87 80" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" fill="none" />
-
-        <!-- ================= UNLOCKABLE ACCESSORIES (RPG EVOLUTION) ================= -->
-        <!-- 1. Headphones (Active during audio recording) -->
-        <g id="accessory-headphones" class="accessory" style="display: none;">
-          <path d="M 50 65 A 35 35 0 0 1 110 65" fill="none" stroke="#2997ff" stroke-width="4" stroke-linecap="round" />
-          <rect x="44" y="60" width="8" height="18" rx="4" fill="#0071e3" />
-          <rect x="108" y="60" width="8" height="18" rx="4" fill="#0071e3" />
-        </g>
-
-        <!-- 2. Cyber Visor (Level 3: Code Specter) -->
-        <g id="accessory-visor" class="accessory" style="display: none;">
-          <path d="M 52 61 L 108 61 L 104 72 L 56 72 Z" fill="rgba(41, 151, 255, 0.85)" stroke="#ffffff" stroke-width="1.5" filter="url(#ghost-glow)" />
-          <line x1="42" y1="64" x2="52" y2="64" stroke="#2997ff" stroke-width="2" />
-          <line x1="108" y1="64" x2="118" y2="64" stroke="#2997ff" stroke-width="2" />
-        </g>
-
-        <!-- 3. Magic Spellbook (Level 5: Grand Scribe) -->
-        <g id="accessory-book" class="accessory" style="display: none;">
-          <rect x="30" y="105" width="28" height="20" rx="3" fill="#303136" stroke="#2997ff" stroke-width="1.5" />
-          <line x1="44" y1="105" x2="44" y2="125" stroke="#ffffff" stroke-width="1" />
-          <circle cx="38" cy="115" r="2" fill="#ffd700" />
-        </g>
-
-        <!-- 4. Golden Crown (Level 6: Void Sentinel) -->
-        <g id="accessory-crown" class="accessory" style="display: none;">
-          <polygon points="62,28 70,12 80,24 90,12 98,28" fill="#ffd700" stroke="#ffb340" stroke-width="1.5" filter="url(#ghost-glow)" />
-          <circle cx="70" cy="12" r="2" fill="#2997ff" />
-          <circle cx="80" cy="24" r="2" fill="#30d158" />
-          <circle cx="90" cy="12" r="2" fill="#2997ff" />
-        </g>
       </svg>
-    </div>
-
-    <!-- Drop target overlay -->
-    <div id="drop-indicator" class="drop-indicator">
-      <span data-i18n="feed_prompt">🍕 Feed Me Files! (RAG)</span>
     </div>
 
     <!-- Mini Bottom Controls -->
     <div class="pet-bar pywebview-drag-region">
-      <span class="status-dot online" title="Casper Online & 100% Private"></span>
-      <span id="pet-rpg-badge" class="rpg-pill" data-i18n="rpg_default">Lv.1 Wisp</span>
-      <button class="pet-btn" onclick="quickOpenFolder(event)" title="Open folder in Finder">📂</button>
-      <button class="pet-btn" id="pet-fly-btn" onclick="quickToggleFly(event)" title="Flight Mode">✈️</button>
-      <button class="pet-btn" id="pet-voice-btn" onclick="quickToggleVoice(event)" title="Voice Output">🗣️</button>
-      <button class="expand-btn" onclick="toggleHudMode('hud')" title="Open HUD">💬</button>
+      <span class="status-dot online" title="Ghost Online & 100% Private"></span>
+      <span class="rpg-pill">Ghost AI</span>
+      <button class="pet-btn" onclick="quickOpenFolder(event)" title="Открыть папку в Finder">📂</button>
+      <button class="pet-btn" id="pet-fly-btn" onclick="quickToggleFly(event)" title="Полёт по экрану">✈️</button>
+      <button class="pet-btn" id="pet-voice-btn" onclick="quickToggleVoice(event)" title="Озвучка">🗣️</button>
+      <button class="expand-btn" onclick="toggleHudMode('studio')" title="Открыть GhostOS Studio">💬</button>
     </div>
   </div>
 
 
-  <!-- ==================== MODE 2: GHOST STUDIO (CHATGPT & GHOSTCODE STYLE) ==================== -->
+  <!-- ==================== MODE 2: GHOSTOS STUDIO (CHATGPT & GHOSTCODE STYLE) ==================== -->
   <div id="hud-view" class="hidden">
-    <!-- Drop Overlay in HUD / Studio Mode -->
+    <!-- Drop Overlay in Studio Mode -->
     <div id="hud-drop-overlay" class="hud-drop-overlay hidden">
       <div class="hud-drop-box">
         <span class="hud-drop-icon">🍕</span>
-        <h3>Отпустите файл для мгновенного RAG-обучения!</h3>
-        <p>Каспер выучит код, PDF или лог и сразу сможет отвечать на вопросы (+25 XP)</p>
+        <h3>Отпустите файл для локального RAG-обучения!</h3>
+        <p>Ghost выучит код, PDF или документ и сразу сможет отвечать на вопросы</p>
       </div>
     </div>
 
-    <!-- Main Studio Flex Layout: Left Sidebar + Main Workspace -->
+    <!-- Hidden file input for attachment button -->
+    <input type="file" id="rag-file-input" style="display:none;" onchange="handleManualFileInput(event)" />
+
+    <!-- Main Studio Flex Layout: Left Sidebar + Main Area -->
     <div class="studio-layout">
-      <!-- LEFT SIDEBAR (ChatGPT Style) -->
+
+      <!-- LEFT SIDEBAR (ChatGPT & Cursor Style) -->
       <aside id="studio-sidebar" class="studio-sidebar no-drag">
-        <!-- Sidebar Brand & Actions -->
-        <div class="sidebar-top">
-          <div class="sidebar-brand">
-            <span class="brand-casper">👻</span>
-            <div class="brand-text">
-              <span class="brand-name">GhostOS</span>
-              <span class="brand-ver">v2.0</span>
+        <!-- Sidebar Header with Brand & Actions -->
+        <div class="sidebar-header">
+          <div class="sidebar-brand-row">
+            <span class="sidebar-brand-avatar">👻</span>
+            <div class="sidebar-brand-info">
+              <span class="sidebar-brand-name">GhostOS Studio</span>
+              <span class="sidebar-brand-ver">v2.0 • Offline AI</span>
+            </div>
+            <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Свернуть меню">◀</button>
+          </div>
+          <button class="sidebar-action-btn primary" id="btn-new-chat" onclick="startNewChat()">
+            <span class="sidebar-action-icon">💬</span> Новый диалог
+          </button>
+          <button class="sidebar-action-btn secondary" id="btn-new-project" onclick="startNewProject()">
+            <span class="sidebar-action-icon">⚡</span> Новый проект
+          </button>
+        </div>
+
+        <!-- Sidebar Content (Modes & History) -->
+        <div class="sidebar-content">
+          <!-- Modes Section -->
+          <div class="sidebar-section">
+            <div class="sidebar-section-title">РЕЖИМЫ</div>
+            <div class="sidebar-mode-item active" id="nav-mode-chat" onclick="switchStudioMode('chat')">
+              <span class="mode-icon">💬</span>
+              <span class="mode-label">Ghost Chat</span>
+              <span class="mode-badge-new">ИИ</span>
+            </div>
+            <div class="sidebar-mode-item" id="nav-mode-code" onclick="switchStudioMode('code')">
+              <span class="mode-icon">⚡</span>
+              <span class="mode-label">GhostCode IDE</span>
+              <span class="mode-badge-code">IDE</span>
+            </div>
+            <div class="sidebar-mode-item" id="nav-mode-rag" onclick="switchStudioMode('rag')">
+              <span class="mode-icon">📚</span>
+              <span class="mode-label">База знаний</span>
+            </div>
+            <div class="sidebar-mode-item" id="nav-mode-os-tools" onclick="switchStudioMode('os-tools')">
+              <span class="mode-icon">🛠️</span>
+              <span class="mode-label">Инструменты OS</span>
+            </div>
+            <div class="sidebar-mode-item" id="nav-mode-vram" onclick="switchStudioMode('vram')">
+              <span class="mode-icon">🧠</span>
+              <span class="mode-label">Память и VRAM</span>
             </div>
           </div>
-          <button class="sidebar-action-btn primary" onclick="startNewChat()">
-            <span>💬</span> Новый диалог
-          </button>
-          <button class="sidebar-action-btn secondary" onclick="switchStudioMode('code')">
-            <span>⚡</span> Новый проект
-          </button>
-        </div>
 
-        <!-- Sidebar Navigation Sections (Modes) -->
-        <div class="sidebar-nav">
-          <div class="sidebar-section-title">РЕЖИМЫ</div>
-          <button class="nav-item active" id="nav-mode-chat" onclick="switchStudioMode('chat')">
-            <span class="nav-icon">💬</span>
-            <span class="nav-label">Ghost Chat</span>
-            <span class="nav-badge">ИИ</span>
-          </button>
-          <button class="nav-item" id="nav-mode-code" onclick="switchStudioMode('code')">
-            <span class="nav-icon">⚡</span>
-            <span class="nav-label">GhostCode</span>
-            <span class="nav-badge code">IDE</span>
-          </button>
-          <button class="nav-item" id="nav-mode-rag" onclick="switchStudioMode('rag')">
-            <span class="nav-icon">📚</span>
-            <span class="nav-label">Знания (RAG)</span>
-          </button>
-          <button class="nav-item" id="nav-mode-os-tools" onclick="switchStudioMode('os-tools')">
-            <span class="nav-icon">🛠️</span>
-            <span class="nav-label">Инструменты OS</span>
-          </button>
-          <button class="nav-item" id="nav-mode-vram" onclick="switchStudioMode('vram')">
-            <span class="nav-icon">🧠</span>
-            <span class="nav-label">VRAM & Память</span>
-          </button>
-        </div>
-
-        <!-- Sidebar History (Recent Sessions) -->
-        <div class="sidebar-history">
-          <div class="sidebar-section-title">ИСТОРИЯ СЕССИЙ</div>
-          <div id="session-history-list" class="session-history-list">
-            <div class="history-item active" onclick="switchStudioMode('chat')">
-              <span class="item-icon">💬</span>
-              <span class="item-title">Текущий диалог</span>
-            </div>
-            <div class="history-item" onclick="triggerCoderAction('Создай FastAPI приложение')">
-              <span class="item-icon">⚡</span>
-              <span class="item-title">FastAPI Проект</span>
-            </div>
-            <div class="history-item" onclick="triggerCoderAction('Создай Telegram бота')">
-              <span class="item-icon">🤖</span>
-              <span class="item-title">Telegram Бот</span>
+          <!-- History & Projects Section -->
+          <div class="sidebar-section">
+            <div class="sidebar-section-title">ДИАЛОГИ И ПРОЕКТЫ</div>
+            <div class="sidebar-history-list" id="sidebar-history-list">
+              <div class="sidebar-history-item active" onclick="switchStudioMode('chat')">
+                <span class="item-icon">💬</span>
+                <span class="item-title">Текущий диалог</span>
+              </div>
+              <div class="sidebar-history-item" onclick="triggerCoderAction('Создай FastAPI приложение')">
+                <span class="item-icon">⚡</span>
+                <span class="item-title">FastAPI Проект</span>
+              </div>
+              <div class="sidebar-history-item" onclick="triggerCoderAction('Создай Telegram бота')">
+                <span class="item-icon">🤖</span>
+                <span class="item-title">Telegram Бот</span>
+              </div>
+              <div class="sidebar-history-item" onclick="triggerCoderAction('Создай современный лендинг')">
+                <span class="item-icon">🎨</span>
+                <span class="item-title">Веб-приложение</span>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
-          <div class="workspace-pill" onclick="changeWorkspaceDir()" title="Сменить рабочую папку проекта">
+          <div class="sidebar-pill-badge workspace-btn" onclick="changeWorkspaceDir()" title="Нажмите, чтобы сменить рабочую папку проекта">
             <span class="ws-icon">📂</span>
             <span id="sidebar-ws-name" class="ws-name">Мой проект</span>
           </div>
-          <div class="model-status-pill">
-            <span class="status-dot"></span>
-            <span id="sidebar-model-label">Ollama (100% Offline)</span>
+          <div class="sidebar-pill-badge model-btn">
+            <span class="accent-dot"></span>
+            <span id="sidebar-model-label">Ghost Local AI • 100% Offline</span>
           </div>
         </div>
       </aside>
 
       <!-- RIGHT MAIN AREA -->
-      <main class="studio-main">
+      <main class="studio-main-area">
         <!-- Top Bar with draggable header -->
-        <div class="hud-header pywebview-drag-region">
-          <div class="hud-brand">
-            <button class="icon-btn no-drag sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">☰</button>
-            <span class="hud-icon">👻</span>
-            <span id="current-mode-crumb" class="brand-title">Ghost Chat</span>
-            <span id="hud-rpg-tag" class="brand-tag">Lv.1 Wisp</span>
-            <span id="chameleon-pill" class="chameleon-pill" onclick="cycleChameleonMode()" title="Toggle Power Profile">🍃 ECO</span>
+        <header class="studio-topbar pywebview-drag-region">
+          <div class="topbar-left no-drag">
+            <button class="topbar-icon-btn sidebar-toggle-btn" onclick="toggleSidebar()" title="Боковая панель">☰</button>
+            <div class="topbar-model-selector" title="Локальный движок ИИ">
+              <span class="model-status-dot"></span>
+              <span class="model-name">Ghost 2.0 (Local Engine)</span>
+              <span class="model-chevron">▾</span>
+            </div>
+            <span class="topbar-divider"></span>
+            <span id="topbar-mode-title" class="topbar-mode-badge">💬 Ghost Chat</span>
           </div>
-          <div class="hud-actions no-drag">
-            <!-- Live Wardrobe Skin Selector -->
-            <select id="skin-select" class="header-select" onchange="switchSkin(this.value)" title="Theme / Skin">
+
+          <div class="topbar-right no-drag">
+            <!-- Theme / Skin Selector -->
+            <select id="skin-select" class="header-select" onchange="switchSkin(this.value)" title="Оформление">
               <option value="glass">💎 Glass</option>
               <option value="cyberpunk">⚡ Cyberpunk</option>
               <option value="gold">👑 Gold</option>
               <option value="matrix">🟢 Matrix</option>
             </select>
             <!-- Language Selector -->
-            <select id="lang-select" class="header-select" onchange="i18n.setLanguage(this.value)" title="Language">
+            <select id="lang-select" class="header-select" onchange="i18n.setLanguage(this.value)" title="Язык интерфейса">
               <option value="ru">🇷🇺 RU</option>
               <option value="en">🇺🇸 EN</option>
               <option value="kk">🇰🇿 KK</option>
@@ -247,102 +219,106 @@
               <option value="fr">🇫🇷 FR</option>
               <option value="ja">🇯🇵 JA</option>
               <option value="pt">🇧🇷 PT</option>
-              <option value="ar">🇸🇦 AR</option>
-              <option value="hi">🇮🇳 HI</option>
             </select>
-            <button class="icon-btn" onclick="clearChatHistory()" data-i18n="clear_chat" title="Clear Chat History">🧹 Очистить</button>
-            <button class="icon-btn highlight-btn" onclick="toggleHudMode('pet')" data-i18n="return_pet" title="Return to Pet">◀ В питомца</button>
-            <button class="icon-btn" onclick="minimizeWindow()" data-i18n="minimize" title="Minimize">─</button>
+            <button class="topbar-action-btn" onclick="clearChatHistory()" title="Очистить диалог">🧹 Очистить</button>
+            <button class="topbar-action-btn pet-mode-btn" onclick="toggleHudMode('pet')" title="Свернуть в мини-питомца на рабочем столе">◀ В питомца</button>
+            <button class="topbar-window-btn" onclick="minimizeWindow()" title="Свернуть окно">─</button>
           </div>
-        </div>
+        </header>
 
         <!-- Studio Panes Wrapper -->
         <div class="studio-panes-wrapper">
-          <!-- PANE 1: GHOST CHAT (ПРОСТО ИИ) -->
-          <div id="tab-chat" class="studio-pane active">
-            <!-- Quick Suggestions Bar -->
-            <div class="quick-chips-bar no-drag">
-              <button class="chip-btn" onclick="triggerQuickAction('Привет! Что ты умеешь?')">👋 Что ты умеешь?</button>
-              <button class="chip-btn" onclick="triggerQuickAction('погода в Алматы')">🌤️ Погода в Алматы</button>
-              <button class="chip-btn" onclick="triggerQuickAction('открой загрузки')">📂 Открыть загрузки</button>
-              <button class="chip-btn" onclick="triggerQuickAction('/screen')">📸 Снимок экрана</button>
-              <button class="chip-btn" onclick="triggerQuickAction('/clip')">📋 Проверить буфер</button>
-              <button class="chip-btn highlight" onclick="switchStudioMode('code')">⚡ GhostCode IDE</button>
-            </div>
 
-            <!-- Messages Stream -->
-            <div id="chat-messages" class="chat-messages">
-              <div class="welcome-hero-box">
-                <div class="welcome-badge">👻 GhostOS v2.0 • 100% Offline AI Studio</div>
-                <h2 class="welcome-heading">Привет! Я твой персональный ИИ-ассистент</h2>
-                <p class="welcome-subtitle">Общайся со свободным локальным ИИ, задавай вопросы, перетаскивай файлы или переключайся в GhostCode в меню слева для автономного кодинга.</p>
-                <div class="quick-action-grid">
-                  <div class="quick-card" onclick="triggerQuickAction('Привет! Расскажи о себе и что ты умеешь')">
-                    <span class="card-icon">👋</span>
-                    <div class="card-text">
-                      <span class="card-title">Кто ты и что умеешь?</span>
-                      <span class="card-desc">Познакомиться с возможностями</span>
+          <!-- ==================== PANE 1: GHOST CHAT (CLEAN CHATGPT STYLE) ==================== -->
+          <div id="tab-chat" class="studio-pane active">
+            <!-- Messages Viewport -->
+            <div class="chat-viewport">
+              <div id="chat-messages" class="chat-messages">
+                <!-- Welcome Hero (ChatGPT Style) -->
+                <div class="chat-welcome-container">
+                  <div class="welcome-avatar">👻</div>
+                  <h1 class="welcome-title">Чем я могу помочь сегодня?</h1>
+                  <p class="welcome-subtitle">
+                    Ваш персональный локальный ИИ. Пишите код, анализируйте файлы и управляйте macOS в полной приватности.
+                  </p>
+
+                  <div class="welcome-prompt-grid">
+                    <div class="prompt-card" onclick="triggerQuickAction('Напиши скрипт на Python для автоматизации поиска дубликатов файлов')">
+                      <span class="prompt-icon">💡</span>
+                      <div class="prompt-content">
+                        <span class="prompt-title">Написать скрипт на Python</span>
+                        <span class="prompt-desc">Автоматизация задач и утилиты</span>
+                      </div>
                     </div>
-                  </div>
-                  <div class="quick-card" onclick="switchStudioMode('code')">
-                    <span class="card-icon">⚡</span>
-                    <div class="card-text">
-                      <span class="card-title">GhostCode IDE</span>
-                      <span class="card-desc">Автономный кодинг и проекты</span>
+                    <div class="prompt-card highlight" onclick="switchStudioMode('code')">
+                      <span class="prompt-icon">⚡</span>
+                      <div class="prompt-content">
+                        <span class="prompt-title">Открыть GhostCode IDE</span>
+                        <span class="prompt-desc">Автономная разработка проектов</span>
+                      </div>
                     </div>
-                  </div>
-                  <div class="quick-card" onclick="triggerQuickAction('погода в Алматы')">
-                    <span class="card-icon">🌤️</span>
-                    <div class="card-text">
-                      <span class="card-title">Погода в Алматы</span>
-                      <span class="card-desc">Быстрый поиск информации</span>
+                    <div class="prompt-card" onclick="triggerQuickAction('Объясни, как работает Zero-DB RAG и локальная векторная память')">
+                      <span class="prompt-icon">📚</span>
+                      <div class="prompt-content">
+                        <span class="prompt-title">Изучить и объяснить тему</span>
+                        <span class="prompt-desc">Архитектура, алгоритмы и документация</span>
+                      </div>
                     </div>
-                  </div>
-                  <div class="quick-card" onclick="switchStudioMode('rag')">
-                    <span class="card-icon">🍕</span>
-                    <div class="card-text">
-                      <span class="card-title">Скормить документ (RAG)</span>
-                      <span class="card-desc">Перетащи PDF или код (+25 XP)</span>
+                    <div class="prompt-card" onclick="triggerQuickAction('Погода в Алматы и курс доллара')">
+                      <span class="prompt-icon">🌤️</span>
+                      <div class="prompt-content">
+                        <span class="prompt-title">Погода и курсы валют</span>
+                        <span class="prompt-desc">Быстрый поиск информации</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Omnibar Input -->
-            <div class="omnibar-container no-drag">
-              <span class="omnibar-icon">⌕</span>
-              <input 
-                id="hud-input" 
-                class="omnibar-input" 
-                type="text" 
-                data-i18n-ph="placeholder"
-                placeholder="Спроси о чём угодно или попроси написать код..." 
-                autocomplete="off"
-                autofocus
-              />
-              <button id="mic-btn" class="icon-btn" onclick="toggleDictation()" title="Voice Dictation">🎙️</button>
-              <button id="voice-toggle-btn" class="icon-btn" onclick="toggleVoice()" data-i18n="voice_toggle_off" title="Toggle Voice">
-                <span class="voice-wave-dot"></span>
-                <span id="voice-btn-text">🔇 Голос</span>
-              </button>
-              <button id="send-btn" class="send-btn" onclick="handleSend()" data-i18n="send">Отправить ↵</button>
+            <!-- Floating Centered Bottom Input (ChatGPT Style) -->
+            <div class="chat-input-area no-drag">
+              <div class="chat-input-pill">
+                <button class="chat-tool-btn" onclick="document.getElementById('rag-file-input').click()" title="Прикрепить файл для анализа (RAG)">
+                  📎
+                </button>
+                <textarea 
+                  id="hud-input" 
+                  class="chat-textarea" 
+                  rows="1" 
+                  placeholder="Спросите о чём угодно или попросите написать код..." 
+                  autocomplete="off"
+                  autofocus
+                ></textarea>
+                <button id="mic-btn" class="chat-tool-btn" onclick="toggleDictation()" title="Голосовой ввод">
+                  🎙️
+                </button>
+                <button id="voice-toggle-btn" class="chat-tool-btn voice-btn" onclick="toggleVoice()" title="Озвучивать ответы">
+                  <span class="voice-wave-dot"></span>
+                  <span id="voice-btn-text">🔇</span>
+                </button>
+                <button id="send-btn" class="chat-send-btn" onclick="handleSend()" title="Отправить (Enter)">
+                  ↑
+                </button>
+              </div>
+              <div class="chat-disclaimer">
+                GhostOS работает 100% локально на Apple Neural Engine • Без интернета и утечек данных
+              </div>
             </div>
           </div>
 
-          <!-- PANE 2: GHOSTCODE STUDIO (SPLIT AUTONOMOUS IDE) -->
+          <!-- ==================== PANE 2: GHOSTCODE STUDIO (CURSOR SPLIT IDE) ==================== -->
           <div id="tab-code" class="studio-pane">
             <div class="coder-split-container">
-              <!-- Left Subpane: Agent Stream & Task Bar -->
+              <!-- Left Column: Agent Stream & Task Input -->
               <div class="coder-agent-pane">
                 <div class="coder-header-bar">
-                  <div class="coder-ws-badge">
-                    <span>📂</span> <span id="coder-ws-path-display">...</span>
+                  <div class="coder-ws-badge" onclick="changeWorkspaceDir()" title="Сменить рабочую папку">
+                    <span>📂</span> <span id="coder-ws-path-display">Загрузка...</span>
                   </div>
                   <span id="coder-git-branch-badge" class="coder-git-badge">🌿 main</span>
                 </div>
 
-                <!-- Quick Action Chips for Coder -->
                 <div class="coder-chips-bar no-drag">
                   <button class="chip-btn" onclick="triggerCoderAction('Создай FastAPI приложение')">⚡ FastAPI</button>
                   <button class="chip-btn" onclick="triggerCoderAction('Создай Telegram бота')">🤖 Telegram Бот</button>
@@ -351,63 +327,58 @@
                   <button class="chip-btn" onclick="triggerCoderAction('Покажи git status')">🐙 Git</button>
                 </div>
 
-                <!-- Agent Task Stream -->
                 <div id="coder-steps-log" class="coder-stream-log">
                   <div class="coder-step-card thought">
-                    ⚡ <b>GhostCode Агент готов к работе!</b><br>
-                    Опишите задачу: создать проект, изменить код, найти ошибку или запустить тесты.
+                    ⚡ <b>GhostCode Агент готов к автономной разработке!</b><br>
+                    Введите задачу: создать проект, изменить код, исправить ошибки или запустить тесты.
                   </div>
                 </div>
 
-                <!-- Coder Omnibar Input -->
                 <div class="coder-input-container no-drag">
                   <input 
                     id="coder-task-input" 
                     class="coder-task-input" 
                     type="text" 
-                    placeholder="Например: Создай FastAPI проект с тестами..." 
+                    placeholder="Опишите задачу: например, 'Создай FastAPI проект с тестами'..." 
                     autocomplete="off"
                   />
-                  <button class="send-btn" onclick="handleCoderTaskSend()">Запустить ⚡</button>
+                  <button class="coder-send-btn" onclick="handleCoderTaskSend()">Запустить ⚡</button>
                 </div>
               </div>
 
-              <!-- Right Subpane: Code Canvas / Diff / Explorer / Terminal -->
+              <!-- Right Column: Code Canvas / Diff / Explorer / Terminal -->
               <div class="coder-canvas-pane">
-                <!-- Canvas Tabs Header -->
                 <div class="canvas-tabs-header no-drag">
                   <button class="canvas-tab-btn active" id="tab-btn-canvas-files" onclick="switchCanvasTab('files')">📄 Файлы проекта</button>
                   <button class="canvas-tab-btn" id="tab-btn-canvas-diff" onclick="switchCanvasTab('diff')">🔀 Изменения (Diff)</button>
                   <button class="canvas-tab-btn" id="tab-btn-canvas-terminal" onclick="switchCanvasTab('terminal')">📟 Терминал</button>
-                  <button class="icon-btn" style="margin-left: auto;" onclick="refreshWorkspaceExplorer()" title="Обновить">🔄</button>
+                  <button class="canvas-icon-btn" onclick="refreshWorkspaceExplorer()" title="Обновить файлы">🔄</button>
                 </div>
 
-                <!-- Subtab 1: Files Explorer & Code Viewer/Editor -->
+                <!-- Tab 1: Files Explorer & Code Editor -->
                 <div id="canvas-tab-files" class="canvas-tab-content active">
                   <div class="file-explorer-bar" id="project-files-list">
-                    <span style="color: rgba(255,255,255,0.4); font-size: 11px;">Загрузка файлов...</span>
+                    <span style="color: rgba(255,255,255,0.4); font-size: 11px;">Загрузка файлов проекта...</span>
                   </div>
                   <div class="code-editor-header">
                     <span id="active-file-title" class="code-lang">main.py</span>
-                    <button class="code-copy-btn" onclick="saveActiveFileEdits()">💾 Сохранить</button>
+                    <button class="code-copy-btn save-btn" onclick="saveActiveFileEdits()">💾 Сохранить</button>
                   </div>
                   <textarea id="active-file-editor" class="canvas-code-editor" placeholder="// Выберите файл сверху для просмотра и редактирования..."></textarea>
                 </div>
 
-                <!-- Subtab 2: Diff Viewer -->
+                <!-- Tab 2: Diff Viewer -->
                 <div id="canvas-tab-diff" class="canvas-tab-content">
                   <div class="diff-viewer-header">
                     <span class="code-lang">UNIFIED DIFF</span>
-                    <span id="diff-status-label" style="font-size: 11px; color: var(--mac-green);">✔ Изменения проверены</span>
                   </div>
-                  <pre id="active-diff-viewer" class="canvas-diff-pre"><code>// Здесь отображаются диффы изменений до и после работы GhostCode</code></pre>
+                  <pre id="active-diff-viewer" class="canvas-diff-pre">// Здесь отобразится Unified Diff последних изменений...</pre>
                 </div>
 
-                <!-- Subtab 3: Terminal Console -->
+                <!-- Tab 3: Interactive Terminal -->
                 <div id="canvas-tab-terminal" class="canvas-tab-content">
                   <div class="canvas-terminal-box">
-                    <div id="terminal-stdout" class="terminal-stdout">GhostOS Interactive Workspace Terminal [zsh]
-Ready for commands.</div>
+                    <div id="terminal-stdout" class="terminal-stdout">GhostOS Terminal Emulator [v2.0]. Workspace: active dir. Ready for commands.</div>
                     <div class="terminal-input-row">
                       <span class="terminal-prompt-label">zsh $</span>
                       <input id="terminal-cmd-input" class="terminal-cmd-input" type="text" placeholder="Введите команду (например: ls -la, pytest)..." />
@@ -418,165 +389,167 @@ Ready for commands.</div>
             </div>
           </div>
 
-          <!-- Tab 3: RAG Knowledge & Files Tab -->
+          <!-- ==================== PANE 3: ZERO-DB RAG KNOWLEDGE ==================== -->
           <div id="tab-rag" class="studio-pane">
-        <div class="pane-header">
-          <h3 data-i18n="rag_title">📚 Локальная база знаний Zero-DB RAG</h3>
-          <button class="action-btn" onclick="refreshKnowledgeDocs()" data-i18n="rag_btn">Обновить список</button>
-        </div>
-        <div class="rag-drop-card" onclick="document.getElementById('rag-file-input').click()">
-          <input type="file" id="rag-file-input" style="display:none;" onchange="handleManualFileInput(event)" />
-          <span class="rag-drop-icon">🍕</span>
-          <h4>Нажмите или перетащите сюда любой файл</h4>
-          <p>Поддерживаются PDF, Python, JavaScript, JSON, Markdown, TXT и логи. Файл выучится локально без сторонних баз данных!</p>
-        </div>
-        <div id="rag-doc-list" class="doc-list">
-          <div class="doc-item empty" data-i18n="rag_empty">Пока нет загруженных файлов. Перетащите файл сюда или на Каспера!</div>
-        </div>
-      </div>
-
-      <!-- Tab 4: Unified OS Tools Tab -->
-      <div id="tab-os-tools" class="studio-pane tab-pane">
-        <div class="sub-nav-bar">
-          <button class="sub-nav-pill active" onclick="switchSubTool('agent')">🤖 OS Агент</button>
-          <button class="sub-nav-pill" onclick="switchSubTool('screen')">👁️ Экран</button>
-          <button class="sub-nav-pill" onclick="switchSubTool('clipboard')">📋 Буфер</button>
-          <button class="sub-nav-pill" onclick="switchSubTool('autopilot')">⚡ Терминал</button>
-          <button class="sub-nav-pill" onclick="switchSubTool('timemachine')">🕒 Дейли стендап</button>
-        </div>
-
-        <!-- Tool: OS Agent -->
-        <div id="subtool-agent" class="subtool-pane active">
-          <div class="autopilot-box">
-            <div class="input-row">
-              <input id="agent-input" type="text" data-i18n-ph="agent_ph" placeholder="Например: найди все pdf файлы, создай папку Проект..." />
-              <button class="action-btn" onclick="runAgentTask()" data-i18n="agent_btn">Выполнить</button>
+            <div class="pane-header">
+              <h3 data-i18n="rag_title">📚 Локальная база знаний Zero-DB RAG</h3>
+              <button class="action-btn" onclick="refreshKnowledgeDocs()" data-i18n="rag_btn">Обновить список</button>
             </div>
-            <div id="agent-result" class="pilot-card hidden">
-              <div id="agent-output" style="font-size: 13px; line-height: 1.5;"></div>
+            <div class="rag-drop-card" onclick="document.getElementById('rag-file-input').click()">
+              <span class="rag-drop-icon">🍕</span>
+              <h4>Нажмите или перетащите сюда любой файл</h4>
+              <p>Поддерживаются PDF, Python, JavaScript, JSON, Markdown, TXT и логи. Файл изучается локально без облака!</p>
+            </div>
+            <div id="rag-doc-list" class="doc-list">
+              <div class="doc-item empty" data-i18n="rag_empty">Пока нет загруженных файлов. Перетащите файл сюда или прикрепите скрепкой!</div>
             </div>
           </div>
-        </div>
 
-        <!-- Tool: Screen Peek -->
-        <div id="subtool-screen" class="subtool-pane">
-          <div class="pane-header">
-            <h3>👁️ Анализ активного экрана через Vision</h3>
-            <button class="action-btn" onclick="runScreenPeek()" data-i18n="screen_btn">Сделать снимок и анализировать</button>
-          </div>
-          <div id="screen-result" class="result-box">
-            <p class="placeholder-text" data-i18n="screen_ph">Нажмите «Сделать снимок и анализировать», чтобы распознать окно и ошибки на экране.</p>
-          </div>
-        </div>
+          <!-- ==================== PANE 4: OS TOOLS ==================== -->
+          <div id="tab-os-tools" class="studio-pane tab-pane">
+            <div class="sub-nav-bar">
+              <button class="sub-nav-pill active" onclick="switchSubTool('agent')">🤖 OS Агент</button>
+              <button class="sub-nav-pill" onclick="switchSubTool('screen')">👁️ Экран</button>
+              <button class="sub-nav-pill" onclick="switchSubTool('clipboard')">📋 Буфер</button>
+              <button class="sub-nav-pill" onclick="switchSubTool('autopilot')">⚡ Терминал</button>
+              <button class="sub-nav-pill" onclick="switchSubTool('timemachine')">🕒 Дейли стендап</button>
+            </div>
 
-        <!-- Tool: Clipboard Inspector -->
-        <div id="subtool-clipboard" class="subtool-pane">
-          <div class="pane-header">
-            <h3>📋 Инспектор буфера обмена</h3>
-            <button class="action-btn" onclick="refreshClipboard()" data-i18n="clip_btn">Проверить буфер</button>
-          </div>
-          <div class="clipboard-box">
-            <div class="clip-meta">
-              <span id="clip-badge" class="pilot-badge" data-i18n="clip_analyzing">🔍 Анализирую...</span>
-              <span id="clip-title" class="clip-title">Действие в 1 клик</span>
-            </div>
-            <div class="clip-preview-container">
-              <pre><code id="clip-preview-text">// Содержимое буфера появится здесь</code></pre>
-            </div>
-            <div id="clip-actions-container" class="clip-actions"></div>
-            <div id="clip-output-box" class="output-box hidden">
-              <h4>Результат:</h4>
-              <pre><code id="clip-result-text"></code></pre>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tool: Safe Terminal Autopilot -->
-        <div id="subtool-autopilot" class="subtool-pane">
-          <div class="autopilot-box">
-            <div class="input-row">
-              <input id="pilot-input" type="text" data-i18n-ph="auto_ph" placeholder="Например: найди все файлы больше 100МБ" />
-              <button class="action-btn" onclick="generateCommand()" data-i18n="auto_plan_btn">Спланировать команду</button>
-            </div>
-            <div id="pilot-result" class="pilot-card hidden">
-              <div class="pilot-badge" id="pilot-badge">🟢 БЕЗОПАСНО</div>
-              <pre><code id="pilot-cmd">find . -size +100M</code></pre>
-              <p id="pilot-desc" class="pilot-desc"></p>
-              <div id="pilot-lens-info" class="lens-info hidden"></div>
-              <div class="pilot-actions">
-                <button class="run-btn" id="pilot-run-btn" onclick="runGeneratedCommand()" data-i18n="auto_run_btn">Запустить в терминале ⚡</button>
-                <button class="copy-btn" onclick="copyCommand()" data-i18n="auto_copy_btn">Копировать</button>
-              </div>
-              <div id="pilot-output-box" class="output-box hidden">
-                <h4>Вывод команды:</h4>
-                <pre><code id="pilot-stdout"></code></pre>
+            <!-- Tool: OS Agent -->
+            <div id="subtool-agent" class="subtool-pane active">
+              <div class="autopilot-box">
+                <div class="input-row">
+                  <input id="agent-input" type="text" data-i18n-ph="agent_ph" placeholder="Например: найди все pdf файлы, создай папку Проект..." />
+                  <button class="action-btn" onclick="runAgentTask()" data-i18n="agent_btn">Выполнить</button>
+                </div>
+                <div id="agent-result" class="pilot-card hidden">
+                  <div id="agent-output" style="font-size: 13px; line-height: 1.5;"></div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Tool: Time Machine & Standup -->
-        <div id="subtool-timemachine" class="subtool-pane">
-          <div class="pane-header">
-            <h3>🕒 Стендап-отчёт за день и Git Commit</h3>
-            <button class="action-btn" onclick="refreshTimeMachine()" data-i18n="time_btn">Обновить отчёт</button>
-          </div>
-          <div class="timemachine-box">
-            <div id="tm-summary" class="tm-summary-card">
-              Анализирую изменения в коде и активность сессии...
+            <!-- Tool: Screen Peek -->
+            <div id="subtool-screen" class="subtool-pane">
+              <div class="pane-header">
+                <h3>👁️ Анализ активного экрана через Vision</h3>
+                <button class="action-btn" onclick="runScreenPeek()" data-i18n="screen_btn">Сделать снимок и анализировать</button>
+              </div>
+              <div id="screen-result" class="result-box">
+                <p class="placeholder-text" data-i18n="screen_ph">Нажмите «Сделать снимок и анализировать», чтобы распознать окно и ошибки на экране.</p>
+              </div>
             </div>
-            <div class="commit-suggester">
-              <h4>💡 Рекомендуемое сообщение коммита (Conventional Commits):</h4>
-              <div class="commit-row">
-                <code id="tm-commit-msg">feat(ui): update user-friendly theme and navigation</code>
-                <button class="copy-btn" onclick="copyCommitMsg()" data-i18n="auto_copy_btn">Копировать</button>
+
+            <!-- Tool: Clipboard Inspector -->
+            <div id="subtool-clipboard" class="subtool-pane">
+              <div class="pane-header">
+                <h3>📋 Инспектор буфера обмена</h3>
+                <button class="action-btn" onclick="refreshClipboard()" data-i18n="clip_btn">Проверить буфер</button>
+              </div>
+              <div class="clipboard-box">
+                <div class="clip-meta">
+                  <span id="clip-badge" class="pilot-badge" data-i18n="clip_analyzing">🔍 Анализирую...</span>
+                  <span id="clip-title" class="clip-title">Действие в 1 клик</span>
+                </div>
+                <div class="clip-preview-container">
+                  <pre><code id="clip-preview-text">// Содержимое буфера появится здесь</code></pre>
+                </div>
+                <div id="clip-actions-container" class="clip-actions"></div>
+                <div id="clip-output-box" class="output-box hidden">
+                  <h4>Результат:</h4>
+                  <pre><code id="clip-result-text"></code></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tool: Safe Terminal Autopilot -->
+            <div id="subtool-autopilot" class="subtool-pane">
+              <div class="autopilot-box">
+                <div class="input-row">
+                  <input id="pilot-input" type="text" data-i18n-ph="auto_ph" placeholder="Например: найди все файлы больше 100МБ" />
+                  <button class="action-btn" onclick="generateCommand()" data-i18n="auto_plan_btn">Спланировать команду</button>
+                </div>
+                <div id="pilot-result" class="pilot-card hidden">
+                  <div class="pilot-badge" id="pilot-badge">🟢 БЕЗОПАСНО</div>
+                  <pre><code id="pilot-cmd">find . -size +100M</code></pre>
+                  <p id="pilot-desc" class="pilot-desc"></p>
+                  <div id="pilot-lens-info" class="lens-info hidden"></div>
+                  <div class="pilot-actions">
+                    <button class="run-btn" id="pilot-run-btn" onclick="runGeneratedCommand()" data-i18n="auto_run_btn">Запустить в терминале ⚡</button>
+                    <button class="copy-btn" onclick="copyCommand()" data-i18n="auto_copy_btn">Копировать</button>
+                  </div>
+                  <div id="pilot-output-box" class="output-box hidden">
+                    <h4>Вывод команды:</h4>
+                    <pre><code id="pilot-stdout"></code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tool: Time Machine & Standup -->
+            <div id="subtool-timemachine" class="subtool-pane">
+              <div class="pane-header">
+                <h3>🕒 Стендап-отчёт за день и Git Commit</h3>
+                <button class="action-btn" onclick="refreshTimeMachine()" data-i18n="time_btn">Обновить отчёт</button>
+              </div>
+              <div class="timemachine-box">
+                <div id="tm-summary" class="tm-summary-card">
+                  Анализирую изменения в коде и активность сессии...
+                </div>
+                <div class="commit-suggester">
+                  <h4>💡 Рекомендуемое сообщение коммита (Conventional Commits):</h4>
+                  <div class="commit-row">
+                    <code id="tm-commit-msg">feat(ui): update user-friendly theme and navigation</code>
+                    <button class="copy-btn" onclick="copyCommitMsg()" data-i18n="auto_copy_btn">Копировать</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Tab 5: VRAM & Chameleon Tab -->
-      <div id="tab-vram" class="studio-pane tab-pane">
-        <div class="pane-header">
-          <h3 data-i18n="vram_title">🧠 Диспетчер VRAM Juggler и адаптивная память</h3>
-          <button class="action-btn" onclick="refreshVramStats()" data-i18n="vram_btn">Обновить статистику</button>
-        </div>
-        <div class="vram-grid">
-          <div class="stat-card">
-            <span class="stat-num" id="stat-active-vram">0 MB</span>
-            <span class="stat-label" data-i18n="vram_active">Активная память модели</span>
-          </div>
-          <div class="stat-card highlight">
-            <span class="stat-num" id="stat-saved-vram">+4,600 MB</span>
-            <span class="stat-label" data-i18n="vram_saved">Сэкономлено VRAM</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num" id="stat-swaps">0</span>
-            <span class="stat-label" data-i18n="vram_swaps">Переключений моделей</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num" id="stat-ram-percent">--%</span>
-            <span class="stat-label" data-i18n="vram_ram">Занято RAM в системе</span>
-          </div>
-        </div>
+          <!-- ==================== PANE 5: VRAM & MEMORY JUGGLER ==================== -->
+          <div id="tab-vram" class="studio-pane tab-pane">
+            <div class="pane-header">
+              <h3 data-i18n="vram_title">🧠 Диспетчер VRAM Juggler и адаптивная память</h3>
+              <button class="action-btn" onclick="refreshVramStats()" data-i18n="vram_btn">Обновить статистику</button>
+            </div>
+            <div class="vram-grid">
+              <div class="stat-card">
+                <span class="stat-num" id="stat-active-vram">0 MB</span>
+                <span class="stat-label" data-i18n="vram_active">Активная память модели</span>
+              </div>
+              <div class="stat-card highlight">
+                <span class="stat-num" id="stat-saved-vram">+4,600 MB</span>
+                <span class="stat-label" data-i18n="vram_saved">Сэкономлено VRAM</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-num" id="stat-swaps">0</span>
+                <span class="stat-label" data-i18n="vram_swaps">Переключений моделей</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-num" id="stat-ram-percent">--%</span>
+                <span class="stat-label" data-i18n="vram_ram">Занято RAM в системе</span>
+              </div>
+            </div>
 
-        <div class="chameleon-control-card">
-          <h4 data-i18n="vram_profile_title">🦎 Профиль энергопотребления Memory Chameleon:</h4>
-          <div class="profile-modes">
-            <button class="mode-btn" id="btn-mode-eco" onclick="setChameleonMode('eco')">🍃 ЭКО</button>
-            <button class="mode-btn" id="btn-mode-balanced" onclick="setChameleonMode('balanced')">⚖️ Баланс</button>
-            <button class="mode-btn" id="btn-mode-performance" onclick="setChameleonMode('performance')">⚡ Зверь</button>
-            <button class="mode-btn" id="btn-mode-auto" onclick="setChameleonMode('auto')">🔄 Авто</button>
+            <div class="chameleon-control-card">
+              <h4 data-i18n="vram_profile_title">🦎 Профиль энергопотребления Memory Chameleon:</h4>
+              <div class="profile-modes">
+                <button class="mode-btn" id="btn-mode-eco" onclick="setChameleonMode('eco')">🍃 ЭКО</button>
+                <button class="mode-btn" id="btn-mode-balanced" onclick="setChameleonMode('balanced')">⚖️ Баланс</button>
+                <button class="mode-btn" id="btn-mode-performance" onclick="setChameleonMode('performance')">⚡ Зверь</button>
+                <button class="mode-btn" id="btn-mode-auto" onclick="setChameleonMode('auto')">🔄 Авто</button>
+              </div>
+              <div id="chameleon-details" class="chameleon-details">
+                Определение аппаратных возможностей...
+              </div>
+            </div>
           </div>
-          <div id="chameleon-details" class="chameleon-details">
-            Определение аппаратных возможностей...
-          </div>
+
         </div>
-      </div>
+      </main>
+
     </div>
   </div>
-</div>
 
   <script src="i18n.js"></script>
   <script src="ghost.js"></script>

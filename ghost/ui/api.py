@@ -156,7 +156,7 @@ class GhostBridgeAPI:
 
     def toggle_mode(self, target_mode: str) -> Dict[str, Any]:
         """
-        Smoothly resize window between Pet (240x280), HUD (740x580), and Studio (1120x740).
+        Smoothly resize window between Pet (240x280), HUD (760x580), and Studio (1160x780).
         """
         import webview
         self.current_mode = target_mode
@@ -169,12 +169,12 @@ class GhostBridgeAPI:
                     screens = webview.screens
                     if screens:
                         s = screens[0]
-                        w_x = max(20, (s.width - 1120) // 2)
-                        w_y = max(20, (s.height - 740) // 2)
-                        self.window.resize(1120, 740)
+                        w_x = max(20, (s.width - 1160) // 2)
+                        w_y = max(20, (s.height - 780) // 2)
+                        self.window.resize(1160, 780)
                         self.window.move(w_x, w_y)
                     else:
-                        self.window.resize(1120, 740)
+                        self.window.resize(1160, 780)
                 except Exception:
                     pass
             elif target_mode == "hud":
@@ -184,12 +184,12 @@ class GhostBridgeAPI:
                     screens = webview.screens
                     if screens:
                         s = screens[0]
-                        hud_x = max(20, (s.width - 740) // 2)
+                        hud_x = max(20, (s.width - 760) // 2)
                         hud_y = max(20, (s.height - 580) // 3)
-                        self.window.resize(740, 580)
+                        self.window.resize(760, 580)
                         self.window.move(hud_x, hud_y)
                     else:
-                        self.window.resize(740, 580)
+                        self.window.resize(760, 580)
                 except Exception:
                     pass
             else:
@@ -429,6 +429,20 @@ class GhostBridgeAPI:
         res = self.get_coder().set_workspace(path)
         res["status"] = "ok" if res.get("success") else "error"
         return res
+
+    def choose_workspace_folder(self) -> Dict[str, Any]:
+        """GhostCode: Open native macOS folder chooser dialog to select workspace."""
+        if self.window:
+            try:
+                import webview
+                folders = self.window.create_file_dialog(webview.FOLDER_DIALOG)
+                if folders and len(folders) > 0:
+                    selected = folders[0]
+                    self.get_coder().set_workspace(selected)
+                    return {"status": "ok", "workspace": selected}
+            except Exception as e:
+                return {"status": "error", "error": str(e), "workspace": self.get_coder().workspace_dir}
+        return {"status": "cancelled", "workspace": self.get_coder().workspace_dir}
 
     def run_code_task(self, prompt: str) -> Dict[str, Any]:
         """GhostCode: Execute autonomous software engineering task."""

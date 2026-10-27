@@ -601,7 +601,7 @@ def main() -> None:
         if unknown:
             cmd_ask(engine, rag, " ".join(unknown))
         else:
-            cmd_pet()
+            cmd_studio()
         return
 
     if args.subcommand == "ask":

@@ -156,8 +156,8 @@ def launch_studio(skin: str = "glass", workspace: str = None):
         screens = webview.screens
         if screens:
             primary = screens[0]
-            start_x = max(20, (primary.width - 1120) // 2)
-            start_y = max(20, (primary.height - 740) // 2)
+            start_x = max(20, (primary.width - 1160) // 2)
+            start_y = max(20, (primary.height - 780) // 2)
         else:
             start_x = 100
             start_y = 60
@@ -170,8 +170,8 @@ def launch_studio(skin: str = "glass", workspace: str = None):
         title="GhostOS Studio — AI & Code Copilot",
         url=window_url,
         js_api=api,
-        width=1120,
-        height=740,
+        width=1160,
+        height=780,
         x=start_x,
         y=start_y,
         frameless=True,
