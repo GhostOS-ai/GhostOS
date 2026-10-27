@@ -28,14 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
   switchSkin(skin, false);
 
   // Direct Spotlight / HUD / Studio Mode launcher
-  const mode = urlParams.get("mode");
-  if (mode === "hud" || mode === "spotlight" || mode === "studio") {
-    setTimeout(() => {
-      toggleHudMode(mode === "studio" ? "studio" : "hud");
-      if (mode === "studio") {
-        switchStudioMode("chat");
-      }
-    }, 50);
+  const mode = urlParams.get("mode") || (window.__initialMode || "studio");
+  if (mode === "pet") {
+    toggleHudMode("pet");
+  } else {
+    toggleHudMode(mode === "studio" ? "studio" : "hud");
+    switchStudioMode("chat");
   }
   setupStudioListeners();
 });
@@ -710,12 +708,6 @@ function appendTypingIndicator() {
   container.appendChild(div);
   const viewport = container.closest(".chat-viewport") || container;
   viewport.scrollTop = viewport.scrollHeight;
-  return id;
-}
-    </div>
-  `;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
   return id;
 }
 

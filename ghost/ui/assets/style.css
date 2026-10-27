@@ -1909,6 +1909,49 @@ body.skin-matrix #aura {
 }
 
 /* ==================== TOPBAR & HEADER ELEMENTS ==================== */
+.topbar-drag-spacer {
+  flex: 1;
+  height: 100%;
+  cursor: grab;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.topbar-drag-spacer:active {
+  cursor: grabbing;
+}
+
+.pywebview-drag-region {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.no-drag,
+button,
+input,
+select,
+textarea,
+a,
+.topbar-left,
+.topbar-right,
+.topbar-icon-btn,
+.topbar-action-btn,
+.topbar-window-btn,
+.header-select,
+.sidebar-action-btn,
+.sidebar-mode-item,
+.sidebar-history-item,
+.sidebar-pill-badge,
+.prompt-card,
+.chat-tool-btn,
+.chat-send-btn,
+.chip-btn,
+.canvas-tab-btn,
+.file-chip {
+  -webkit-app-region: no-drag !important;
+  pointer-events: auto !important;
+}
+
 .topbar-icon-btn {
   background: transparent;
   border: none;

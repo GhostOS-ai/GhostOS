@@ -8,6 +8,10 @@ import sys
 from pathlib import Path
 import webview
 
+# Smooth native window dragging configuration (eliminates drag jitter and preserves button clicks)
+webview.settings['DRAG_REGION_SELECTOR'] = '.pywebview-drag-region'
+webview.settings['DRAG_REGION_DIRECT_TARGET_ONLY'] = True
+
 from ghost.ui.api import GhostBridgeAPI
 
 def set_macos_dock_icon():
@@ -65,7 +69,7 @@ def launch_desktop_pet(skin: str = "glass", with_tray: bool = False):
 
     # Create frameless, transparent, floating window
     # Initial size: 240x280 for Casper Desktop Pet
-    window_url = f"{index_html.as_uri()}?skin={skin}"
+    window_url = f"{index_html.as_uri()}?skin={skin}&mode=pet"
     window = webview.create_window(
         title="GhostOS",
         url=window_url,
@@ -77,7 +81,7 @@ def launch_desktop_pet(skin: str = "glass", with_tray: bool = False):
         frameless=True,
         transparent=True,
         on_top=True,
-        easy_drag=True,
+        easy_drag=False,
         shadow=False,
         text_select=True,
     )
@@ -127,7 +131,7 @@ def launch_spotlight_hud(skin: str = "glass"):
         frameless=True,
         transparent=True,
         on_top=True,
-        easy_drag=True,
+        easy_drag=False,
         shadow=True,
         text_select=True,
     )
@@ -177,7 +181,7 @@ def launch_studio(skin: str = "glass", workspace: str = None):
         frameless=True,
         transparent=True,
         on_top=False,
-        easy_drag=True,
+        easy_drag=False,
         shadow=True,
         text_select=True,
     )

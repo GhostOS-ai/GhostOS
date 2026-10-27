@@ -4,11 +4,17 @@
   <meta charset="UTF-8">
   <title>GhostOS Studio — AI & Code Copilot</title>
   <link rel="stylesheet" href="style.css">
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      window.__initialMode = params.get('mode') || 'studio';
+    })();
+  </script>
 </head>
 <body class="skin-glass">
 
   <!-- ==================== MODE 1: FLOATING GHOST PET (MINIMIZED VIEW) ==================== -->
-  <div id="pet-view" class="active pywebview-drag-region">
+  <div id="pet-view" class="hidden">
     <div class="drag-zone pywebview-drag-region" title="Drag Casper anywhere on screen"></div>
     
     <!-- Speech Bubble (Auto-hides when idle, shows on interaction) -->
@@ -83,7 +89,7 @@
 
 
   <!-- ==================== MODE 2: GHOSTOS STUDIO (CHATGPT & GHOSTCODE STYLE) ==================== -->
-  <div id="hud-view" class="hidden">
+  <div id="hud-view">
     <!-- Drop Overlay in Studio Mode -->
     <div id="hud-drop-overlay" class="hud-drop-overlay hidden">
       <div class="hud-drop-box">
@@ -188,10 +194,10 @@
       <!-- RIGHT MAIN AREA -->
       <main class="studio-main-area">
         <!-- Top Bar with draggable header -->
-        <header class="studio-topbar pywebview-drag-region">
+        <header class="studio-topbar">
           <div class="topbar-left no-drag">
-            <button class="topbar-icon-btn sidebar-toggle-btn" onclick="toggleSidebar()" title="Боковая панель">☰</button>
-            <div class="topbar-model-selector" title="Локальный движок ИИ">
+            <button class="topbar-icon-btn sidebar-toggle-btn no-drag" onclick="toggleSidebar()" title="Боковая панель">☰</button>
+            <div class="topbar-model-selector no-drag" title="Локальный движок ИИ">
               <span class="model-status-dot"></span>
               <span class="model-name">Ghost 2.0 (Local Engine)</span>
               <span class="model-chevron">▾</span>
@@ -199,6 +205,9 @@
             <span class="topbar-divider"></span>
             <span id="topbar-mode-title" class="topbar-mode-badge">💬 Ghost Chat</span>
           </div>
+
+          <!-- Dedicated Window Drag Region in the middle of topbar -->
+          <div class="topbar-drag-spacer pywebview-drag-region" title="Перетащите окно за шапку"></div>
 
           <div class="topbar-right no-drag">
             <!-- Theme / Skin Selector -->
@@ -551,6 +560,15 @@
     </div>
   </div>
 
+  <script>
+    if (window.__initialMode === 'pet') {
+      var h = document.getElementById('hud-view'); if (h) h.classList.add('hidden');
+      var p = document.getElementById('pet-view'); if (p) p.classList.remove('hidden');
+    } else {
+      var p = document.getElementById('pet-view'); if (p) p.classList.add('hidden');
+      var h = document.getElementById('hud-view'); if (h) h.classList.remove('hidden');
+    }
+  </script>
   <script src="i18n.js"></script>
   <script src="ghost.js"></script>
 </body>
