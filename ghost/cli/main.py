@@ -259,10 +259,10 @@ def cmd_spotlight(skin: str = "glass") -> None:
         console.print(f"[bold red]Failed to launch Spotlight HUD:[/bold red] {e}")
 
 def cmd_studio(skin: str = "glass", workspace: Optional[str] = None) -> None:
-    """Launch GhostOS Studio v2.0 (The Unified ChatGPT-style AI & GhostCode IDE)."""
+    """Launch GhostOS Studio v2.1 (The Unified ChatGPT-style AI & GhostCode IDE)."""
     try:
         from ghost.ui.app import launch_studio
-        console.print(f"[bold cyan]👻 Opening GhostOS Studio v2.0 ({skin} skin)...[/bold cyan]")
+        console.print(f"[bold cyan]👻 Opening GhostOS Studio v2.1 ({skin} skin)...[/bold cyan]")
         if workspace:
             console.print(f"[dim]Workspace: {workspace}[/dim]")
         launch_studio(skin=skin, workspace=workspace)

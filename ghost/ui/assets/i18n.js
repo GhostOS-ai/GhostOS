@@ -17,6 +17,10 @@ const I18N_LANGUAGES = [
 
 const I18N_TRANSLATIONS = {
   en: {
+    reasoning_title: "AI Reasoning Process",
+    new_chat_title: "New Chat",
+    confirm_clear_all: "Delete all saved conversations?",
+    history_cleared: "History completely cleared",
     brand_sub: "macOS Copilot",
     rpg_default: "Lv.1 Wisp (0 XP)",
     eco: "🍃 ECO",
@@ -99,6 +103,10 @@ const I18N_TRANSLATIONS = {
   },
 
   ru: {
+    reasoning_title: "Мыслительный процесс ИИ",
+    new_chat_title: "Новый диалог",
+    confirm_clear_all: "Удалить все сохраненные диалоги?",
+    history_cleared: "История полностью очищена",
     brand_sub: "macOS Copilot",
     rpg_default: "Ур.1 Огонёк (0 XP)",
     eco: "🍃 ЭКО",
@@ -181,6 +189,10 @@ const I18N_TRANSLATIONS = {
   },
 
   kk: {
+    reasoning_title: "ЖИ ойлау үдерісі",
+    new_chat_title: "Жаңа сұхбат",
+    confirm_clear_all: "Барлық сақталған сұхбаттарды өшіру керек пе?",
+    history_cleared: "Тарих толығымен тазартылды",
     brand_sub: "macOS Copilot",
     rpg_default: "1-деңгей Ұшқын (0 XP)",
     eco: "🍃 ЭКО",
@@ -263,6 +275,10 @@ const I18N_TRANSLATIONS = {
   },
 
   zh: {
+    reasoning_title: "AI 思考过程",
+    new_chat_title: "新对话",
+    confirm_clear_all: "删除所有已保存的对话？",
+    history_cleared: "历史记录已完全清除",
     brand_sub: "macOS 桌面助手",
     rpg_default: "Lv.1 幽火 (0 XP)",
     eco: "🍃 节能",
@@ -345,6 +361,10 @@ const I18N_TRANSLATIONS = {
   },
 
   es: {
+    reasoning_title: "Proceso de Razonamiento IA",
+    new_chat_title: "Nueva conversación",
+    confirm_clear_all: "¿Eliminar todas las conversaciones guardadas?",
+    history_cleared: "Historial completamente borrado",
     brand_sub: "macOS Copiloto",
     rpg_default: "Nv.1 Fuego Fatuo (0 XP)",
     eco: "🍃 ECO",
@@ -427,6 +447,10 @@ const I18N_TRANSLATIONS = {
   },
 
   de: {
+    reasoning_title: "KI-Gedankenprozess",
+    new_chat_title: "Neuer Chat",
+    confirm_clear_all: "Alle gespeicherten Chats löschen?",
+    history_cleared: "Verlauf vollständig gelöscht",
     brand_sub: "macOS Copilot",
     rpg_default: "St.1 Irrlicht (0 XP)",
     eco: "🍃 ÖKO",
@@ -509,6 +533,10 @@ const I18N_TRANSLATIONS = {
   },
 
   fr: {
+    reasoning_title: "Processus de Réflexion IA",
+    new_chat_title: "Nouvelle discussion",
+    confirm_clear_all: "Supprimer toutes les discussions enregistrées ?",
+    history_cleared: "Historique entièrement effacé",
     brand_sub: "macOS Copilot",
     rpg_default: "Niv.1 Feu Follet (0 XP)",
     eco: "🍃 ÉCO",
@@ -591,6 +619,10 @@ const I18N_TRANSLATIONS = {
   },
 
   ja: {
+    reasoning_title: "AIの思考プロセス",
+    new_chat_title: "新しいチャット",
+    confirm_clear_all: "保存されたチャットをすべて削除しますか？",
+    history_cleared: "履歴が完全に消去されました",
     brand_sub: "macOS Copilot",
     rpg_default: "Lv.1 鬼火 (0 XP)",
     eco: "🍃 エコ",
@@ -673,6 +705,10 @@ const I18N_TRANSLATIONS = {
   },
 
   pt: {
+    reasoning_title: "Processo de Raciocínio da IA",
+    new_chat_title: "Nova conversa",
+    confirm_clear_all: "Excluir todas as conversas salvas?",
+    history_cleared: "Histórico completamente limpo",
     brand_sub: "macOS Copilot",
     rpg_default: "Nv.1 Fogo-Fátuo (0 XP)",
     eco: "🍃 ECO",
@@ -755,6 +791,10 @@ const I18N_TRANSLATIONS = {
   },
 
   ar: {
+    reasoning_title: "عملية تفكير الذكاء الاصطناعي",
+    new_chat_title: "محادثة جديدة",
+    confirm_clear_all: "حذف جميع المحادثات المحفوظة؟",
+    history_cleared: "تم مسح السجل بالكامل",
     brand_sub: "مساعد macOS الذكي",
     rpg_default: "مستوى 1 شبح (0 XP)",
     eco: "🍃 اقتصادي",
@@ -837,6 +877,10 @@ const I18N_TRANSLATIONS = {
   },
 
   hi: {
+    reasoning_title: "एआई विचार प्रक्रिया",
+    new_chat_title: "नई बातचीत",
+    confirm_clear_all: "क्या सभी सहेजी गई बातचीत हटाएं?",
+    history_cleared: "इतिहास पूरी तरह से साफ़ कर दिया गया",
     brand_sub: "macOS Copilot",
     rpg_default: "स्तर 1 विस्प (0 XP)",
     eco: "🍃 इको",

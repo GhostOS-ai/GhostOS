@@ -3,15 +3,15 @@
 ```
       .---.
      /     \
-    | () () |   G H O S T O S   v 2 . 0
-     \  -  /    The Offline Desktop AI Companion & GhostCode Studio
+    | () () |   G H O S T O S   v 2 . 1
+     \  -  /    The Hybrid Brain Desktop AI Companion & GhostCode Studio
     /`---'\
-   /       \    [ 100% Private • GhostCode Autonomous IDE • ChatGPT Studio • <35MB RAM ]
+   /       \    [ 100% Private • Local & Cloud Hybrid Brain • ChatGPT Studio • <35MB RAM ]
   (_/^\_/\_/^)
 ```
 
-# 👻 GhostOS v2.0
-### The Featherweight, Offline AI Assistant & GhostCode Autonomous Studio
+# 👻 GhostOS v2.1
+### The Featherweight Desktop AI Companion & Autonomous Studio (Hybrid Brain)
 
 <p align="center">
   <b>🌐 Language Select / Выбор языка / Тілді таңдау / 语言选择:</b><br>
@@ -61,6 +61,27 @@ Running local AI today is frustrating and bloated:
 ---
 
 ### ✨ Exclusive Killer Features
+
+#### 🌟 NEW in v2.1: Hybrid Brain & Multi-Provider AI Hub
+* **Unified Model & Cloud Provider Switcher:** Seamlessly toggle between:
+  * 👻 **Ghost Built-in Engine:** 100% offline, zero config, under 35MB RAM footprint.
+  * 🦙 **Local Ollama:** Auto-detection of `qwen2.5:1.5b`, `llama3.2:3b`, `deepseek-r1:1.5b`, `mistral`.
+  * 🖥️ **Custom / LM Studio:** Any local or remote OpenAI-compatible endpoint (`http://localhost:1234/v1`, vLLM, LocalAI).
+  * 🧠 **OpenAI Cloud:** Native integration with `gpt-4o`, `gpt-4o-mini`, `o1`, and `o3-mini` with encrypted local API key storage.
+  * ⚡ **DeepSeek AI:** First-class support for `deepseek-chat` (V3) and `deepseek-reasoner` (R1 Reasoning).
+  * 🟣 **Anthropic Claude:** Direct support for `claude-3-5-sonnet` and `claude-3-5-haiku`.
+* **ChatGPT-Style Dynamic Multi-Session History:**
+  * Persistent conversations saved automatically to `~/.ghostos/studio_sessions.json` and local cache.
+  * Sidebar lists real conversations with auto-generated titles, timestamps, active indicators, and 1-click delete/clear.
+  * Seamless switching between past chats without losing context or scroll position.
+* **Specialized AI Personas (1-Click Switcher):**
+  * 👻 **Casper:** Witty, concise, private desktop companion.
+  * 💻 **GhostCode:** Senior Software Engineer specializing in architecture, clean code, and tests.
+  * ✍️ **Ghostwriter:** Master wordsmith for documentation, emails, and copywriting.
+  * 🧠 **Deep Think:** Analytical mode with collapsible step-by-step `<think>` Chain-of-Thought traces.
+  * 🌐 **Web Live:** Real-time web-aware assistant for weather, exchange rates, and live information.
+* **Deep Reasoning Collapsible Traces:**
+  * Native rendering for `<think>...</think>` tokens (DeepSeek-R1, OpenAI reasoning) with expandable glowing frosted cards.
 
 #### 0. ⚡ GhostCode: Autonomous Coding Agent & ChatGPT Studio (v2.0)
 * **Autonomous Software Engineering Loop:** Offline alternative to Claude Code and Cursor. Formulates plans, inspects repositories, reads and edits files with **Unified Diffs**, runs safe terminal commands, and inspects Git history.

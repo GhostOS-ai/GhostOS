@@ -61,7 +61,7 @@ class GhostTrayController:
         menu = NSMenu.alloc().init()
 
         # 1. Header
-        header = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_("👻 GhostOS v1.2.0 (<35MB RAM)", None, "")
+        header = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_("👻 GhostOS v2.1.0 (<35MB RAM)", None, "")
         header.setEnabled_(False)
         menu.addItem_(header)
         menu.addItem_(NSMenuItem.separatorItem())

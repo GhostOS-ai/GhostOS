@@ -113,7 +113,7 @@
             <span class="sidebar-brand-avatar">👻</span>
             <div class="sidebar-brand-info">
               <span class="sidebar-brand-name">GhostOS Studio</span>
-              <span class="sidebar-brand-ver">v2.0 • Offline AI</span>
+              <span class="sidebar-brand-ver">v2.1 • Hybrid Brain</span>
             </div>
             <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Свернуть меню">◀</button>
           </div>
@@ -156,24 +156,12 @@
 
           <!-- History & Projects Section -->
           <div class="sidebar-section">
-            <div class="sidebar-section-title">ДИАЛОГИ И ПРОЕКТЫ</div>
+            <div class="sidebar-section-title-row">
+              <span class="sidebar-section-title">ИСТОРИЯ ДИАЛОГОВ</span>
+              <button class="sidebar-clear-history-btn" onclick="clearAllSessionsConfirm()" title="Очистить историю">🗑️</button>
+            </div>
             <div class="sidebar-history-list" id="sidebar-history-list">
-              <div class="sidebar-history-item active" onclick="switchStudioMode('chat')">
-                <span class="item-icon">💬</span>
-                <span class="item-title">Текущий диалог</span>
-              </div>
-              <div class="sidebar-history-item" onclick="triggerCoderAction('Создай FastAPI приложение')">
-                <span class="item-icon">⚡</span>
-                <span class="item-title">FastAPI Проект</span>
-              </div>
-              <div class="sidebar-history-item" onclick="triggerCoderAction('Создай Telegram бота')">
-                <span class="item-icon">🤖</span>
-                <span class="item-title">Telegram Бот</span>
-              </div>
-              <div class="sidebar-history-item" onclick="triggerCoderAction('Создай современный лендинг')">
-                <span class="item-icon">🎨</span>
-                <span class="item-title">Веб-приложение</span>
-              </div>
+              <!-- Dynamically populated from saved sessions -->
             </div>
           </div>
         </div>
@@ -197,9 +185,9 @@
         <header class="studio-topbar">
           <div class="topbar-left no-drag">
             <button class="topbar-icon-btn sidebar-toggle-btn no-drag" onclick="toggleSidebar()" title="Боковая панель">☰</button>
-            <div class="topbar-model-selector no-drag" title="Локальный движок ИИ">
+            <div class="topbar-model-selector no-drag" onclick="openModelSettingsModal()" title="Настройки ИИ, выбор модели и API-провайдера">
               <span class="model-status-dot"></span>
-              <span class="model-name">Ghost 2.0 (Local Engine)</span>
+              <span id="topbar-model-label" class="model-name">Ghost 2.1 (Hybrid)</span>
               <span class="model-chevron">▾</span>
             </div>
             <span class="topbar-divider"></span>
@@ -287,6 +275,15 @@
 
             <!-- Floating Centered Bottom Input (ChatGPT Style) -->
             <div class="chat-input-area no-drag">
+              <!-- AI Persona Quick Selection Bar -->
+              <div class="chat-persona-bar">
+                <button class="persona-chip active" id="chip-persona-default" onclick="selectPersona('default')" title="Универсальный ИИ-ассистент Casper">👻 Casper</button>
+                <button class="persona-chip" id="chip-persona-ghostcode" onclick="selectPersona('ghostcode')" title="Senior Software Engineer &amp; Architect">💻 GhostCode</button>
+                <button class="persona-chip" id="chip-persona-ghostwriter" onclick="selectPersona('ghostwriter')" title="Мастер текстов, документации и писем">✍️ Ghostwriter</button>
+                <button class="persona-chip" id="chip-persona-reasoner" onclick="selectPersona('reasoner')" title="Глубокие пошаговые логические рассуждения (CoT)">🧠 Deep Think</button>
+                <button class="persona-chip" id="chip-persona-web" onclick="selectPersona('web')" title="Поиск актуальной информации в интернете">🌐 Web Live</button>
+              </div>
+
               <div class="chat-input-pill">
                 <button class="chat-tool-btn" onclick="document.getElementById('rag-file-input').click()" title="Прикрепить файл для анализа (RAG)">
                   📎
@@ -557,6 +554,136 @@
         </div>
       </main>
 
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: AI MODEL & PROVIDER SETTINGS ==================== -->
+  <div id="model-modal" class="modal-backdrop hidden" onclick="handleModalBackdropClick(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <span class="modal-icon">🧠</span>
+          <div>
+            <h3 class="modal-title">Настройки ИИ и Провайдеров</h3>
+            <p class="modal-subtitle">GhostOS Hybrid Brain: локальные веса или облачные API</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModelSettingsModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Provider Selection Cards -->
+        <label class="modal-label">Выберите ИИ-провайдер:</label>
+        <div class="provider-grid" id="modal-provider-grid">
+          <div class="provider-card active" data-prov="auto" onclick="selectModalProvider('auto')">
+            <span class="prov-icon">✨</span>
+            <div class="prov-info">
+              <span class="prov-name">Auto Hybrid</span>
+              <span class="prov-badge">Smart</span>
+            </div>
+          </div>
+          <div class="provider-card" data-prov="mock" onclick="selectModalProvider('mock')">
+            <span class="prov-icon">👻</span>
+            <div class="prov-info">
+              <span class="prov-name">Ghost Local</span>
+              <span class="prov-badge">&lt;35MB RAM</span>
+            </div>
+          </div>
+          <div class="provider-card" data-prov="ollama" onclick="selectModalProvider('ollama')">
+            <span class="prov-icon">🦙</span>
+            <div class="prov-info">
+              <span class="prov-name">Ollama</span>
+              <span class="prov-badge">Local</span>
+            </div>
+          </div>
+          <div class="provider-card" data-prov="openai" onclick="selectModalProvider('openai')">
+            <span class="prov-icon">🧠</span>
+            <div class="prov-info">
+              <span class="prov-name">OpenAI</span>
+              <span class="prov-badge">GPT-4o</span>
+            </div>
+          </div>
+          <div class="provider-card" data-prov="deepseek" onclick="selectModalProvider('deepseek')">
+            <span class="prov-icon">⚡</span>
+            <div class="prov-info">
+              <span class="prov-name">DeepSeek</span>
+              <span class="prov-badge">V3/R1</span>
+            </div>
+          </div>
+          <div class="provider-card" data-prov="anthropic" onclick="selectModalProvider('anthropic')">
+            <span class="prov-icon">🟣</span>
+            <div class="prov-info">
+              <span class="prov-name">Anthropic</span>
+              <span class="prov-badge">Claude 3.5</span>
+            </div>
+          </div>
+          <div class="provider-card" data-prov="custom" onclick="selectModalProvider('custom')">
+            <span class="prov-icon">🖥️</span>
+            <div class="prov-info">
+              <span class="prov-name">LM Studio</span>
+              <span class="prov-badge">Custom</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Model selection & inputs -->
+        <div class="modal-form-group">
+          <label class="modal-label" for="modal-model-input">Название модели:</label>
+          <div class="modal-input-row">
+            <input type="text" id="modal-model-input" class="modal-text-input" placeholder="например: gpt-4o, deepseek-chat, qwen2.5:1.5b" />
+            <select id="modal-model-presets" class="modal-select" onchange="applyModelPreset(this.value)">
+              <option value="">Быстрый выбор...</option>
+              <optgroup label="OpenAI">
+                <option value="gpt-4o-mini">gpt-4o-mini (Быстрый &amp; Экономный)</option>
+                <option value="gpt-4o">gpt-4o (Флагманский)</option>
+                <option value="o3-mini">o3-mini (Reasoning)</option>
+              </optgroup>
+              <optgroup label="DeepSeek">
+                <option value="deepseek-chat">deepseek-chat (V3)</option>
+                <option value="deepseek-reasoner">deepseek-reasoner (R1 Reasoning)</option>
+              </optgroup>
+              <optgroup label="Anthropic">
+                <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+              </optgroup>
+              <optgroup label="Локальные (Ollama)">
+                <option value="qwen2.5:1.5b">qwen2.5:1.5b (1.8GB RAM)</option>
+                <option value="llama3.2:3b">llama3.2:3b (3.2GB RAM)</option>
+                <option value="deepseek-r1:1.5b">deepseek-r1:1.5b</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <!-- API Key Row (for Cloud) -->
+        <div class="modal-form-group" id="modal-key-group">
+          <label class="modal-label" for="modal-key-input">
+            API Ключ: <span class="modal-label-hint">(хранится локально в ~/.ghostos/config.json)</span>
+          </label>
+          <div class="modal-input-row">
+            <input type="password" id="modal-key-input" class="modal-text-input" placeholder="sk-..." />
+            <button class="modal-btn secondary" onclick="toggleKeyVisibility()" title="Показать/скрыть">👁️</button>
+          </div>
+        </div>
+
+        <!-- Custom Endpoint (for Custom / LM Studio) -->
+        <div class="modal-form-group" id="modal-endpoint-group">
+          <label class="modal-label" for="modal-endpoint-input">
+            Эндпоинт API: <span class="modal-label-hint">(OpenAI-совместимый)</span>
+          </label>
+          <input type="text" id="modal-endpoint-input" class="modal-text-input" placeholder="http://localhost:1234/v1" />
+        </div>
+
+        <!-- Test Status Output -->
+        <div id="modal-test-status" class="modal-status-box hidden"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-btn secondary" onclick="testModalConnection()">🔌 Проверить связь</button>
+        <div class="modal-footer-spacer"></div>
+        <button class="modal-btn secondary" onclick="closeModelSettingsModal()">Отмена</button>
+        <button class="modal-btn primary" onclick="saveModalSettings()">💾 Сохранить и применить</button>
+      </div>
     </div>
   </div>
 

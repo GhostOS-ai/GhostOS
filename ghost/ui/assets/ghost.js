@@ -9,6 +9,17 @@ let clickIndex = 0;
 let petClickDebounceTimer = null;
 let bubbleHideTimer = null;
 
+// GhostOS v2.1: Multi-Session Chat & AI Provider State
+let currentSessionId = null;
+let chatSessions = [];
+let activePersona = "default";
+let activeAiConfig = {
+  provider: "auto",
+  model_name: "auto",
+  custom_endpoint: "http://localhost:1234/v1",
+  masked_keys: {}
+};
+
 // Initialize on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   if (window.i18n) {
@@ -21,6 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupInactivitySleep();
   refreshRpg();
   refreshChameleon();
+  initChatSessions();
+  initAIProviderSettings();
 
   // Apply Skin from localStorage or URL parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -58,51 +71,15 @@ function switchSkin(skinName, notifyBackend = true) {
 }
 
 function clearChatHistory() {
-  const container = document.getElementById("chat-messages");
-  if (!container) return;
-  container.innerHTML = `
-    <div class="chat-welcome-container">
-      <div class="welcome-avatar">👻</div>
-      <h1 class="welcome-title">Чем я могу помочь сегодня?</h1>
-      <p class="welcome-subtitle">
-        Ваш персональный локальный ИИ. Пишите код, анализируйте файлы и управляйте macOS в полной приватности.
-      </p>
-
-      <div class="welcome-prompt-grid">
-        <div class="prompt-card" onclick="triggerQuickAction('Напиши скрипт на Python для автоматизации поиска дубликатов файлов')">
-          <span class="prompt-icon">💡</span>
-          <div class="prompt-content">
-            <span class="prompt-title">Написать скрипт на Python</span>
-            <span class="prompt-desc">Автоматизация задач и утилиты</span>
-          </div>
-        </div>
-        <div class="prompt-card highlight" onclick="switchStudioMode('code')">
-          <span class="prompt-icon">⚡</span>
-          <div class="prompt-content">
-            <span class="prompt-title">Открыть GhostCode IDE</span>
-            <span class="prompt-desc">Автономная разработка проектов</span>
-          </div>
-        </div>
-        <div class="prompt-card" onclick="triggerQuickAction('Объясни, как работает Zero-DB RAG и локальная векторная память')">
-          <span class="prompt-icon">📚</span>
-          <div class="prompt-content">
-            <span class="prompt-title">Изучить и объяснить тему</span>
-            <span class="prompt-desc">Архитектура, алгоритмы и документация</span>
-          </div>
-        </div>
-        <div class="prompt-card" onclick="triggerQuickAction('Погода в Алматы и курс доллара')">
-          <span class="prompt-icon">🌤️</span>
-          <div class="prompt-content">
-            <span class="prompt-title">Погода и курсы валют</span>
-            <span class="prompt-desc">Быстрый поиск информации</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  if (window.i18n) {
-    i18n.applyTranslations();
+  const active = chatSessions.find((s) => s.id === currentSessionId);
+  if (active) {
+    active.messages = [];
+    active.title = window.i18n ? i18n.t("new_chat_title", "Новый диалог") : "Новый диалог";
+    persistSessions();
+    renderChatHistorySidebar();
   }
+  renderWelcomeHero();
+
   if (window.pywebview && window.pywebview.api && window.pywebview.api.clear_chat) {
     window.pywebview.api.clear_chat().catch(() => {});
   }
@@ -633,7 +610,7 @@ async function handleSend() {
   }
 
   // Regular Chat message
-  appendMessage("user", query);
+  appendMessage("user", query, [], true);
   input.value = "";
   input.style.height = "auto";
   isThinking = true;
@@ -646,7 +623,7 @@ async function handleSend() {
     let citations = [];
 
     if (window.pywebview && window.pywebview.api) {
-      const res = await window.pywebview.api.ask(query);
+      const res = await window.pywebview.api.ask(query, activePersona, activeAiConfig.provider, activeAiConfig.model_name);
       reply = res.response;
       citations = res.citations || [];
       refreshRpg();
@@ -655,17 +632,17 @@ async function handleSend() {
     }
 
     removeTypingIndicator(typingId);
-    appendMessage("ghost", reply, citations);
+    appendMessage("ghost", reply, citations, true);
   } catch (err) {
     removeTypingIndicator(typingId);
-    appendMessage("ghost", `⚠️ Error: ${err}`);
+    appendMessage("ghost", `⚠️ Error: ${err}`, [], true);
   } finally {
     isThinking = false;
     setGhostMood("idle");
   }
 }
 
-function appendMessage(sender, text, citations = []) {
+function appendMessage(sender, text, citations = [], saveToSession = false) {
   const container = document.getElementById("chat-messages");
   if (!container) return;
 
@@ -691,6 +668,10 @@ function appendMessage(sender, text, citations = []) {
   container.appendChild(msgDiv);
   const viewport = container.closest(".chat-viewport") || container;
   viewport.scrollTop = viewport.scrollHeight;
+
+  if (saveToSession) {
+    recordMessageInSession(sender, text, citations);
+  }
 }
 
 function appendTypingIndicator() {
@@ -719,31 +700,61 @@ function removeTypingIndicator(id) {
 function formatMarkdown(text) {
   if (!text) return "";
 
-  // 1. Extract triple-backtick code blocks first to protect code indentation and syntax
+  // 1. Extract <think> reasoning blocks
+  const reasoningBlocks = [];
+  let processed = text.replace(/<think>([\s\S]*?)<\/think>/gi, (match, thought) => {
+    const placeholder = `___GHOST_REASONING_${reasoningBlocks.length}___`;
+    reasoningBlocks.push(thought.trim());
+    return placeholder;
+  });
+
+  // 2. Extract triple-backtick code blocks first to protect code indentation and syntax
   const codeBlocks = [];
-  let processed = text.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (match, lang, code) => {
+  processed = processed.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (match, lang, code) => {
     const placeholder = `___GHOST_CODEBLOCK_${codeBlocks.length}___`;
     codeBlocks.push({ lang: lang || "code", code: code.trim() });
     return placeholder;
   });
 
-  // 2. Escape HTML
+  // 3. Escape HTML
   let html = processed
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // 3. Inline code
+  // 4. Inline code
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
 
-  // 4. Bold and italics
+  // 5. Bold and italics
   html = html.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
   html = html.replace(/\*([^*]+)\*/g, "<i>$1</i>");
 
-  // 5. Line breaks for prose
+  // 6. Line breaks for prose
   html = html.replace(/\n/g, "<br>");
 
-  // 6. Restore code blocks with syntax header and copy button
+  // 7. Restore reasoning blocks
+  reasoningBlocks.forEach((thought, index) => {
+    const placeholder = `___GHOST_REASONING_${index}___`;
+    const escapedThought = thought
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\n/g, "<br>");
+    const title = window.i18n ? i18n.t("reasoning_title", "Мыслительный процесс ИИ") : "Мыслительный процесс ИИ";
+    const blockHtml = `
+      <details class="reasoning-card" open>
+        <summary>
+          <span class="reasoning-icon">🧠</span>
+          <span class="reasoning-title">${title}</span>
+          <span class="reasoning-badge">CoT</span>
+        </summary>
+        <div class="reasoning-body">${escapedThought}</div>
+      </details>
+    `;
+    html = html.replace(placeholder, blockHtml);
+  });
+
+  // 8. Restore code blocks with syntax header and copy button
   codeBlocks.forEach((item, index) => {
     const placeholder = `___GHOST_CODEBLOCK_${index}___`;
     const escapedCode = item.code
@@ -765,6 +776,7 @@ function formatMarkdown(text) {
   });
 
   return html;
+}
 }
 
 function copyCodeBlock(btn) {
@@ -1213,13 +1225,483 @@ function toggleSidebar() {
   sidebar.classList.toggle("collapsed");
 }
 
-function startNewChat() {
-  clearChatHistory();
+// ==================== GHOSTOS v2.1: CHAT SESSIONS & HISTORY ====================
+async function initChatSessions() {
+  try {
+    let loaded = null;
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.get_saved_sessions) {
+      const res = await window.pywebview.api.get_saved_sessions();
+      if (res && res.sessions && res.sessions.length > 0) {
+        loaded = res.sessions;
+      }
+    }
+    if (!loaded) {
+      const local = localStorage.getItem("ghostos_studio_sessions");
+      if (local) {
+        loaded = JSON.parse(local);
+      }
+    }
+    if (loaded && loaded.length > 0) {
+      chatSessions = loaded;
+      currentSessionId = chatSessions[0].id;
+      renderChatHistorySidebar();
+      loadSessionIntoChat(currentSessionId);
+      return;
+    }
+  } catch (err) {
+    console.warn("Failed to load saved chat sessions:", err);
+  }
+
+  // If no sessions exist, start a default first session
+  startNewChat(false);
+}
+
+function startNewChat(renderEmpty = true) {
+  const newId = "session_" + Date.now();
+  const newSession = {
+    id: newId,
+    title: window.i18n ? i18n.t("new_chat_title", "Новый диалог") : "Новый диалог",
+    mode: "chat",
+    persona: activePersona,
+    messages: [],
+    created_at: Math.floor(Date.now() / 1000),
+    updated_at: Math.floor(Date.now() / 1000)
+  };
+
+  chatSessions.unshift(newSession);
+  currentSessionId = newId;
+  persistSessions();
+  renderChatHistorySidebar();
+
+  if (renderEmpty) {
+    renderWelcomeHero();
+    switchStudioMode("chat");
+    const input = document.getElementById("hud-input");
+    if (input) {
+      input.value = "";
+      input.focus();
+    }
+  }
+}
+
+function renderWelcomeHero() {
+  const container = document.getElementById("chat-messages");
+  if (!container) return;
+  container.innerHTML = `
+    <div class="chat-welcome-container">
+      <div class="welcome-avatar">👻</div>
+      <h1 class="welcome-title">Чем я могу помочь сегодня?</h1>
+      <p class="welcome-subtitle">
+        Ваш персональный ИИ для macOS: локальные нейросети &amp; облачные модели, умное написание кода и полный контроль приватности.
+      </p>
+
+      <div class="welcome-prompt-grid">
+        <div class="prompt-card" onclick="triggerQuickAction('Напиши скрипт на Python для автоматизации поиска дубликатов файлов')">
+          <span class="prompt-icon">💡</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Написать скрипт на Python</span>
+            <span class="prompt-desc">Автоматизация задач и утилиты</span>
+          </div>
+        </div>
+        <div class="prompt-card highlight" onclick="switchStudioMode('code')">
+          <span class="prompt-icon">⚡</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Открыть GhostCode IDE</span>
+            <span class="prompt-desc">Автономная разработка проектов</span>
+          </div>
+        </div>
+        <div class="prompt-card" onclick="triggerQuickAction('Объясни, как работает Zero-DB RAG и локальная векторная память')">
+          <span class="prompt-icon">📚</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Изучить и объяснить тему</span>
+            <span class="prompt-desc">Архитектура, алгоритмы и документация</span>
+          </div>
+        </div>
+        <div class="prompt-card" onclick="triggerQuickAction('Погода в Алматы и курс доллара')">
+          <span class="prompt-icon">🌤️</span>
+          <div class="prompt-content">
+            <span class="prompt-title">Погода и курсы валют</span>
+            <span class="prompt-desc">Быстрый поиск информации</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  if (window.i18n) i18n.applyTranslations();
+}
+
+function recordMessageInSession(sender, text, citations = []) {
+  let session = chatSessions.find((s) => s.id === currentSessionId);
+  if (!session) {
+    startNewChat(false);
+    session = chatSessions.find((s) => s.id === currentSessionId);
+  }
+
+  // Update session title on first user message
+  if (sender === "user" && (!session.messages || session.messages.length === 0 || session.title === "Новый диалог" || session.title === "New Chat")) {
+    const cleanPrompt = text.replace(/^(напиши|создай|объясни|найди|как|что)\s+/i, "");
+    session.title = cleanPrompt.slice(0, 28) + (cleanPrompt.length > 28 ? "..." : "");
+  }
+
+  session.messages = session.messages || [];
+  session.messages.push({
+    sender,
+    text,
+    citations: citations || [],
+    timestamp: Date.now()
+  });
+  session.updated_at = Math.floor(Date.now() / 1000);
+
+  persistSessions();
+  renderChatHistorySidebar();
+}
+
+function loadSessionIntoChat(sessionId) {
+  const session = chatSessions.find((s) => s.id === sessionId);
+  if (!session) return;
+
+  currentSessionId = sessionId;
+  renderChatHistorySidebar();
+
+  const container = document.getElementById("chat-messages");
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (session.messages && session.messages.length > 0) {
+    session.messages.forEach((msg) => {
+      appendMessage(msg.sender, msg.text, msg.citations, false);
+    });
+  } else {
+    renderWelcomeHero();
+  }
+
+  if (session.persona) {
+    selectPersona(session.persona);
+  }
+
   switchStudioMode("chat");
+}
+
+function deleteChatSession(sessionId, event) {
+  if (event) event.stopPropagation();
+
+  chatSessions = chatSessions.filter((s) => s.id !== sessionId);
+
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.delete_studio_session) {
+    window.pywebview.api.delete_studio_session(sessionId).catch(() => {});
+  }
+  persistSessions();
+
+  if (currentSessionId === sessionId) {
+    if (chatSessions.length > 0) {
+      loadSessionIntoChat(chatSessions[0].id);
+    } else {
+      startNewChat(true);
+    }
+  } else {
+    renderChatHistorySidebar();
+  }
+}
+
+function clearAllSessionsConfirm() {
+  const msg = window.i18n ? i18n.t("confirm_clear_all", "Удалить все сохраненные диалоги?") : "Удалить все сохраненные диалоги?";
+  if (confirm(msg)) {
+    chatSessions = [];
+    currentSessionId = null;
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.clear_all_studio_sessions) {
+      window.pywebview.api.clear_all_studio_sessions().catch(() => {});
+    }
+    localStorage.removeItem("ghostos_studio_sessions");
+    startNewChat(true);
+    showSpeechBubble("🗑️ " + (window.i18n ? i18n.t("history_cleared", "История полностью очищена") : "История очищена"), 2500);
+  }
+}
+
+function persistSessions() {
+  try {
+    localStorage.setItem("ghostos_studio_sessions", JSON.stringify(chatSessions));
+    const active = chatSessions.find((s) => s.id === currentSessionId);
+    if (active && window.pywebview && window.pywebview.api && window.pywebview.api.save_studio_session) {
+      window.pywebview.api.save_studio_session(active.id, active.title, active.mode || "chat", active.messages || []).catch(() => {});
+    }
+  } catch (err) {
+    console.error("persistSessions error:", err);
+  }
+}
+
+function renderChatHistorySidebar() {
+  const listEl = document.getElementById("sidebar-history-list");
+  if (!listEl) return;
+
+  if (!chatSessions || chatSessions.length === 0) {
+    listEl.innerHTML = `<div class="sidebar-history-empty">Нет сохранённых диалогов</div>`;
+    return;
+  }
+
+  listEl.innerHTML = chatSessions
+    .map((session) => {
+      const isActive = session.id === currentSessionId;
+      const title = session.title || "Диалог";
+      return `
+        <div class="sidebar-history-item ${isActive ? "active" : ""}" onclick="loadSessionIntoChat('${session.id}')">
+          <span class="item-icon">💬</span>
+          <span class="item-title" title="${title}">${title}</span>
+          <button class="item-delete-btn" onclick="deleteChatSession('${session.id}', event)" title="Удалить диалог">✕</button>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+// ==================== GHOSTOS v2.1: PERSONAS ====================
+function selectPersona(persona) {
+  activePersona = persona || "default";
+  document.querySelectorAll(".persona-chip").forEach((chip) => {
+    if (chip.getAttribute("data-persona") === activePersona || chip.id === `chip-persona-${activePersona}`) {
+      chip.classList.add("active");
+    } else {
+      chip.classList.remove("active");
+    }
+  });
+
+  const activeSession = chatSessions.find((s) => s.id === currentSessionId);
+  if (activeSession) {
+    activeSession.persona = activePersona;
+    persistSessions();
+  }
+
   const input = document.getElementById("hud-input");
   if (input) {
-    input.value = "";
-    input.focus();
+    if (activePersona === "ghostcode") {
+      input.placeholder = "Спросите о коде, архитектуре, тестах или попросите функцию...";
+    } else if (activePersona === "ghostwriter") {
+      input.placeholder = "Напишите тему статьи, письма или документации...";
+    } else if (activePersona === "reasoner") {
+      input.placeholder = "Задайте сложную логическую задачу или аналитический вопрос...";
+    } else if (activePersona === "web") {
+      input.placeholder = "Задайте поисковый запрос (погода, курсы, новости, факты)...";
+    } else {
+      input.placeholder = "Спросите о чём угодно или попросите написать код...";
+    }
+  }
+}
+
+// ==================== GHOSTOS v2.1: AI PROVIDER & MODEL MODAL ====================
+async function initAIProviderSettings() {
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.get_ai_config) {
+    try {
+      const cfg = await window.pywebview.api.get_ai_config();
+      if (cfg) {
+        activeAiConfig = cfg;
+        updateTopbarModelBadge(cfg.provider, cfg.model_name);
+      }
+    } catch (err) {
+      console.warn("initAIProviderSettings error:", err);
+    }
+  }
+}
+
+function updateTopbarModelBadge(provider, model) {
+  const label = document.getElementById("topbar-model-label");
+  if (!label) return;
+
+  const icons = {
+    auto: "✨",
+    mock: "👻",
+    ollama: "🦙",
+    openai: "🧠",
+    deepseek: "⚡",
+    anthropic: "🟣",
+    custom: "🖥️",
+    llamacpp: "⚙️"
+  };
+
+  const prov = provider || "auto";
+  const icon = icons[prov] || "🤖";
+  let name = "";
+
+  if (prov === "openai") {
+    name = model && model !== "auto" ? model : "GPT-4o";
+  } else if (prov === "deepseek") {
+    name = model && model !== "auto" ? model : "DeepSeek-V3";
+  } else if (prov === "anthropic") {
+    name = model && model !== "auto" ? model.split("-")[0] + " Claude" : "Claude 3.5";
+  } else if (prov === "ollama") {
+    name = model && model !== "auto" ? model : "Ollama Local";
+  } else if (prov === "mock") {
+    name = "Ghost Local (<35MB)";
+  } else if (prov === "custom") {
+    name = model && model !== "auto" ? model : "LM Studio";
+  } else {
+    name = "Ghost Hybrid Brain";
+  }
+
+  label.innerText = `${icon} ${name}`;
+}
+
+async function openModelSettingsModal() {
+  const modal = document.getElementById("model-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+
+  // Refresh config from backend
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.get_ai_config) {
+    try {
+      const cfg = await window.pywebview.api.get_ai_config();
+      if (cfg) activeAiConfig = cfg;
+    } catch (e) {}
+  }
+
+  const prov = activeAiConfig.provider || "auto";
+  selectModalProvider(prov, false);
+
+  const modelInput = document.getElementById("modal-model-input");
+  if (modelInput) {
+    modelInput.value = (activeAiConfig.model_name && activeAiConfig.model_name !== "auto") ? activeAiConfig.model_name : "";
+  }
+
+  const endpointInput = document.getElementById("modal-endpoint-input");
+  if (endpointInput) {
+    endpointInput.value = activeAiConfig.custom_endpoint || "http://localhost:1234/v1";
+  }
+
+  const keyInput = document.getElementById("modal-key-input");
+  if (keyInput) {
+    const masked = (activeAiConfig.masked_keys && activeAiConfig.masked_keys[prov]) || "";
+    keyInput.value = masked;
+  }
+
+  const statusBox = document.getElementById("modal-test-status");
+  if (statusBox) statusBox.classList.add("hidden");
+}
+
+function closeModelSettingsModal() {
+  const modal = document.getElementById("model-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function handleModalBackdropClick(event) {
+  if (event.target && event.target.id === "model-modal") {
+    closeModelSettingsModal();
+  }
+}
+
+function selectModalProvider(prov, resetModelIfEmpty = true) {
+  document.querySelectorAll(".provider-card").forEach((card) => {
+    if (card.getAttribute("data-prov") === prov) {
+      card.classList.add("active");
+    } else {
+      card.classList.remove("active");
+    }
+  });
+
+  const keyGroup = document.getElementById("modal-key-group");
+  const endpointGroup = document.getElementById("modal-endpoint-group");
+  const modelInput = document.getElementById("modal-model-input");
+  const keyInput = document.getElementById("modal-key-input");
+
+  const needsKey = ["openai", "deepseek", "anthropic", "custom"].includes(prov);
+  const needsEndpoint = ["custom", "openai"].includes(prov);
+
+  if (keyGroup) keyGroup.style.display = needsKey ? "flex" : "none";
+  if (endpointGroup) endpointGroup.style.display = needsEndpoint ? "flex" : "none";
+
+  if (keyInput) {
+    const masked = (activeAiConfig.masked_keys && activeAiConfig.masked_keys[prov]) || "";
+    keyInput.value = masked;
+    keyInput.placeholder = needsKey ? "sk-..." : "Не требуется";
+  }
+
+  if (resetModelIfEmpty && modelInput) {
+    const defaults = {
+      openai: "gpt-4o-mini",
+      deepseek: "deepseek-chat",
+      anthropic: "claude-3-5-sonnet-20241022",
+      ollama: "qwen2.5:1.5b",
+      custom: "local-model",
+      mock: "built-in",
+      auto: ""
+    };
+    if (defaults[prov]) {
+      modelInput.value = defaults[prov];
+    }
+  }
+}
+
+function applyModelPreset(val) {
+  if (val) {
+    const input = document.getElementById("modal-model-input");
+    if (input) input.value = val;
+  }
+}
+
+function toggleKeyVisibility() {
+  const keyInput = document.getElementById("modal-key-input");
+  if (!keyInput) return;
+  keyInput.type = keyInput.type === "password" ? "text" : "password";
+}
+
+async function testModalConnection() {
+  const activeCard = document.querySelector(".provider-card.active");
+  const prov = activeCard ? activeCard.getAttribute("data-prov") : "auto";
+  const model = document.getElementById("modal-model-input")?.value.trim() || "";
+  const key = document.getElementById("modal-key-input")?.value.trim() || "";
+  const endpoint = document.getElementById("modal-endpoint-input")?.value.trim() || "";
+
+  const statusBox = document.getElementById("modal-test-status");
+  if (!statusBox) return;
+
+  statusBox.className = "modal-status-box";
+  statusBox.innerText = "⏳ Проверка связи с провайдером...";
+  statusBox.classList.remove("hidden");
+
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.test_ai_connection) {
+    try {
+      const res = await window.pywebview.api.test_ai_connection(prov, key, model, endpoint);
+      if (res && res.success) {
+        statusBox.className = "modal-status-box success";
+        statusBox.innerText = `✔ ${res.message || "Связь установлена успешно!"}`;
+      } else {
+        statusBox.className = "modal-status-box error";
+        statusBox.innerText = `✖ ${res?.error || "Не удалось подключиться к провайдеру"}`;
+      }
+    } catch (err) {
+      statusBox.className = "modal-status-box error";
+      statusBox.innerText = `✖ Ошибка: ${err}`;
+    }
+  } else {
+    statusBox.className = "modal-status-box success";
+    statusBox.innerText = "✔ Ghost Built-in Engine активен (100% офлайн).";
+  }
+}
+
+async function saveModalSettings() {
+  const activeCard = document.querySelector(".provider-card.active");
+  const prov = activeCard ? activeCard.getAttribute("data-prov") : "auto";
+  const model = document.getElementById("modal-model-input")?.value.trim() || "auto";
+  const key = document.getElementById("modal-key-input")?.value.trim() || "";
+  const endpoint = document.getElementById("modal-endpoint-input")?.value.trim() || "http://localhost:1234/v1";
+
+  const apiKeys = {};
+  if (key && !key.includes("...")) {
+    apiKeys[prov] = key;
+  }
+
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.save_ai_config) {
+    try {
+      await window.pywebview.api.save_ai_config(prov, model, apiKeys, endpoint);
+      activeAiConfig.provider = prov;
+      activeAiConfig.model_name = model;
+      activeAiConfig.custom_endpoint = endpoint;
+      updateTopbarModelBadge(prov, model);
+      closeModelSettingsModal();
+      showSpeechBubble("✨ ИИ-провайдер сохранён и активирован!", 3000);
+    } catch (err) {
+      alert("Ошибка сохранения: " + err);
+    }
+  } else {
+    updateTopbarModelBadge(prov, model);
+    closeModelSettingsModal();
   }
 }
 

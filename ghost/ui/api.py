@@ -31,7 +31,7 @@ class GhostBridgeAPI:
     def set_window(self, window):
         self.window = window
 
-    def ask(self, prompt: str) -> Dict[str, Any]:
+    def ask(self, prompt: str, persona: str = "default", provider: Optional[str] = None, model: Optional[str] = None) -> Dict[str, Any]:
         """User asks a question from HUD or Pet: auto-routes to Agent, Web, RAG, or LLM."""
         # 1. Desktop OS task check
         from ghost.core.agent import GhostOSAgent
@@ -50,7 +50,7 @@ class GhostBridgeAPI:
 
         # 2. Live Web search check (weather, currency, search)
         p_lower = prompt.lower()
-        if any(w in p_lower for w in ["погода", "weather", "курс", "доллар", "евро", "валют", "найди в интернете"]):
+        if persona == "web" or any(w in p_lower for w in ["погода", "weather", "курс", "доллар", "евро", "валют", "найди в интернете"]):
             from ghost.core.web_search import WebSearchEngine
             web_res = WebSearchEngine.search_web(prompt)
             if web_res.get("content"):
@@ -88,7 +88,7 @@ class GhostBridgeAPI:
             combined_context = None
 
         # 4. Neural LLM / Smart Assistant
-        reply = self.engine.ask(prompt, context=combined_context)
+        reply = self.engine.ask(prompt, context=combined_context, persona=persona, provider=provider, model=model)
         CasperRPG.add_xp(10, "chat")
         VoiceEngine().speak(reply, async_mode=True)
         return {
@@ -550,3 +550,77 @@ class GhostBridgeAPI:
             return {"success": True}
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    def clear_all_studio_sessions(self) -> Dict[str, Any]:
+        """ChatGPT Studio: Delete all saved sessions."""
+        from ghost.config import GHOST_CACHE_DIR
+        sessions_file = GHOST_CACHE_DIR / "studio_sessions.json"
+        try:
+            if sessions_file.exists():
+                sessions_file.unlink()
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def get_ai_config(self) -> Dict[str, Any]:
+        """Returns current AI provider, model, masked keys, and catalog."""
+        from ghost.config import load_config
+        cfg = load_config()
+        catalog = self.engine.get_model_catalog()
+
+        # Mask keys for security
+        api_keys = cfg.get("api_keys", {})
+        masked_keys = {}
+        for prov, key in api_keys.items():
+            if key and len(key) > 8:
+                masked_keys[prov] = f"{key[:4]}...{key[-4:]}"
+            elif key:
+                masked_keys[prov] = "****"
+            else:
+                masked_keys[prov] = ""
+
+        return {
+            "provider": cfg.get("provider", "auto"),
+            "model_name": cfg.get("model_name", "auto"),
+            "active_backend": self.engine.backend,
+            "custom_endpoint": cfg.get("custom_endpoint", "http://localhost:1234/v1"),
+            "masked_keys": masked_keys,
+            "has_keys": {prov: bool(key) for prov, key in api_keys.items()},
+            "catalog": catalog,
+            "providers_list": [
+                {"id": "auto", "name": "✨ Auto / Local Hybrid", "desc": "Автоматический выбор наилучшего доступного движка"},
+                {"id": "mock", "name": "👻 Ghost Built-in (Offline)", "desc": "100% офлайн, нулевой расход памяти (<35 МБ RAM)"},
+                {"id": "ollama", "name": "🦙 Ollama Local", "desc": "Локальные нейросети (Qwen 2.5, Llama 3.2, DeepSeek-R1)"},
+                {"id": "openai", "name": "🧠 OpenAI (ChatGPT)", "desc": "GPT-4o, GPT-4o-mini, o1, o3-mini (по API-ключу)"},
+                {"id": "deepseek", "name": "⚡ DeepSeek AI", "desc": "DeepSeek-V3, DeepSeek-R1 Reasoning (по API-ключу)"},
+                {"id": "anthropic", "name": "🟣 Anthropic Claude", "desc": "Claude 3.5 Sonnet, Claude 3.5 Haiku (по API-ключу)"},
+                {"id": "custom", "name": "🖥️ Custom / LM Studio", "desc": "Локальный или удаленный OpenAI-совместимый эндпоинт"}
+            ]
+        }
+
+    def save_ai_config(self, provider: str, model: str, api_keys: Optional[Dict[str, str]] = None, custom_endpoint: Optional[str] = None) -> Dict[str, Any]:
+        """Saves updated AI provider and model preferences."""
+        from ghost.config import load_config, save_config
+        cfg = load_config()
+        cfg["provider"] = provider
+        cfg["engine"] = provider
+        cfg["model_name"] = model
+        if custom_endpoint is not None:
+            cfg["custom_endpoint"] = custom_endpoint
+
+        if api_keys and isinstance(api_keys, dict):
+            current_keys = cfg.get("api_keys", {})
+            for prov, val in api_keys.items():
+                if val and "..." in val and prov in current_keys:
+                    continue
+                if val is not None:
+                    current_keys[prov] = val.strip()
+            cfg["api_keys"] = current_keys
+
+        save_config(cfg)
+        self.engine.reload_config()
+        return {"success": True, "provider": provider, "model": model, "active_backend": self.engine.backend}
+
+    def test_ai_connection(self, provider: str, api_key: Optional[str] = None, model: Optional[str] = None, custom_endpoint: Optional[str] = None) -> Dict[str, Any]:
+        """Test live connectivity to selected AI provider."""
+        return self.engine.test_connection(provider=provider, api_key=api_key, model=model, custom_endpoint=custom_endpoint)

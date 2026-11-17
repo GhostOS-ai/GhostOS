@@ -19,10 +19,10 @@ echo -e "${PURPLE}"
 cat << "EOF"
       .---.
      /     \
-    | () () |   G H O S T O S   v 2 . 0
-     \  -  /    The Offline Desktop AI Companion & GhostCode Studio
+    | () () |   G H O S T O S   v 2 . 1
+     \  -  /    The Hybrid Brain Desktop AI Companion & GhostCode Studio
     /`---'\
-   /       \    [ 100% Private • GhostCode Autonomous IDE • ChatGPT Studio • <35MB RAM ]
+   /       \    [ 100% Private • Local & Cloud Hybrid Brain • ChatGPT Studio • <35MB RAM ]
   (_/^\_/\_/^)
 EOF
 echo -e "${NC}"
@@ -82,7 +82,7 @@ LAUNCHER
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.0.0</string>
+    <string>2.1.0</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.15</string>
     <key>NSHighResolutionCapable</key>

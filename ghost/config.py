@@ -15,8 +15,17 @@ GHOST_DB_PATH = GHOST_HOME / "ghost_knowledge.db"
 CONFIG_FILE = GHOST_HOME / "config.json"
 
 DEFAULT_CONFIG: Dict[str, Any] = {
-    "engine": "auto",           # "auto", "ollama", "llamacpp", "mock"
-    "model_name": "qwen2.5-3b-q4",
+    "engine": "auto",           # "auto", "ollama", "llamacpp", "mock", "openai", "anthropic", "deepseek", "custom"
+    "provider": "auto",         # Active provider: "auto", "ollama", "openai", "anthropic", "deepseek", "custom", "mock"
+    "model_name": "auto",
+    "api_keys": {
+        "openai": "",
+        "anthropic": "",
+        "deepseek": "",
+        "custom": ""
+    },
+    "custom_endpoint": "http://localhost:1234/v1",
+    "active_persona": "default", # "default", "ghostcode", "ghostwriter", "reasoner", "web"
     "vram_limit_mb": 4096,     # Target VRAM ceiling (4GB)
     "auto_sleep_seconds": 180, # Unload inactive models after 3 minutes
     "pet_mode": "floating",    # "floating", "stealth", "docked"
@@ -44,6 +53,11 @@ def load_config() -> Dict[str, Any]:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 merged = DEFAULT_CONFIG.copy()
+                # Deep merge api_keys dict
+                if "api_keys" in data and isinstance(data["api_keys"], dict):
+                    keys = merged["api_keys"].copy()
+                    keys.update(data["api_keys"])
+                    data["api_keys"] = keys
                 merged.update(data)
                 return merged
         except Exception:

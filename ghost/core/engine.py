@@ -17,15 +17,35 @@ from ghost.core.memory_juggler import MemoryJuggler
 
 logger = logging.getLogger("ghost.engine")
 
-GHOST_SYSTEM_PROMPT = """You are GhostOS (Casper), an ultra-lightweight, invisible desktop AI companion.
-You are running 100% locally and privately on the user's computer.
+GHOST_SYSTEM_PROMPT = """You are GhostOS (Casper), an ultra-lightweight desktop AI companion and coding assistant.
+You run natively on the user's Mac/computer.
 Your tone is helpful, concise, witty, and precise.
 When providing code, provide clear markdown blocks with language tags.
 If context from local files or screen is provided, use it faithfully."""
 
+PERSONA_PROMPTS = {
+    "default": GHOST_SYSTEM_PROMPT,
+    "ghostcode": """You are GhostCode, an elite senior software architect and full-stack software engineer.
+You produce clean, idiomatic, robust, and well-tested code.
+Focus on maintainability, edge cases, modern standards, and practical solutions.
+Always use proper language syntax highlighting in markdown code blocks.
+Explain the technical rationale concisely.""",
+    "ghostwriter": """You are Ghostwriter, a master wordsmith, editor, and communication specialist.
+You produce engaging, articulate, crystal-clear prose, compelling documentation, elegant emails, and precise translations.
+Adapt your style to the requested format and audience.
+Keep explanations crisp and actionable.""",
+    "reasoner": """You are Ghost Reasoner, a rigorous analytical AI focused on deep logical deduction and structured problem solving.
+Before providing your final conclusion, break down the problem into explicit logical premises, verify intermediate deductions, challenge assumptions, and consider potential edge cases.
+Format your thinking process clearly inside <think>...</think> tags, followed by your final well-structured answer.""",
+    "web": """You are Ghost Live, a desktop assistant equipped with real-time web awareness.
+Synthesize live facts, current data, exchange rates, and recent developments accurately.
+Always cite your sources and verify claims against provided context."""
+}
+
 class GhostEngine:
     """
-    Main AI engine dispatcher that chooses the fastest available local backend.
+    Main AI engine dispatcher that chooses the fastest available local or cloud backend.
+    Seamlessly integrates Ollama, OpenAI, Anthropic Claude, DeepSeek, and custom endpoints.
     """
 
     def __init__(self):
@@ -40,10 +60,15 @@ class GhostEngine:
             unload_cb=self._unload_llm
         )
 
+    def reload_config(self) -> None:
+        """Reload configuration from disk."""
+        self.config = load_config()
+        self.backend = self._detect_backend()
+
     def _detect_backend(self) -> str:
         """Auto-detect the best available backend on this machine."""
-        user_pref = self.config.get("engine", "auto")
-        if user_pref != "auto":
+        user_pref = self.config.get("provider") or self.config.get("engine", "auto")
+        if user_pref and user_pref != "auto":
             return user_pref
 
         # Check if Ollama is running locally
@@ -55,6 +80,15 @@ class GhostEngine:
                     return "ollama"
         except Exception:
             pass
+
+        # Check if cloud API keys are configured
+        api_keys = self.config.get("api_keys", {})
+        if api_keys.get("openai") or os.environ.get("OPENAI_API_KEY"):
+            return "openai"
+        if api_keys.get("deepseek") or os.environ.get("DEEPSEEK_API_KEY"):
+            return "deepseek"
+        if api_keys.get("anthropic") or os.environ.get("ANTHROPIC_API_KEY"):
+            return "anthropic"
 
         # Check if llama_cpp is installed and a GGUF model exists
         try:
@@ -77,10 +111,10 @@ class GhostEngine:
         """Lifecycle hook called by VRAM Juggler to purge LLM from memory."""
         logger.info(f"Engine [{self.backend}] unloaded from memory.")
 
-    def ask(self, prompt: str, context: Optional[str] = None, screen_context: Optional[str] = None) -> str:
+    def ask(self, prompt: str, context: Optional[str] = None, screen_context: Optional[str] = None, persona: str = "default", provider: Optional[str] = None, model: Optional[str] = None) -> str:
         """
         Generate response given a user prompt and optional document/screen context.
-        Optimized with Context Vacuum and Memory Chameleon profiles.
+        Optimized with Context Vacuum, Memory Chameleon, and AI Persona selection.
         """
         from ghost.core.vacuum import ContextVacuum
         from ghost.core.chameleon import MemoryChameleon
@@ -102,7 +136,7 @@ class GhostEngine:
         # 2. Live Web Search (weather, currency, Wikipedia facts, web queries)
         web_context = ""
         p_lower = prompt.lower()
-        if any(w in p_lower for w in ["погода", "weather", "курс", "доллар", "валют", "найди в интернете", "кто такой", "что такое", "/web"]):
+        if persona == "web" or any(w in p_lower for w in ["погода", "weather", "курс", "доллар", "валют", "найди в интернете", "кто такой", "что такое", "/web"]):
             search_query = re.sub(r'^(найди в интернете|погугли|/web)\s*', '', prompt).strip()
             web_res = WebSearchEngine.search_web(search_query)
             if web_res and web_res.get("content"):
@@ -125,19 +159,29 @@ class GhostEngine:
             full_context += f"\n--- Active Screen Context ---\n{screen_context}\n"
 
         augmented_prompt = f"{full_context}\nUser: {prompt}" if full_context else prompt
-        # Squeeze full prompt
         augmented_prompt, _ = ContextVacuum.squeeze(augmented_prompt, max_chars=max_chars)
 
         # Award RPG XP for using Casper
         CasperRPG.add_xp(10, "ask")
 
+        system_prompt = PERSONA_PROMPTS.get(persona, GHOST_SYSTEM_PROMPT)
+        effective_provider = provider or self.backend
+
         reply = ""
-        if self.backend == "ollama":
-            reply = self._query_ollama(augmented_prompt)
-        elif self.backend == "llamacpp":
-            reply = self._query_llamacpp(augmented_prompt)
+        if effective_provider == "openai":
+            reply = self._query_openai(augmented_prompt, model=model, system_prompt=system_prompt)
+        elif effective_provider == "anthropic":
+            reply = self._query_anthropic(augmented_prompt, model=model, system_prompt=system_prompt)
+        elif effective_provider == "deepseek":
+            reply = self._query_deepseek(augmented_prompt, model=model, system_prompt=system_prompt)
+        elif effective_provider == "custom":
+            reply = self._query_custom(augmented_prompt, model=model, system_prompt=system_prompt)
+        elif effective_provider == "ollama":
+            reply = self._query_ollama(augmented_prompt, model=model, system_prompt=system_prompt)
+        elif effective_provider == "llamacpp":
+            reply = self._query_llamacpp(augmented_prompt, system_prompt=system_prompt)
         else:
-            reply = self._query_mock(prompt, context=context or web_context, screen_context=screen_context)
+            reply = self._query_mock(prompt, context=context or web_context, screen_context=screen_context, persona=persona)
 
         # 3. Voice Output if enabled
         if voice.is_enabled:
@@ -206,29 +250,29 @@ class GhostEngine:
             ]
         }
 
-    def _query_ollama(self, prompt: str) -> str:
+    def _query_ollama(self, prompt: str, model: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
         """Query local Ollama REST API with intelligent auto-model fallback."""
         host = self.config.get("ollama_host", "http://localhost:11434")
-        configured_model = self.config.get("model_name")
+        configured_model = model or self.config.get("model_name")
 
         # Discover available models
         catalog = self.get_model_catalog()
         avail_names = [m["name"] for m in catalog.get("ollama_models", [])]
 
-        if configured_model and (configured_model in avail_names or f"{configured_model}:latest" in avail_names):
-            model = configured_model
+        if configured_model and configured_model != "auto" and (configured_model in avail_names or f"{configured_model}:latest" in avail_names):
+            active_model = configured_model
         elif avail_names:
             # Pick best available local model
             preferred = ["qwen2.5", "llama3.2", "mistral", "deepseek-r1", "phi3"]
             chosen = next((m for p in preferred for m in avail_names if p in m), avail_names[0])
-            model = chosen
+            active_model = chosen
         else:
-            model = configured_model or "qwen2.5:1.5b"
+            active_model = configured_model if (configured_model and configured_model != "auto") else "qwen2.5:1.5b"
 
         payload = {
-            "model": model,
+            "model": active_model,
             "prompt": prompt,
-            "system": GHOST_SYSTEM_PROMPT,
+            "system": system_prompt or GHOST_SYSTEM_PROMPT,
             "stream": False
         }
         try:
@@ -245,7 +289,149 @@ class GhostEngine:
             logger.warning(f"Ollama call failed ({e}), falling back to built-in response.")
             return self._query_mock(prompt)
 
-    def _query_llamacpp(self, prompt: str) -> str:
+    def _query_openai(self, prompt: str, model: Optional[str] = None, api_key: Optional[str] = None, endpoint: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
+        """Query OpenAI or compatible chat completions endpoint."""
+        key = api_key or self.config.get("api_keys", {}).get("openai") or os.environ.get("OPENAI_API_KEY")
+        endpoint_url = endpoint or self.config.get("openai_endpoint", "https://api.openai.com/v1")
+        clean_endpoint = endpoint_url.rstrip("/")
+        if not clean_endpoint.endswith("/v1") and not clean_endpoint.endswith("/chat/completions"):
+            url = f"{clean_endpoint}/v1/chat/completions" if "deepseek.com" not in clean_endpoint else f"{clean_endpoint}/chat/completions"
+        elif clean_endpoint.endswith("/v1"):
+            url = f"{clean_endpoint}/chat/completions"
+        else:
+            url = clean_endpoint
+
+        if not key and "localhost" not in url and "127.0.0.1" not in url:
+            return "🔑 **OpenAI API Key не настроен.**\nПожалуйста, укажите ваш API-ключ в настройках моделей (кликните по кнопке выбора модели в верхней панели)."
+
+        sys_p = system_prompt or GHOST_SYSTEM_PROMPT
+        chosen_model = model or self.config.get("model_name")
+        if not chosen_model or chosen_model == "auto":
+            chosen_model = "gpt-4o-mini"
+
+        payload = {
+            "model": chosen_model,
+            "messages": [
+                {"role": "system", "content": sys_p},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7
+        }
+        try:
+            data = json.dumps(payload).encode("utf-8")
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": "GhostOS/2.1"
+            }
+            if key:
+                headers["Authorization"] = f"Bearer {key}"
+            req = urllib.request.Request(url, data=data, headers=headers)
+            with urllib.request.urlopen(req, timeout=35) as resp:
+                res = json.loads(resp.read().decode("utf-8"))
+                choice = res.get("choices", [{}])[0]
+                msg = choice.get("message", {})
+                content = msg.get("content", "")
+                reasoning = msg.get("reasoning_content")
+                if reasoning and not content:
+                    content = f"<think>\n{reasoning}\n</think>"
+                elif reasoning and content:
+                    content = f"<think>\n{reasoning}\n</think>\n\n{content}"
+                return content.strip()
+        except urllib.error.HTTPError as e:
+            err_msg = e.read().decode("utf-8", errors="replace")
+            logger.error(f"OpenAI/Compatible API error ({e.code}): {err_msg}")
+            return f"⚠️ **Ошибка API ({e.code}):** {err_msg}"
+        except Exception as e:
+            logger.error(f"OpenAI API call failed: {e}")
+            return f"⚠️ **Ошибка подключения к API:** {str(e)}"
+
+    def _query_deepseek(self, prompt: str, model: Optional[str] = None, api_key: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
+        """Query DeepSeek API (deepseek-chat or deepseek-reasoner)."""
+        key = api_key or self.config.get("api_keys", {}).get("deepseek") or os.environ.get("DEEPSEEK_API_KEY")
+        if not key:
+            return "🔑 **DeepSeek API Key не настроен.**\nПожалуйста, укажите ваш ключ в настройках ИИ-провайдеров."
+        chosen_model = model or "deepseek-chat"
+        return self._query_openai(
+            prompt,
+            model=chosen_model,
+            api_key=key,
+            endpoint="https://api.deepseek.com",
+            system_prompt=system_prompt
+        )
+
+    def _query_anthropic(self, prompt: str, model: Optional[str] = None, api_key: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
+        """Query Anthropic Claude API."""
+        key = api_key or self.config.get("api_keys", {}).get("anthropic") or os.environ.get("ANTHROPIC_API_KEY")
+        if not key:
+            return "🔑 **Anthropic API Key не настроен.**\nПожалуйста, укажите ваш ключ в настройках ИИ-провайдеров."
+        chosen_model = model or "claude-3-5-sonnet-20241022"
+        url = "https://api.anthropic.com/v1/messages"
+        payload = {
+            "model": chosen_model,
+            "max_tokens": 4096,
+            "system": system_prompt or GHOST_SYSTEM_PROMPT,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ]
+        }
+        try:
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url,
+                data=data,
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": key,
+                    "anthropic-version": "2023-06-01",
+                    "User-Agent": "GhostOS/2.1"
+                }
+            )
+            with urllib.request.urlopen(req, timeout=35) as resp:
+                res = json.loads(resp.read().decode("utf-8"))
+                content_blocks = res.get("content", [])
+                text_parts = [b.get("text", "") for b in content_blocks if b.get("type") == "text"]
+                return "\n".join(text_parts).strip()
+        except urllib.error.HTTPError as e:
+            err_msg = e.read().decode("utf-8", errors="replace")
+            return f"⚠️ **Ошибка Anthropic Claude API ({e.code}):** {err_msg}"
+        except Exception as e:
+            return f"⚠️ **Ошибка подключения к Anthropic:** {str(e)}"
+
+    def _query_custom(self, prompt: str, model: Optional[str] = None, endpoint: Optional[str] = None, api_key: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
+        """Query custom OpenAI-compatible server (LM Studio, LocalAI, vLLM, Ollama-v1)."""
+        ep = endpoint or self.config.get("custom_endpoint", "http://localhost:1234/v1")
+        return self._query_openai(
+            prompt,
+            model=model or "local-model",
+            api_key=api_key or "sk-local",
+            endpoint=ep,
+            system_prompt=system_prompt
+        )
+
+    def test_connection(self, provider: str, api_key: Optional[str] = None, model: Optional[str] = None, custom_endpoint: Optional[str] = None) -> Dict[str, Any]:
+        """Tests live connectivity to an AI model provider."""
+        test_prompt = "Hello! Reply with 'GhostOS OK'."
+        try:
+            if provider == "openai":
+                reply = self._query_openai(test_prompt, model=model or "gpt-4o-mini", api_key=api_key)
+            elif provider == "anthropic":
+                reply = self._query_anthropic(test_prompt, model=model or "claude-3-5-haiku-20241022", api_key=api_key)
+            elif provider == "deepseek":
+                reply = self._query_deepseek(test_prompt, model=model or "deepseek-chat", api_key=api_key)
+            elif provider == "custom":
+                reply = self._query_custom(test_prompt, model=model or "default", endpoint=custom_endpoint, api_key=api_key)
+            elif provider == "ollama":
+                reply = self._query_ollama(test_prompt, model=model)
+            else:
+                return {"success": True, "message": "Ghost Built-in Engine активен и готов к работе (100% офлайн)."}
+
+            if "⚠️" in reply or "🔑" in reply:
+                return {"success": False, "error": reply}
+            return {"success": True, "message": f"Успешное подключение! ({reply[:50]})"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def _query_llamacpp(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         """Query local llama.cpp GGUF instance."""
         try:
             import llama_cpp
@@ -253,13 +439,14 @@ class GhostEngine:
             if not ggufs:
                 return self._query_mock(prompt)
             llm = llama_cpp.Llama(model_path=str(ggufs[0]), n_gpu_layers=-1, verbose=False)
-            output = llm(f"<|im_start|>system\n{GHOST_SYSTEM_PROMPT}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n", max_tokens=512)
+            sys_p = system_prompt or GHOST_SYSTEM_PROMPT
+            output = llm(f"<|im_start|>system\n{sys_p}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n", max_tokens=512)
             return output["choices"][0]["text"].strip()
         except Exception as e:
             logger.warning(f"llama_cpp execution failed: {e}")
             return self._query_mock(prompt)
 
-    def _query_mock(self, prompt: str, context: Optional[str] = None, screen_context: Optional[str] = None) -> str:
+    def _query_mock(self, prompt: str, context: Optional[str] = None, screen_context: Optional[str] = None, persona: str = "default") -> str:
         """
         Intelligent offline Ghost assistant. Responds instantly with useful advice,
         formatted code, and guides user on model customization.
@@ -389,6 +576,46 @@ class GhostEngine:
                 "print(process_items(['ghost', 'os', 'apple', 'ghost']))\n"
                 "```\n\n"
                 "⚡ *Скрипт оптимизирован под слабый процессор и минимальный расход памяти.*"
+            )
+
+        if persona == "reasoner":
+            return (
+                f"<think>\n"
+                f"1. Анализ проблемы: '{prompt}'\n"
+                f"2. Декомпозиция: выделены ключевые сущности, архитектурные ограничения и критерии оптимальности.\n"
+                f"3. Оценка граничных условий: ресурсоэффективность (память <35MB, локальный стек).\n"
+                f"4. Синтез вывода: формулирование строго структурированного решения.\n"
+                f"</think>\n\n"
+                f"🧠 **Глубокий аналитический разбор:**\n\n"
+                f"Для задачи *\"{prompt}\"* оптимальный подход заключается в следующем:\n\n"
+                f"• **Архитектурный каркас:** Разделение на независимые изолированные слои с чистым интерфейсом вызовов.\n"
+                f"• **Эффективность памяти:** Минимизация аллокаций и предотвращение утечек ресурсов.\n"
+                f"• **Рекомендация:** Применить поэтапную реализацию с проверкой через автоматические тесты."
+            )
+        elif persona == "ghostcode":
+            return (
+                f"💻 **GhostCode Решение:**\n\n"
+                f"Для реализации *\"{prompt}\"* предлагаю чистую реализацию с обработкой ошибок и типизацией:\n\n"
+                f"```python\n"
+                f"# GhostCode Production Implementation\n"
+                f"from typing import Any, Dict, List, Optional\n\n"
+                f"class TaskHandler:\n"
+                f"    \"\"\"Выполняет задачу '{prompt}' с защитой от сбоев.\"\"\"\n"
+                f"    def __init__(self, debug: bool = False):\n"
+                f"        self.debug = debug\n\n"
+                f"    def execute(self, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:\n"
+                f"        return {{'status': 'ok', 'result': 'Выполнено успешно', 'task': '{prompt}'}}\n"
+                f"```\n\n"
+                f"💡 *Код спроектирован для мгновенного запуска и готов к интеграции в проект.*"
+            )
+        elif persona == "ghostwriter":
+            return (
+                f"✍️ **Ghostwriter Материал:**\n\n"
+                f"### {prompt.title()}\n\n"
+                f"Четкая, структурированная формулировка по вашей теме:\n\n"
+                f"— **Ключевая идея:** простота, прямота и максимальная выразительность формулировок.\n"
+                f"— **Аргументация:** устранение информационного шума, фокус на измеримом результате и ценности для пользователя.\n"
+                f"— **Призыв к действию:** применение решения с контролем качества на каждом этапе."
             )
 
         # 8. Natural Russian fallback
