@@ -29,6 +29,7 @@
 </p>
 
 [![PyPI version](https://img.shields.io/pypi/v/ghostos-ai.svg?color=blue)](https://pypi.org/project/ghostos-ai/)
+[![GitHub Release](https://img.shields.io/github/v/release/GhostOS-ai/GhostOS?color=blue&label=release)](https://github.com/GhostOS-ai/GhostOS/releases/latest)
 [![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Upcoming%20Launch-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/ghostos?launch=ghostos)
 [![GitHub Stars](https://badgen.net/github/stars/GhostOS-ai/GhostOS?icon=github&color=yellow)](https://github.com/GhostOS-ai/GhostOS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -67,11 +68,13 @@ Running local AI today is frustrating and bloated:
 #### 🌟 NEW in v2.1: Hybrid Brain & Multi-Provider AI Hub
 * **Unified Model & Cloud Provider Switcher:** Seamlessly toggle between:
   * 👻 **Ghost Built-in Engine:** 100% offline, zero config, under 35MB RAM footprint.
-  * 🦙 **Local Ollama:** Auto-detection of `qwen2.5:1.5b`, `llama3.2:3b`, `deepseek-r1:1.5b`, `mistral`.
-  * 🖥️ **Custom / LM Studio:** Any local or remote OpenAI-compatible endpoint (`http://localhost:1234/v1`, vLLM, LocalAI).
+  * 🦙 **Local Ollama:** Auto-detection of `qwen2.5:1.5b`, `qwen2.5-coder:7b`, `llama3.2:3b`, `deepseek-r1:1.5b`, `mistral`.
+  * ✨ **Google Gemini:** Native REST integration with `gemini-2.5-flash`, `gemini-1.5-flash`, and `gemini-1.5-pro` (generous free tier, ultra-fast responses).
   * 🧠 **OpenAI Cloud:** Native integration with `gpt-4o`, `gpt-4o-mini`, `o1`, and `o3-mini` with encrypted local API key storage.
   * ⚡ **DeepSeek AI:** First-class support for `deepseek-chat` (V3) and `deepseek-reasoner` (R1 Reasoning).
   * 🟣 **Anthropic Claude:** Direct support for `claude-3-5-sonnet` and `claude-3-5-haiku`.
+  * 🖥️ **Custom / LM Studio:** Any local or remote OpenAI-compatible endpoint (`http://localhost:1234/v1`, vLLM, LocalAI).
+* **Instant Topbar `[ ⚙️ API ]` Settings Pill:** 1-click modal to configure providers, input API keys, select models, and test live connectivity with real-time health checks.
 * **ChatGPT-Style Dynamic Multi-Session History:**
   * Persistent conversations saved automatically to `~/.ghostos/studio_sessions.json` and local cache.
   * Sidebar lists real conversations with auto-generated titles, timestamps, active indicators, and 1-click delete/clear.

@@ -3,18 +3,18 @@
 ```
       .---.
      /     \
-    | () () |   G H O S T O S   v 2 . 0
-     \  -  /    无形、超轻量、纯离线桌面 AI 助手与 GhostCode 编程工作室
+    | () () |   G H O S T O S   v 2 . 1
+     \  -  /    混合大脑桌面级 AI 伴侣与 GhostCode 编程工作室
     /`---'\
-   /       \    [ 100% 隐私安全 • GhostCode 自主 IDE • ChatGPT 风格工作室 • <35MB RAM ]
+   /       \    [ 100% 隐私安全 • 本地与云端混合大脑 • ChatGPT 风格工作室 • <35MB RAM ]
   (_/^\_/\_/^)
 ```
 
-# 👻 GhostOS v2.0
-### 超轻量、纯离线桌面级 AI 助手与 GhostCode 自主编程工作室
+# 👻 GhostOS v2.1
+### 超轻量桌面级 AI 伴侣与自主编程工作室（Hybrid Brain 混合大脑）
 
 <p align="center">
-  <b>🌐 语言选择 / Language Select:</b><br>
+  <b>🌐 语言选择 / Language Select / Выбор языка / Тілді таңдау:</b><br>
   <a href="../README.md"><b>English</b></a> •
   <a href="README_RU.md"><b>Русский</b></a> •
   <a href="README_KK.md"><b>Қазақша</b></a> •
@@ -23,13 +23,18 @@
   <a href="README_DE.md"><b>Deutsch</b></a> •
   <a href="README_FR.md"><b>Français</b></a> •
   <a href="README_JA.md"><b>日本語</b></a> •
-  <a href="README_PT.md"><b>Português</b></a>
+  <a href="README_PT.md"><b>Português</b></a> •
+  <a href="README_AR.md"><b>العربية</b></a> •
+  <a href="README_HI.md"><b>हिन्दी</b></a>
 </p>
 
+[![PyPI 版本](https://img.shields.io/pypi/v/ghostos-ai.svg?color=blue)](https://pypi.org/project/ghostos-ai/)
+[![GitHub Release](https://img.shields.io/github/v/release/GhostOS-ai/GhostOS?color=blue&label=release)](https://github.com/GhostOS-ai/GhostOS/releases/latest)
+[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Upcoming%20Launch-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/ghostos?launch=ghostos)
+[![GitHub Stars](https://badgen.net/github/stars/GhostOS-ai/GhostOS?icon=github&color=yellow)](https://github.com/GhostOS-ai/GhostOS)
 [![许可证: MIT](https://img.shields.io/badge/许可证-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![作者: KIB.best](https://img.shields.io/badge/作者-KIB.best-8A2BE2.svg)](https://github.com/GhostOS-ai/GhostOS)
 [![Email](https://img.shields.io/badge/联系-GhostOS%40kib.best-0071e3.svg)](mailto:GhostOS@kib.best)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![平台支持](https://img.shields.io/badge/平台-macOS%20%7C%20Windows%20%7C%20Linux-brightgreen.svg)]()
 [![静默内存](https://img.shields.io/badge/待机内存-%3C35%20MB-success.svg)]()
 [![峰值显存](https://img.shields.io/badge/峰值显存-%E2%89%A43.5%20GB-blueviolet.svg)]()
@@ -59,6 +64,28 @@
 ---
 
 ### ✨ 独家核心特性
+
+#### 🌟 v2.1 重大更新：混合大脑（Hybrid Brain）与 AI 模型中枢
+* **全能模型与服务商一键切换：**
+  * 👻 **Ghost 内置轻量引擎：** 100% 离线，零配置，内存开销 <35MB。
+  * 🦙 **本地 Ollama 自动发现：** 自动识别本地已拉取的 `qwen2.5:1.5b`, `qwen2.5-coder:7b`, `llama3.2:3b`, `deepseek-r1:1.5b`, `mistral`。
+  * ✨ **Google Gemini：** 原生极速 REST 直连 `gemini-2.5-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`（Google AI Studio 免费额度充足，超快响应）。
+  * 🧠 **OpenAI 云端：** 原生支持 `gpt-4o`, `gpt-4o-mini`, `o1`, `o3-mini`，本地加密存储 API Key。
+  * ⚡ **DeepSeek AI：** 原生支持 `deepseek-chat` (V3) 与 `deepseek-reasoner` (R1 深度推理)。
+  * 🟣 **Anthropic Claude：** 直连 `claude-3-5-sonnet` 与 `claude-3-5-haiku`。
+  * 🖥️ **自定义 / LM Studio：** 支持任何本地或远程 OpenAI 兼容端点（`http://localhost:1234/v1`, vLLM, LocalAI）。
+* **顶部直达快捷键 `[ ⚙️ API ]`：** 1 键呼出配置弹窗，设置 API 密钥、选择模型、实时健康检查连通性。
+* **ChatGPT 风格的多会话历史管理：**
+  * 历史会话自动持久化存储于 `~/.ghostos/studio_sessions.json`。
+  * 侧边栏展示真实对话历史、自动命名标题、时间戳、上下文无损切换及 1 键清除。
+* **专业 AI 角色预设（一键切换）：**
+  * 👻 **卡斯珀 (Casper)：** 幽默、精炼、私密的桌面贴心伴侣。
+  * 💻 **GhostCode：** 专注系统架构、整洁代码与测试的资深软件工程师。
+  * ✍️ **Ghostwriter：** 文档撰写、商务公函与内容润色大师。
+  * 🧠 **Deep Think：** 具备逻辑推理链的深度思考分析模式。
+  * 🌐 **Web Live：** 具备联网能力的实时信息助手（天气、汇率、网络速查）。
+* **折叠式深度推理卡片 (CoT)：**
+  * 原生渲染 `<think>...</think>` 推理思考过程（DeepSeek-R1、OpenAI o-系列），呈现优雅微光毛玻璃折叠效果。
 
 #### 0. ⚡ GhostCode: 自主代码智能体与 ChatGPT 风格 IDE (v2.0)
 * **自主软件工程执行循环：** Claude Code 与 Cursor 的纯本地离线替代方案。GhostCode 能自主制定分步计划、扫描代码仓库、读取并精确编辑文件生成 **Unified Diff** 差异对比、执行自动化单元测试与安全终端命令，并跟踪 Git 历史。

@@ -3,18 +3,18 @@
 ```
       .---.
      /     \
-    | () () |   G H O S T O S   v 2 . 0
-     \  -  /    Le copilote d'IA local et studio de développement autonome GhostCode
+    | () () |   G H O S T O S   v 2 . 1
+     \  -  /    Copilote IA Cerveau Hybride et Studio GhostCode
     /`---'\
-   /       \    [ 100% Privé • GhostCode Autonomous IDE • Studio style ChatGPT • <35Mo RAM ]
+   /       \    [ 100% Privé • Cerveau Hybride Local & Cloud • Studio style ChatGPT • <35Mo RAM ]
   (_/^\_/\_/^)
 ```
 
-# 👻 GhostOS v2.0
-### L'assistant IA ultraléger et studio autonome de développement GhostCode Studio
+# 👻 GhostOS v2.1
+### Compagnon IA de bureau ultraléger et studio autonome (Hybrid Brain)
 
 <p align="center">
-  <b>🌐 Sélection de langue / Language Select:</b><br>
+  <b>🌐 Sélection de langue / Language Select / Выбор языка / Тілді таңдау:</b><br>
   <a href="../README.md"><b>English</b></a> •
   <a href="README_RU.md"><b>Русский</b></a> •
   <a href="README_KK.md"><b>Қазақша</b></a> •
@@ -23,13 +23,18 @@
   <a href="README_DE.md"><b>Deutsch</b></a> •
   <a href="README_FR.md"><b>Français</b></a> •
   <a href="README_JA.md"><b>日本語</b></a> •
-  <a href="README_PT.md"><b>Português</b></a>
+  <a href="README_PT.md"><b>Português</b></a> •
+  <a href="README_AR.md"><b>العربية</b></a> •
+  <a href="README_HI.md"><b>हिन्दी</b></a>
 </p>
 
+[![Version PyPI](https://img.shields.io/pypi/v/ghostos-ai.svg?color=blue)](https://pypi.org/project/ghostos-ai/)
+[![Release GitHub](https://img.shields.io/github/v/release/GhostOS-ai/GhostOS?color=blue&label=release)](https://github.com/GhostOS-ai/GhostOS/releases/latest)
+[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Upcoming%20Launch-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/ghostos?launch=ghostos)
+[![Étoiles GitHub](https://badgen.net/github/stars/GhostOS-ai/GhostOS?icon=github&color=yellow)](https://github.com/GhostOS-ai/GhostOS)
 [![Licence: MIT](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Auteur: KIB.best](https://img.shields.io/badge/Auteur-KIB.best-8A2BE2.svg)](https://github.com/GhostOS-ai/GhostOS)
 [![Email](https://img.shields.io/badge/Contact-GhostOS%40kib.best-0071e3.svg)](mailto:GhostOS@kib.best)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Plateforme](https://img.shields.io/badge/plateforme-macOS%20%7C%20Windows%20%7C%20Linux-brightgreen.svg)]()
 [![RAM au repos](https://img.shields.io/badge/RAM%20au%20repos-%3C35%20Mo-success.svg)]()
 [![Pic VRAM](https://img.shields.io/badge/Pic%20VRAM-%E2%89%A43.5%20Go-blueviolet.svg)]()
@@ -59,6 +64,28 @@ Exécuter une IA locale aujourd'hui se heurte à 3 problèmes majeurs :
 ---
 
 ### ✨ Fonctionnalités exclusives
+
+#### 🌟 NOUVEAU dans la v2.1 : Cerveau Hybride (Hybrid Brain) & Hub Multi-Fournisseurs
+* **Sélecteur unifié de modèles et fournisseurs Cloud :** Basculez en un clic entre :
+  * 👻 **Moteur Embarqué Ghost :** 100% hors ligne, zéro configuration, empreinte RAM <35 Mo.
+  * 🦙 **Ollama Local :** Détection automatique de `qwen2.5:1.5b`, `qwen2.5-coder:7b`, `llama3.2:3b`, `deepseek-r1:1.5b`, `mistral`.
+  * ✨ **Google Gemini :** Intégration REST native pour `gemini-2.5-flash`, `gemini-1.5-flash` et `gemini-1.5-pro` (quota gratuit généreux dans Google AI Studio, vitesse fulgurante).
+  * 🧠 **OpenAI Cloud :** Intégration directe de `gpt-4o`, `gpt-4o-mini`, `o1` et `o3-mini` avec stockage chiffré des clés API.
+  * ⚡ **DeepSeek AI :** Prise en charge native de `deepseek-chat` (V3) et `deepseek-reasoner` (R1 avec traces de réflexion).
+  * 🟣 **Anthropic Claude :** Connexion directe à `claude-3-5-sonnet` et `claude-3-5-haiku`.
+  * 🖥️ **Personnalisé / LM Studio :** Tout point de terminaison compatible OpenAI (`http://localhost:1234/v1`, vLLM, LocalAI).
+* **Bouton d'accès rapide `[ ⚙️ API ]` dans la barre de titre :** Fenêtre modale en 1 clic pour configurer vos clés API, choisir vos modèles et tester la connectivité en direct.
+* **Historique de chat multi-sessions inspiré de ChatGPT :**
+  * Sauvegarde automatique des discussions dans `~/.ghostos/studio_sessions.json`.
+  * Barre latérale avec vraies conversations, titres générés automatiquement, horodatage et suppression en 1 clic.
+* **Personas d'IA spécialisés (changement en 1 clic) :**
+  * 👻 **Casper :** Compagnon de bureau spirituel, concis et discret.
+  * 💻 **GhostCode :** Ingénieur logiciel senior pour l'architecture, le code propre et les tests.
+  * ✍️ **Ghostwriter :** Expert en rédaction technique, documentation et correspondance professionnelle.
+  * 🧠 **Deep Think :** Mode analytique avec raisonnement logique étape par étape.
+  * 🌐 **Web Live :** Assistant connecté pour la météo, les taux de change et les recherches en direct.
+* **Cartes de raisonnement profond repliables (CoT) :**
+  * Rendu natif des jetons `<think>...</think>` (DeepSeek-R1, OpenAI reasoning) sous forme de cartes dépolies et animées.
 
 #### 0. ⚡ GhostCode : Agent autonome de code et studio style ChatGPT (v2.0)
 * **Boucle autonome d'ingénierie logicielle :** La véritable alternative privée et hors ligne à Claude Code et Cursor. GhostCode élabore des plans étape par étape, inspecte les dépôts, lit et modifie les fichiers avec précision grâce aux **Unified Diffs**, exécute des tests unitaires et des commandes de terminal sécurisées, et surveille l'historique Git.
