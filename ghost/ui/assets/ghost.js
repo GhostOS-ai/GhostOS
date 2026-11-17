@@ -777,7 +777,6 @@ function formatMarkdown(text) {
 
   return html;
 }
-}
 
 function copyCodeBlock(btn) {
   const wrapper = btn.closest(".code-block-wrapper");
