@@ -85,6 +85,8 @@ class GhostEngine:
         api_keys = self.config.get("api_keys", {})
         if api_keys.get("openai") or os.environ.get("OPENAI_API_KEY"):
             return "openai"
+        if api_keys.get("gemini") or os.environ.get("GEMINI_API_KEY"):
+            return "gemini"
         if api_keys.get("deepseek") or os.environ.get("DEEPSEEK_API_KEY"):
             return "deepseek"
         if api_keys.get("anthropic") or os.environ.get("ANTHROPIC_API_KEY"):
@@ -170,6 +172,8 @@ class GhostEngine:
         reply = ""
         if effective_provider == "openai":
             reply = self._query_openai(augmented_prompt, model=model, system_prompt=system_prompt)
+        elif effective_provider == "gemini":
+            reply = self._query_gemini(augmented_prompt, model=model, system_prompt=system_prompt)
         elif effective_provider == "anthropic":
             reply = self._query_anthropic(augmented_prompt, model=model, system_prompt=system_prompt)
         elif effective_provider == "deepseek":
@@ -359,6 +363,64 @@ class GhostEngine:
             system_prompt=system_prompt
         )
 
+    def _query_gemini(self, prompt: str, model: Optional[str] = None, api_key: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
+        """Query Google Gemini API via official REST endpoint."""
+        key = api_key or self.config.get("api_keys", {}).get("gemini") or os.environ.get("GEMINI_API_KEY")
+        if not key:
+            return "🔑 **Google Gemini API Key не настроен.**\nПожалуйста, укажите ваш ключ (Google AI Studio) в настройках моделей (кнопка ⚙️ API вверху)."
+
+        chosen_model = model or "gemini-2.5-flash"
+        if not chosen_model or chosen_model == "auto":
+            chosen_model = "gemini-2.5-flash"
+
+        if chosen_model.startswith("models/"):
+            chosen_model = chosen_model.replace("models/", "")
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{chosen_model}:generateContent?key={key}"
+
+        payload: Dict[str, Any] = {
+            "contents": [
+                {
+                    "parts": [{"text": prompt}]
+                }
+            ]
+        }
+        sys_p = system_prompt or GHOST_SYSTEM_PROMPT
+        if sys_p:
+            payload["systemInstruction"] = {
+                "parts": [{"text": sys_p}]
+            }
+
+        try:
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url,
+                data=data,
+                headers={
+                    "Content-Type": "application/json",
+                    "User-Agent": "GhostOS/2.1"
+                }
+            )
+            with urllib.request.urlopen(req, timeout=35) as resp:
+                res = json.loads(resp.read().decode("utf-8"))
+                candidates = res.get("candidates", [])
+                if candidates:
+                    content = candidates[0].get("content", {})
+                    parts = content.get("parts", [])
+                    if parts:
+                        return parts[0].get("text", "").strip()
+                return "⚠️ Не удалось получить ответ от Google Gemini API."
+        except urllib.error.HTTPError as e:
+            try:
+                err_body = e.read().decode("utf-8", errors="replace")
+                err_json = json.loads(err_body)
+                err_msg = err_json.get("error", {}).get("message", str(e))
+                return f"⚠️ **Ошибка Google Gemini API ({e.code}):** {err_msg}"
+            except Exception:
+                return f"⚠️ **Ошибка Google Gemini API ({e.code}):** {e.reason}"
+        except Exception as e:
+            return f"⚠️ **Ошибка подключения к Google Gemini:** {str(e)}"
+
     def _query_anthropic(self, prompt: str, model: Optional[str] = None, api_key: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
         """Query Anthropic Claude API."""
         key = api_key or self.config.get("api_keys", {}).get("anthropic") or os.environ.get("ANTHROPIC_API_KEY")
@@ -414,6 +476,8 @@ class GhostEngine:
         try:
             if provider == "openai":
                 reply = self._query_openai(test_prompt, model=model or "gpt-4o-mini", api_key=api_key)
+            elif provider == "gemini":
+                reply = self._query_gemini(test_prompt, model=model or "gemini-2.5-flash", api_key=api_key)
             elif provider == "anthropic":
                 reply = self._query_anthropic(test_prompt, model=model or "claude-3-5-haiku-20241022", api_key=api_key)
             elif provider == "deepseek":

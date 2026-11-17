@@ -1977,13 +1977,54 @@ a,
   align-items: center;
   gap: 8px;
   padding: 5px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   font-size: 12.5px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
-  cursor: default;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.topbar-model-selector:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.api-settings-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(139, 92, 246, 0.18);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.api-settings-pill:hover {
+  background: rgba(139, 92, 246, 0.35);
+  border-color: rgba(139, 92, 246, 0.7);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+}
+
+.sidebar-pill-badge.model-btn {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sidebar-pill-badge.model-btn:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.35);
 }
 
 .model-status-dot {

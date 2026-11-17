@@ -1609,7 +1609,7 @@ function selectModalProvider(prov, resetModelIfEmpty = true) {
   const modelInput = document.getElementById("modal-model-input");
   const keyInput = document.getElementById("modal-key-input");
 
-  const needsKey = ["openai", "deepseek", "anthropic", "custom"].includes(prov);
+  const needsKey = ["openai", "gemini", "deepseek", "anthropic", "custom"].includes(prov);
   const needsEndpoint = ["custom", "openai"].includes(prov);
 
   if (keyGroup) keyGroup.style.display = needsKey ? "flex" : "none";
@@ -1618,12 +1618,13 @@ function selectModalProvider(prov, resetModelIfEmpty = true) {
   if (keyInput) {
     const masked = (activeAiConfig.masked_keys && activeAiConfig.masked_keys[prov]) || "";
     keyInput.value = masked;
-    keyInput.placeholder = needsKey ? "sk-..." : "Не требуется";
+    keyInput.placeholder = prov === "gemini" ? "AIzaSy..." : (needsKey ? "sk-..." : "Не требуется");
   }
 
   if (resetModelIfEmpty && modelInput) {
     const defaults = {
       openai: "gpt-4o-mini",
+      gemini: "gemini-2.5-flash",
       deepseek: "deepseek-chat",
       anthropic: "claude-3-5-sonnet-20241022",
       ollama: "qwen2.5:1.5b",

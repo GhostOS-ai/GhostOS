@@ -15,11 +15,12 @@ GHOST_DB_PATH = GHOST_HOME / "ghost_knowledge.db"
 CONFIG_FILE = GHOST_HOME / "config.json"
 
 DEFAULT_CONFIG: Dict[str, Any] = {
-    "engine": "auto",           # "auto", "ollama", "llamacpp", "mock", "openai", "anthropic", "deepseek", "custom"
-    "provider": "auto",         # Active provider: "auto", "ollama", "openai", "anthropic", "deepseek", "custom", "mock"
+    "engine": "auto",           # "auto", "ollama", "llamacpp", "mock", "openai", "gemini", "anthropic", "deepseek", "custom"
+    "provider": "auto",         # Active provider: "auto", "ollama", "openai", "gemini", "anthropic", "deepseek", "custom", "mock"
     "model_name": "auto",
     "api_keys": {
         "openai": "",
+        "gemini": "",
         "anthropic": "",
         "deepseek": "",
         "custom": ""

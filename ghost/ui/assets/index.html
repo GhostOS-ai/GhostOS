@@ -172,7 +172,7 @@
             <span class="ws-icon">📂</span>
             <span id="sidebar-ws-name" class="ws-name">Мой проект</span>
           </div>
-          <div class="sidebar-pill-badge model-btn">
+          <div class="sidebar-pill-badge model-btn" onclick="openModelSettingsModal()" title="Настройки ИИ, выбор модели и API-ключей">
             <span class="accent-dot"></span>
             <span id="sidebar-model-label">Ghost Local AI • 100% Offline</span>
           </div>
@@ -198,6 +198,10 @@
           <div class="topbar-drag-spacer pywebview-drag-region" title="Перетащите окно за шапку"></div>
 
           <div class="topbar-right no-drag">
+            <!-- Explicit API Settings Button -->
+            <button class="api-settings-pill no-drag" onclick="openModelSettingsModal()" title="Настройки API-ключей (ChatGPT, Gemini, Claude, DeepSeek)">
+              ⚙️ API
+            </button>
             <!-- Theme / Skin Selector -->
             <select id="skin-select" class="header-select" onchange="switchSkin(this.value)" title="Оформление">
               <option value="glass">💎 Glass</option>
@@ -603,6 +607,13 @@
               <span class="prov-badge">GPT-4o</span>
             </div>
           </div>
+          <div class="provider-card" data-prov="gemini" onclick="selectModalProvider('gemini')">
+            <span class="prov-icon">✨</span>
+            <div class="prov-info">
+              <span class="prov-name">Gemini</span>
+              <span class="prov-badge">Google</span>
+            </div>
+          </div>
           <div class="provider-card" data-prov="deepseek" onclick="selectModalProvider('deepseek')">
             <span class="prov-icon">⚡</span>
             <div class="prov-info">
@@ -637,6 +648,11 @@
                 <option value="gpt-4o-mini">gpt-4o-mini (Быстрый &amp; Экономный)</option>
                 <option value="gpt-4o">gpt-4o (Флагманский)</option>
                 <option value="o3-mini">o3-mini (Reasoning)</option>
+              </optgroup>
+              <optgroup label="Google Gemini">
+                <option value="gemini-2.5-flash">gemini-2.5-flash (Рекомендуемый &amp; Сверхбыстрый)</option>
+                <option value="gemini-1.5-flash">gemini-1.5-flash (Экономный)</option>
+                <option value="gemini-1.5-pro">gemini-1.5-pro (Код и глубокий анализ)</option>
               </optgroup>
               <optgroup label="DeepSeek">
                 <option value="deepseek-chat">deepseek-chat (V3)</option>

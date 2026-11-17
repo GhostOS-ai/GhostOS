@@ -591,6 +591,7 @@ class GhostBridgeAPI:
                 {"id": "auto", "name": "✨ Auto / Local Hybrid", "desc": "Автоматический выбор наилучшего доступного движка"},
                 {"id": "mock", "name": "👻 Ghost Built-in (Offline)", "desc": "100% офлайн, нулевой расход памяти (<35 МБ RAM)"},
                 {"id": "ollama", "name": "🦙 Ollama Local", "desc": "Локальные нейросети (Qwen 2.5, Llama 3.2, DeepSeek-R1)"},
+                {"id": "gemini", "name": "✨ Google Gemini", "desc": "Gemini 2.5 Flash, 1.5 Pro, Flash (быстрый и бесплатный в AI Studio)"},
                 {"id": "openai", "name": "🧠 OpenAI (ChatGPT)", "desc": "GPT-4o, GPT-4o-mini, o1, o3-mini (по API-ключу)"},
                 {"id": "deepseek", "name": "⚡ DeepSeek AI", "desc": "DeepSeek-V3, DeepSeek-R1 Reasoning (по API-ключу)"},
                 {"id": "anthropic", "name": "🟣 Anthropic Claude", "desc": "Claude 3.5 Sonnet, Claude 3.5 Haiku (по API-ключу)"},
