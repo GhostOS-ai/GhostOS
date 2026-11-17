@@ -274,6 +274,39 @@ ghost status
 
 ---
 
+### 💻 Développement IA 100% Gratuit et Local avec Ollama (Sans clé API et Hors-Ligne)
+
+GhostOS transforme votre Mac ou PC en environnement de développement autonome **100% hors-ligne, gratuit et avec une confidentialité absolue**. Aucun abonnement, aucune carte bancaire et aucune limite d'API.
+
+#### 1. Configuration rapide en 2 minutes :
+1. **Installer Ollama :**
+   - macOS : `brew install ollama` (ou téléchargez sur [ollama.com](https://ollama.com))
+   - Windows/Linux : téléchargez sur [ollama.com](https://ollama.com)
+2. **Télécharger un modèle de code :**
+   ```bash
+   # 🏆 Meilleur modèle compact de code au monde (recommandé pour 16GB RAM) :
+   ollama run qwen2.5-coder:7b
+
+   # 🍃 Modèle ultra-léger (pour configurations 4GB–8GB RAM, taille ~1.8GB) :
+   ollama run qwen2.5-coder:1.5b
+
+   # 🧠 Modèle de raisonnement logique avec réflexion <think> :
+   ollama run deepseek-r1:7b
+   ```
+3. **Lancer GhostOS :** Casper détecte automatiquement l'instance locale d'Ollama (`http://localhost:11434`) et génère du code ultra-rapide accéléré par les puces Apple Silicon Metal !
+
+#### 2. Exemples concrets dans GhostOS :
+
+| Tâche de développement | Exemple de requête à Casper / GhostCode | Ce que GhostOS produit |
+| :--- | :--- | :--- |
+| **Création complète de projet** | *« Crée un projet FastAPI avec authentification JWT et base SQLite »* | Architecture complète, routes, schémas Pydantic et fichier de dépendances. |
+| **Correction de bugs et optimisation** | *« Trouve les fuites de mémoire et conditions de course dans ce code »* | Identifie la cause et fournit un code typé, optimisé et propre. |
+| **Génération d'interface Web** | *« Conçois un tableau de bord moderne responsive en HTML, Tailwind et JS »* | Fournit des composants prêts pour la production au design soigné. |
+| **Génération de tests unitaires** | *« Rédige des cas de test complets avec pytest pour ce module »* | Suite complète de tests avec mocks, fixtures et assertions. |
+| **Automatisation en terminal sécurisé** | *« Trouve tous les logs de plus de 7 jours et compresse-les en zip »* | Valide la commande via Sandbox Lens et l'exécute en toute sécurité. |
+
+---
+
 ### 🏗️ Architecture
 
 ```mermaid

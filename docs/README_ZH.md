@@ -274,6 +274,39 @@ ghost status
 
 ---
 
+### 💻 借助 Ollama 实现 100% 免费本地 AI 编程（无需 API Key，完全脱网）
+
+GhostOS 能将您的 Mac 或电脑变为功能完备的自主 AI 软件工程师。**完全离线、永久免费、绝对隐私**，无需订阅、无需信用卡，更无 API 额度限制。
+
+#### 1. 2 分钟极速配置：
+1. **安装 Ollama：**
+   - macOS：`brew install ollama`（或在 [ollama.com](https://ollama.com) 下载）
+   - Windows/Linux：在 [ollama.com](https://ollama.com) 官网下载
+2. **下载最强代码大模型：**
+   ```bash
+   # 🏆 全球最强紧凑级编程大模型（推荐 16GB 内存设备）：
+   ollama run qwen2.5-coder:7b
+
+   # 🍃 极简超轻量编程模型（推荐 4GB–8GB 内存设备，仅占用 ~1.8GB 空间）：
+   ollama run qwen2.5-coder:1.5b
+
+   # 🧠 具备 <think> 深度反思链的推理模型：
+   ollama run deepseek-r1:7b
+   ```
+3. **打开 GhostOS：** 卡斯珀会自动检测本地运行的 Ollama（`http://localhost:11434`），并自动通过 Apple Silicon Metal GPU 进行极速硬件加速！
+
+#### 2. 经典实战编程场景：
+
+| 任务类型 | 询问卡斯珀 / GhostCode 示例 | GhostOS 的执行能力 |
+| :--- | :--- | :--- |
+| **全栈项目骨架搭建** | *“使用 FastAPI + JWT 认证 + SQLite 创建一个完整的后端服务”* | 生成完整项目目录结构、Pydantic 数据模式与接口代码。 |
+| **缺陷排查与代码优化** | *“分析这段代码中的竞态条件（Race condition）与内存泄漏”* | 精确指出根本原因，输出具备类型注解的高性能优化代码。 |
+| **前端现代化页面生成** | *“用 HTML、Tailwind CSS 和原生 JS 编写现代化响应式仪表盘”* | 一键生成生产级可用页面及交互脚本。 |
+| **单元测试全覆盖** | *“为该模块编写全面的 pytest 单元测试用例，覆盖所有边界情况”* | 自动构建夹具（fixtures）、模拟数据（mocks）与测试断言。 |
+| **安全终端自动化任务** | *“查找 7 天前未压缩的所有日志文件并打包成 zip 归档”* | 经由 Sandbox Lens 沙盒核验安全后，在终端高效执行。 |
+
+---
+
 ### 🏗️ 系统架构
 
 ```mermaid

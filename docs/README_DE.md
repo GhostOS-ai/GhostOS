@@ -274,6 +274,39 @@ ghost status
 
 ---
 
+### 💻 100% Kostenlose & Lokale KI-Programmierung mit Ollama (Ohne API-Keys & Offline)
+
+GhostOS verwandelt Ihren Mac oder PC in einen autonomen KI-Entwickler **vollständig offline, kostenlos und mit 100% Privatsphäre**. Keine Abonnements, keine Kreditkarten und keine API-Limits.
+
+#### 1. Schnelle Einrichtung in 2 Minuten:
+1. **Ollama installieren:**
+   - macOS: `brew install ollama` (oder von [ollama.com](https://ollama.com) herunterladen)
+   - Windows/Linux: von [ollama.com](https://ollama.com) herunterladen
+2. **Coding-Modell herunterladen:**
+   ```bash
+   # 🏆 Weltbestes kompaktes Coding-Modell (empfohlen für 16GB RAM Macs):
+   ollama run qwen2.5-coder:7b
+
+   # 🍃 Ultraleichtes Coding-Modell (für 4GB–8GB RAM Systeme, nur ~1.8GB groß):
+   ollama run qwen2.5-coder:1.5b
+
+   # 🧠 Reasoning-Modell mit <think> Gedankengang:
+   ollama run deepseek-r1:7b
+   ```
+3. **GhostOS starten:** Casper erkennt die lokal laufende Ollama-Instanz (`http://localhost:11434`) automatisch und startet die lokale Codegenerierung mit Apple Silicon Metal-Beschleunigung!
+
+#### 2. Praktische Beispiele in GhostOS:
+
+| Entwicklungsaufgabe | Anfrage an Casper / GhostCode | Was GhostOS liefert |
+| :--- | :--- | :--- |
+| **Komplettes Projekt-Scaffolding** | *„Erstelle ein FastAPI-Projekt mit JWT-Auth und SQLite“* | Vollständige Struktur mit Modellen, Routen, Pydantic-Schemas und Requirements. |
+| **Fehlerbehebung & Optimierung** | *„Finde Race Conditions und Speicherlecks in diesem Code“* | Erkennt Ursachen und liefert sauberen, typisierten und optimierten Code. |
+| **Frontend-Entwicklung** | *„Baue ein modernes Dashboard in HTML, Tailwind CSS und Vanilla JS“* | Erstellt produktionsfertige Webkomponenten mit modernem Styling. |
+| **Unit-Test-Generierung** | *„Schreibe umfassende pytest-Fälle für dieses Modul“* | Liefert vollständige Testabdeckung mit Mocks, Fixtures und Assertions. |
+| **Sichere Terminal-Automatisierung** | *„Finde alle Logs älter als 7 Tage und zippe sie“* | Prüft Sicherheit in Sandbox Lens und führt den Befehl aus. |
+
+---
+
 ### 🏗️ Architektur
 
 ```mermaid

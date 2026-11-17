@@ -274,6 +274,39 @@ ghost status
 
 ---
 
+### 💻 Programação local 100% gratuita com Ollama (Sem chaves API e Offline)
+
+O GhostOS transforma seu Mac ou PC em um ambiente de desenvolvimento autônomo com IA **100% offline, gratuito e com privacidade total**. Sem assinaturas, sem cartões e sem limites de API.
+
+#### 1. Configuração rápida em 2 minutos:
+1. **Instalar o Ollama:**
+   - macOS: `brew install ollama` (ou baixe em [ollama.com](https://ollama.com))
+   - Windows/Linux: baixe em [ollama.com](https://ollama.com)
+2. **Baixar um modelo de programação:**
+   ```bash
+   # 🏆 Melhor modelo compacto de código do mundo (recomendado para 16GB RAM):
+   ollama run qwen2.5-coder:7b
+
+   # 🍃 Modelo ultraleve (para máquinas com 4GB–8GB RAM, apenas ~1.8GB no disco):
+   ollama run qwen2.5-coder:1.5b
+
+   # 🧠 Modelo de raciocínio profundo com reflexão <think>:
+   ollama run deepseek-r1:7b
+   ```
+3. **Iniciar o GhostOS:** O Casper detecta automaticamente o Ollama em execução (`http://localhost:11434`) e gera código local com aceleração Metal no Apple Silicon!
+
+#### 2. Exemplos práticos no GhostOS:
+
+| Tarefa de desenvolvimento | O que pedir ao Casper / GhostCode | O que o GhostOS entrega |
+| :--- | :--- | :--- |
+| **Criação completa de projeto** | *«Crie uma API REST com FastAPI, autenticação JWT e SQLite»* | Estrutura completa com modelos, rotas, schemas Pydantic e dependências. |
+| **Correção de bugs e otimização** | *«Encontre vazamentos de memória e condições de corrida neste código»* | Explica a causa e entrega código limpo, tipado e de alto desempenho. |
+| **Geração de interface web** | *«Construa um painel responsivo moderno em HTML, Tailwind CSS e JS puro»* | Entrega componentes prontos para produção com visual moderno. |
+| **Geração de testes unitários** | *«Escreva casos de teste completos com pytest para este módulo»* | Suite de testes abrangente com fixtures, mocks e asserções. |
+| **Automação segura no terminal** | *«Encontre todos os logs com mais de 7 dias e compacte-os em zip»* | Valida a segurança no Sandbox Lens e executa a tarefa com segurança. |
+
+---
+
 ### 🏗️ Arquitetura
 
 ```mermaid

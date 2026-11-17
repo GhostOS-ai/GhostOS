@@ -274,6 +274,39 @@ ghost status
 
 ---
 
+### 💻 Programación local 100% gratuita con Ollama (Sin claves API y sin internet)
+
+GhostOS transforma tu Mac o PC en un entorno de desarrollo de IA autónomo **100% offline, gratuito y con total privacidad**. Sin suscripciones, sin tarjetas y sin límites de API.
+
+#### 1. Configuración rápida en 2 minutos:
+1. **Instalar Ollama:**
+   - macOS: `brew install ollama` (o descarga desde [ollama.com](https://ollama.com))
+   - Windows/Linux: descarga desde [ollama.com](https://ollama.com)
+2. **Descargar un modelo para programación:**
+   ```bash
+   # 🏆 Mejor modelo compacto de programación del mundo (recomendado para 16GB RAM):
+   ollama run qwen2.5-coder:7b
+
+   # 🍃 Modelo ultraligero (para equipos de 4GB–8GB RAM, ocupa solo ~1.8GB):
+   ollama run qwen2.5-coder:1.5b
+
+   # 🧠 Modelo de razonamiento profundo con etiquetas <think>:
+   ollama run deepseek-r1:7b
+   ```
+3. **Abrir GhostOS:** Casper detecta automáticamente Ollama ejecutándose (`http://localhost:11434`) y comienza a programar localmente con aceleración Metal en Apple Silicon.
+
+#### 2. Ejemplos prácticos en GhostOS:
+
+| Tarea de desarrollo | Qué pedir a Casper / GhostCode | Qué genera GhostOS |
+| :--- | :--- | :--- |
+| **Creación completa de proyecto** | *«Crea una API REST con FastAPI, autenticación JWT y SQLite»* | Estructura completa con modelos, rutas, esquemas Pydantic y dependencias. |
+| **Corrección de errores y optimización** | *«Encuentra fugas de memoria y condiciones de carrera en este código»* | Explica el origen y entrega código limpio, tipado y optimizado. |
+| **Generación de interfaz web** | *«Diseña un panel responsive moderno con HTML, Tailwind CSS y JS puro»* | Entrega componentes listos para producción con diseño moderno. |
+| **Generación de pruebas unitarias** | *«Escribe casos de prueba exhaustivos con pytest para este módulo»* | Suite de pruebas completa con fixtures, mocks y aserciones. |
+| **Automatización segura en terminal** | *«Encuentra todos los logs de más de 7 días y comprímelos en un zip»* | Verifica la seguridad en Sandbox Lens y ejecuta la tarea. |
+
+---
+
 ### 🏗️ Arquitectura
 
 ```mermaid

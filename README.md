@@ -23,7 +23,9 @@
   <a href="docs/README_DE.md"><b>Deutsch</b></a> •
   <a href="docs/README_FR.md"><b>Français</b></a> •
   <a href="docs/README_JA.md"><b>日本語</b></a> •
-  <a href="docs/README_PT.md"><b>Português</b></a>
+  <a href="docs/README_PT.md"><b>Português</b></a> •
+  <a href="docs/README_AR.md"><b>العربية</b></a> •
+  <a href="docs/README_HI.md"><b>हिन्दी</b></a>
 </p>
 
 [![PyPI version](https://img.shields.io/pypi/v/ghostos-ai.svg?color=blue)](https://pypi.org/project/ghostos-ai/)
@@ -281,6 +283,39 @@ ghost exec "find all files larger than 100MB"
 # Check VRAM Juggler memory diagnostics
 ghost status
 ```
+
+---
+
+### 💻 100% Free & Local AI Coding with Ollama (Zero API Keys Needed)
+
+GhostOS transforms your Mac or PC into a fully autonomous, local AI development environment. You can generate, edit, refactor, and test production code **completely offline, free of charge, and with zero data leaving your machine**.
+
+#### 1. Instant Setup (Under 2 Minutes)
+1. **Install Ollama:**
+   - macOS: `brew install ollama` (or download from [ollama.com](https://ollama.com))
+   - Windows/Linux: download from [ollama.com](https://ollama.com)
+2. **Download an open-source coding model:**
+   ```bash
+   # 🏆 Best compact coding model in the world (Recommended for 16GB RAM Macs):
+   ollama run qwen2.5-coder:7b
+
+   # 🍃 Ultra-lightweight coding model (Recommended for 4GB–8GB RAM setups, ~1.8GB disk):
+   ollama run qwen2.5-coder:1.5b
+
+   # 🧠 Deep reasoning model with <think> reflection traces:
+   ollama run deepseek-r1:7b
+   ```
+3. **Launch GhostOS:** GhostOS automatically discovers your local Ollama instance (`http://localhost:11434`) and routes coding queries directly to the local model via Apple Silicon Metal GPU acceleration!
+
+#### 2. Practical Coding Examples in GhostOS
+
+| Development Task | What to Ask Casper / GhostCode | What GhostOS Delivers |
+| :--- | :--- | :--- |
+| **Full Project Scaffolding** | *"Create a Python FastAPI service with JWT auth and SQLite"* | Complete structure with models, endpoints, schemas, and requirements. |
+| **Bug Fixing & Optimization** | *"Analyze this function for race conditions and memory leaks"* | Pinpoints root cause and outputs clean, typed, optimized code. |
+| **Frontend UI Generation** | *"Build a responsive modern dashboard in HTML, Tailwind CSS, and vanilla JS"* | Generates ready-to-run web UI components with modern styling. |
+| **Unit Test Generation** | *"Write comprehensive pytest cases with edge case testing for this module"* | Full test coverage suite with mocks, fixtures, and assertions. |
+| **Safe Terminal Automation** | *"Find all uncompressed logs older than 7 days and zip them"* | Checks safety with Sandbox Lens and executes task in terminal. |
 
 ---
 
