@@ -28,9 +28,9 @@
   <a href="README_HI.md"><b>हिन्दी</b></a>
 </p>
 
-[![PyPI нұсқасы](https://img.shields.io/pypi/v/ghostos-ai.svg?color=blue)](https://pypi.org/project/ghostos-ai/)
+[![PyPI нұсқасы](https://img.shields.io/pypi/v/ghostos-ai?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/ghostos-ai/)
 [![GitHub Релизі](https://img.shields.io/github/v/release/GhostOS-ai/GhostOS?color=blue&label=релиз)](https://github.com/GhostOS-ai/GhostOS/releases/latest)
-[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Upcoming%20Launch-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/ghostos?launch=ghostos)
+[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Featured-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/ghostos)
 [![GitHub Жұлдыздары](https://badgen.net/github/stars/GhostOS-ai/GhostOS?icon=github&color=yellow)](https://github.com/GhostOS-ai/GhostOS)
 [![Лицензия: MIT](https://img.shields.io/badge/Лицензия-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Автор: KIB.best](https://img.shields.io/badge/Автор-KIB.best-8A2BE2.svg)](https://github.com/GhostOS-ai/GhostOS)
