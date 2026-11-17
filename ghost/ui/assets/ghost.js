@@ -623,7 +623,17 @@ async function handleSend() {
     let citations = [];
 
     if (window.pywebview && window.pywebview.api) {
-      const res = await window.pywebview.api.ask(query, activePersona, activeAiConfig.provider, activeAiConfig.model_name);
+      let res;
+      try {
+        res = await window.pywebview.api.ask(query, activePersona, activeAiConfig.provider, activeAiConfig.model_name);
+      } catch (callErr) {
+        if (callErr && (String(callErr).includes("arguments") || String(callErr).includes("TypeError"))) {
+          console.warn("Legacy GhostBridgeAPI detected, falling back to ask(query):", callErr);
+          res = await window.pywebview.api.ask(query);
+        } else {
+          throw callErr;
+        }
+      }
       reply = res.response;
       citations = res.citations || [];
       refreshRpg();

@@ -31,7 +31,7 @@ class GhostBridgeAPI:
     def set_window(self, window):
         self.window = window
 
-    def ask(self, prompt: str, persona: str = "default", provider: Optional[str] = None, model: Optional[str] = None) -> Dict[str, Any]:
+    def ask(self, prompt: str, persona: str = "default", provider: Optional[str] = None, model: Optional[str] = None, *args, **kwargs) -> Dict[str, Any]:
         """User asks a question from HUD or Pet: auto-routes to Agent, Web, RAG, or LLM."""
         # 1. Desktop OS task check
         from ghost.core.agent import GhostOSAgent
